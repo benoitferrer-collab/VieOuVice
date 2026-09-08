@@ -1,0 +1,42 @@
+# Excès-O-Meter
+
+Jeu **web** en français, accessible depuis un navigateur sur ordinateur et téléphone. Aucun App Store, Google Play, application native ou compte Google/Apple. Interface sombre, compteur de minutes fictives et cinq destinations : Survie, Ligue, Némésis, Amis et Profil.
+
+## Essayer tout de suite
+```sh
+npm install
+npm run dev
+```
+Ouvrir http://127.0.0.1:3000. Sans configuration Supabase, le jeu ouvre un **mode Démo explicitement identifié** : essais sauvegardés uniquement dans le navigateur, faux joueurs identifiés, réinitialisation depuis Profil. Aucune inscription requise.
+
+## Jeu connecté
+Copier `.env.example` vers `.env.local`, renseigner le projet SaaS Supabase et suivre [l’installation](docs/deployment.md) : SQL initial, seed, Auth email et jobs/publications. Redémarrer Next.js après modification des variables.
+
+Fonctions codées : inscription/connexion/reset email, onboarding pseudo/avatar, catalogue officiel et communautaire personnalisable, déclarations bornées/idempotentes, ledger append-only avec triggers, journal privé, plafonds, ligues/saisons et classement, Némésis consentants, invitations/blocages, dons atomiques, notifications d’amis/duels persistantes et Realtime, Web Push volontaire avec file serveur, préférences et export authentifié.
+
+Les paris, traquenards, roulette, trophées avancés, signalement et suppression self-service du compte restent à réaliser. L’interface les annonce comme non disponibles plutôt que de simuler une opération réelle. Les scripts SQL et tests SaaS n’ont pas été exécutés sans projet configuré : cette version n’est pas qualifiée prête à la production.
+
+## Mettre à jour une base déjà installée
+Exécuter une seule fois [`supabase/update-community-notifications.sql`](supabase/update-community-notifications.sql) dans SQL Editor. Ce fichier applique les migrations 002 et 003 dans une transaction. Ne pas réexécuter `install.sql` ni appliquer les mêmes migrations séparément. Le catalogue partagé et les réglages sociaux deviennent disponibles après actualisation du jeu.
+
+Les alertes lorsque le jeu est fermé nécessitent ensuite un hébergement HTTPS, les secrets serveur/VAPID et un envoi périodique : [guide Web Push](docs/web-push.md). Cette configuration n’est pas encore activée.
+
+## Vérifier
+```sh
+npm test
+npm run typecheck
+npm run lint
+npm run build
+```
+Les tests distants nécessitent un projet SaaS de test : [instructions](docs/testing.md). Aucune base locale et aucun Docker.
+
+## Structure
+- `app/` : pages Next.js, Auth SSR/callback, export et métadonnées web.
+- `components/` : interface, avatars SVG, formulaires et dialogs accessibles natifs.
+- `lib/` : contrats, règles de simulation, validation, clients Supabase.
+- `supabase/` : installation vierge, migration initiale identique, catalogue et jobs.
+- `scripts/` : tests avec JWT de comptes dédiés.
+- `docs/` : [règles](docs/game-rules.md), [sécurité](docs/security.md), [déploiement](docs/deployment.md), [tests](docs/testing.md).
+
+Stack : Next.js App Router, React, TypeScript strict, Tailwind CSS, Framer Motion, Supabase. Hébergement Vercel prévu ; serveur Node compatible possible. Le jeu conserve ses fonctions principales sans notifications système.
+# VieOuVice
