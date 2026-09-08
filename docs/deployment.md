@@ -16,6 +16,9 @@ Appliquer ensuite `supabase/update-community-notifications.sql` une seule fois p
 ## Notifications
 Les notifications persistantes d’amis/duels et Realtime sont câblées. Les activités ne sont partagées qu’après activation volontaire dans les réglages. Le Web Push est implémenté avec consentement du navigateur, service worker et file serveur ; son activation nécessite le déploiement/configuration détaillé dans [web-push.md](web-push.md). Le jeu fonctionne sans push.
 
+## Mise à jour amis, admin et compétitions
+Pour le projet viegame déjà installé, suivre [admin-competitions.md](admin-competitions.md) : exécuter une fois `supabase/update-admin-competitions.sql` (004 + activation vérifiée de `bfe@nomios.fr`), puis éventuellement `supabase/events-jobs.sql`, et pousser les fichiers sur la branche GitHub de production de Vercel. Aucune nouvelle variable serveur ou publique n’est ajoutée. Ne pas réexécuter les anciennes installations.
+
 ## Avant ouverture publique
 Finaliser les mécanismes avancés demandés, la suppression/export complet des relations de jeu, la politique de conservation, les tests SQL multi-utilisateurs et la recette navigateur décrits dans les documents. Rien n’a été déployé ou migré à distance durant cette réalisation.
 

@@ -81,8 +81,8 @@ export function SocialNotificationSettings({
       ))}
       <p className="notice">
         <Shield size={16} />
-        Ton journal complet reste privé. Les blocages coupent les interactions
-        futures.
+        Le partage des sept derniers jours se règle séparément. Les blocages
+        coupent les interactions futures.
       </p>
       <p role="status" className="feedback coral">
         {error}

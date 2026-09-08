@@ -1822,3 +1822,20 @@ input[type="checkbox"] {
 
 /* Catalogue communautaire et notifications sociales */
 .community-create{margin:8px 0 12px;justify-content:flex-start;font-size:12px}.community-create svg:last-child{margin-left:auto;color:var(--lime)}.catalog-search{position:relative;margin:12px 0 4px}.catalog-search>svg{position:absolute;left:12px;top:16px;color:var(--muted)}.catalog-search input{padding-left:36px}.catalog-author{display:flex;gap:4px;align-items:center;font-size:9px;color:var(--muted);overflow-wrap:anywhere}.catalog-option strong{overflow-wrap:anywhere}.community-values{display:grid;grid-template-columns:1fr 1fr;gap:12px}.community-values label{font-size:11px}.community-preview{text-align:center;background:var(--surface);padding:12px;border-radius:12px;margin-top:15px;font-size:14px;overflow-wrap:anywhere}.social-settings .settings-heading{display:flex;align-items:center;gap:8px}.notification-row{width:100%;text-align:left;align-items:flex-start}.notification-row.is-unread{background:#b7f34b06}.notification-row .notification-content{flex:1}.notification-row small{display:block;color:var(--muted);font-size:9px;margin-top:5px}.notification-row .unread-dot{width:6px;height:6px;border-radius:50%;background:var(--lime);margin-top:9px;flex-shrink:0}.social-toast{background:#222d24}.social-toast>button:first-of-type{text-align:left;flex:1;line-height:1.6}.social-toast span{display:block;color:var(--lime);font-size:10px;margin-top:4px}.social-toast .icon-button{margin-right:-9px}.notification-count{position:absolute;right:0;top:0;background:var(--lime);color:#18220d;border-radius:10px;min-width:16px;padding:0 4px;font-size:9px;line-height:16px;font-weight:bold}.push-settings{margin-top:20px;padding-top:15px;border-top:1px solid var(--line)}
+
+.friend-profile-button { text-align:left; padding:0; background:transparent; border:0; color:inherit; width:100%; }
+.friend-profile-button small { display:flex; align-items:center; gap:3px; color:var(--lime,#c5f76b); font-size:11px; margin-top:5px; }
+.friend-profile-button strong { overflow-wrap:anywhere; }
+.friend-history-row { display:flex; align-items:center; gap:10px; border-bottom:1px solid #ffffff12; padding:15px 0; }
+.friend-history-row>div { flex:1; min-width:0; }
+.friend-history-row strong { display:block; font-size:13px; overflow-wrap:anywhere; }
+.friend-history-row small { display:block; font-size:11px; color:#8e98aa; margin-top:5px; }
+.friend-history-row>b { font-size:12px; white-space:nowrap; }
+.competition-badges { margin:22px 0; }
+.competition-badge-list { display:grid; gap:10px; }
+.competition-badge { display:flex; align-items:center; gap:14px; padding:16px; border-radius:16px; background:#141e30; border:1px solid #ffffff0d; }
+.competition-badge>svg { flex-shrink:0; }
+.competition-badge strong,.competition-badge small,.competition-badge span { display:block; overflow-wrap:anywhere; }
+.competition-badge strong { font-size:13px; }
+.competition-badge small { color:#9faabc; font-size:11px; margin-top:5px; }
+.competition-badge span { font-size:11px; margin-top:7px; color:#c5f76b; }

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { SocialNotificationSettings } from "./social-notification-settings";
 import { WebPushSettings } from "./web-push-settings";
+import { HistorySharing } from "./history-sharing";
 import type { GameState, SocialSettings } from "@/lib/game";
 import { Sheet } from "./sheet";
 
@@ -12,10 +13,15 @@ export function SettingsSheet({
   save,
   mutate,
   saveSocial,
+  historySharing,
 }: {
   state: GameState;
   demo: boolean;
   saveSocial: (settings: SocialSettings) => Promise<void>;
+  historySharing?: {
+    enabled: boolean;
+    save: (enabled: boolean) => Promise<void>;
+  };
   onClose: () => void;
   save: (patch: Partial<GameState>) => Promise<void>;
   mutate: (name: string, payload: Record<string, unknown>) => Promise<unknown>;
@@ -74,6 +80,7 @@ export function SettingsSheet({
         save={saveSocial}
       />
       <WebPushSettings demo={demo} />
+      {historySharing && <HistorySharing {...historySharing} />}
       <h3 className="settings-heading">Gérer mon cercle</h3>
       <form
         onSubmit={async (e) => {

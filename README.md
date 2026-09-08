@@ -12,14 +12,16 @@ Ouvrir http://127.0.0.1:3000. Sans configuration Supabase, le jeu ouvre un **mod
 ## Jeu connecté
 Copier `.env.example` vers `.env.local`, renseigner le projet SaaS Supabase et suivre [l’installation](docs/deployment.md) : SQL initial, seed, Auth email et jobs/publications. Redémarrer Next.js après modification des variables.
 
-Fonctions codées : inscription/connexion/reset email, onboarding pseudo/avatar, catalogue officiel et communautaire personnalisable, déclarations bornées/idempotentes, ledger append-only avec triggers, journal privé, plafonds, ligues/saisons et classement, Némésis consentants, invitations/blocages, dons atomiques, notifications d’amis/duels persistantes et Realtime, Web Push volontaire avec file serveur, préférences et export authentifié.
+Fonctions codées : inscription/connexion/reset email, onboarding pseudo/avatar, catalogue officiel et communautaire personnalisable, déclarations bornées/idempotentes, ledger append-only avec triggers, journal privé, plafonds, ligues/saisons et classement, Némésis consentants, invitations/blocages, dons atomiques, notifications d’amis/duels persistantes et Realtime, Web Push volontaire avec file serveur, préférences et export authentifié. Historique partagé des amis sur sept jours, administration du jeu et compétitions avec inscriptions, classements et badges sont ajoutés par la migration 004.
 
 Les paris, traquenards, roulette, trophées avancés, signalement et suppression self-service du compte restent à réaliser. L’interface les annonce comme non disponibles plutôt que de simuler une opération réelle. Les scripts SQL et tests SaaS n’ont pas été exécutés sans projet configuré : cette version n’est pas qualifiée prête à la production.
 
 ## Mettre à jour une base déjà installée
 Exécuter une seule fois [`supabase/update-community-notifications.sql`](supabase/update-community-notifications.sql) dans SQL Editor. Ce fichier applique les migrations 002 et 003 dans une transaction. Ne pas réexécuter `install.sql` ni appliquer les mêmes migrations séparément. Le catalogue partagé et les réglages sociaux deviennent disponibles après actualisation du jeu.
 
-Les alertes lorsque le jeu est fermé nécessitent ensuite un hébergement HTTPS, les secrets serveur/VAPID et un envoi périodique : [guide Web Push](docs/web-push.md). Cette configuration n’est pas encore activée.
+Les alertes lorsque le jeu est fermé nécessitent ensuite un hébergement HTTPS, les secrets serveur/VAPID et un envoi périodique : [guide Web Push](docs/web-push.md). L’utilisateur a confirmé leur configuration sur viegame.
+
+Pour la nouvelle mise à jour amis/admin/événements sur viegame, suivre [le guide de mise en production](docs/admin-competitions.md) : bundle SQL `supabase/update-admin-competitions.sql`, clôture périodique facultative, puis déploiement Vercel depuis GitHub. Aucune nouvelle variable Vercel n’est requise.
 
 ## Vérifier
 ```sh

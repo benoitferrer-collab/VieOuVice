@@ -37,6 +37,11 @@ import { NotificationToast } from "./notification-toast";
 import { notificationTab } from "@/lib/notifications";
 import { cleanupWebPushBeforeSignOut } from "./web-push-settings";
 import { useGame } from "@/lib/use-game";
+import { useSocialHub } from "@/lib/events/use-social-hub";
+import { Competitions } from "./competitions";
+import { AdminPanel } from "./admin-panel";
+import { FriendActivity } from "./friend-activity";
+import { CompetitionBadges } from "./competition-badges";
 import {
   gaugePercent,
   parisDay,
@@ -44,6 +49,7 @@ import {
   signed,
   statusFor,
   type Kind,
+  type Friend,
   makeDemo,
 } from "@/lib/game";
 import { Reaper } from "./avatar";
@@ -74,6 +80,7 @@ type Panel =
   | "settings"
   | "friend"
   | "donate"
+  | "admin"
   | null;
 export function Game({
   configured,
@@ -83,6 +90,11 @@ export function Game({
   configError: string;
 }) {
   const game = useGame(configured);
+  const social = useSocialHub(game.state, game.demo);
+  const [selectedFriend, setSelectedFriend] = useState<{
+    owner: string;
+    friend: Friend;
+  } | null>(null);
   const [tab, setTab] = useState<Tab>("survie");
   useEffect(() => {
     const requested = new URLSearchParams(window.location.search).get("tab");
@@ -206,6 +218,17 @@ export function Game({
         {(game.error || configError) && (
           <div className="error-banner" role="alert">
             {game.error || configError}
+          </div>
+        )}
+        {social.error && (
+          <div className="error-banner" role="alert">
+            {social.error}
+            <button
+              className="text-button"
+              onClick={() => void social.refresh()}
+            >
+              Réessayer
+            </button>
           </div>
         )}
         <div className="sticky-meter">
@@ -337,6 +360,14 @@ export function Game({
                       Fictif à 100 %. Vivant pour de vrai.
                     </div>
                   </section>
+                  {social.hub && (
+                    <Competitions
+                      events={social.hub.events}
+                      demo={game.demo}
+                      rpc={social.rpc}
+                      changed={social.refresh}
+                    />
+                  )}
                   <section className="today-section">
                     <div className="section-heading">
                       <h2>Aujourd’hui</h2>
@@ -630,7 +661,23 @@ export function Game({
                           <Reaper variant={friend.avatar} />
                         </div>
                         <div className="friend-name">
-                          <strong>{friend.nickname}</strong>
+                          {friend.status === "accepted" && social.hub ? (
+                            <button
+                              className="friend-profile-button"
+                              onClick={() =>
+                                setSelectedFriend({ owner: state.id, friend })
+                              }
+                              aria-label={`Voir la semaine de ${friend.nickname}`}
+                            >
+                              <strong>{friend.nickname}</strong>
+                              <small>
+                                Voir ses 7 derniers jours{" "}
+                                <ChevronRight size={13} />
+                              </small>
+                            </button>
+                          ) : (
+                            <strong>{friend.nickname}</strong>
+                          )}
                           <span className="small muted">
                             {friend.status === "accepted"
                               ? "Amitié acceptée"
@@ -702,7 +749,11 @@ export function Game({
                         <strong>{state.actions.length}</strong>déclarations
                       </span>
                       <span>
-                        <strong>{state.trophies.length}</strong>trophée(s)
+                        <strong>
+                          {state.trophies.length +
+                            (social.hub?.badges.length || 0)}
+                        </strong>
+                        trophée(s)
                       </span>
                       <span>
                         <strong>{rank ? `#${rank}` : "—"}</strong>dans ta ligue
@@ -748,7 +799,17 @@ export function Game({
                       </div>
                     ))}
                   </div>
+                  {social.hub && (
+                    <CompetitionBadges badges={social.hub.badges} />
+                  )}
                   <div className="menu-list">
+                    {social.hub?.is_admin && !game.demo && (
+                      <MenuItem
+                        icon={<Shield size={20} />}
+                        label="Administration du jeu"
+                        onClick={() => setPanel("admin")}
+                      />
+                    )}
                     <MenuItem
                       icon={<BookOpen size={20} />}
                       label="Mon journal"
@@ -802,6 +863,7 @@ export function Game({
                       onClick={() => {
                         if (game.demo) {
                           game.localPatch(makeDemo());
+                          social.resetDemo();
                           tell("Une nouvelle démo commence.");
                         } else {
                           void (async () => {
@@ -1064,6 +1126,39 @@ export function Game({
             }}
             mutate={game.mutate}
             saveSocial={game.saveSocialSettings}
+            historySharing={
+              social.hub
+                ? {
+                    enabled: social.hub.share_history,
+                    save: async (enabled: boolean) => {
+                      await social.rpc("update_history_sharing", {
+                        p_enabled: enabled,
+                      });
+                      await social.refresh();
+                    },
+                  }
+                : undefined
+            }
+          />
+        )}
+        {panel === "admin" && social.hub?.is_admin && !game.demo && (
+          <AdminPanel
+            userId={state.id}
+            rpc={social.rpc}
+            changed={async () => {
+              await social.refresh();
+              await game.refresh();
+            }}
+            onClose={() => setPanel(null)}
+          />
+        )}
+        {selectedFriend?.owner === state.id && social.hub && (
+          <FriendActivity
+            key={`${state.id}:${selectedFriend.friend.id}`}
+            friend={selectedFriend.friend}
+            rpc={social.rpc}
+            demo={game.demo}
+            onClose={() => setSelectedFriend(null)}
           />
         )}
         {panel === "friend" && (
