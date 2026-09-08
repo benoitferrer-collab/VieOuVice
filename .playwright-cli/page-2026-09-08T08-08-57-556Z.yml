@@ -1,0 +1,111 @@
+- generic [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e60] [cursor=pointer]
+  - alert [ref=e5]
+  - generic [ref=e64]:
+    - banner [ref=e65]:
+      - link "Excès-O-Meter, accueil" [ref=e66] [cursor=pointer]:
+        - /url: /
+        - text: EXCÈS
+        - generic [ref=e73]: ·
+        - text: O
+        - generic [ref=e74]: ·
+        - text: METER
+      - button "Notifications" [active] [ref=e75] [cursor=pointer]
+    - generic [ref=e80]:
+      - generic [ref=e81]: MODE DÉMO
+      - button "Se connecter" [ref=e84] [cursor=pointer]
+    - generic [ref=e87]:
+      - generic [ref=e88]: Survivant
+      - generic [ref=e90]: 915 min de vie
+      - button "Comprendre les règles" [ref=e91] [cursor=pointer]
+    - main [ref=e97]:
+      - generic [ref=e98]:
+        - generic [ref=e99]:
+          - paragraph [ref=e100]: TON BULLETIN DE SURVIE
+          - heading "Salut, survivant." [level=1] [ref=e673]
+          - paragraph [ref=e102]: Un jour de plus. Bien joué.
+        - generic [ref=e674]:
+          - generic [ref=e675]: MAR
+          - generic [ref=e676]: "8"
+      - generic [ref=e677]:
+        - generic [ref=e678]:
+          - generic [ref=e679]:
+            - generic [ref=e680]: ENCORE DANS LA PARTIE
+            - button "Règles du compteur" [ref=e682] [cursor=pointer]
+          - generic [ref=e686]:
+            - generic [ref=e689]: ✦
+            - generic [ref=e690]: +
+            - img "Avatar survivant" [ref=e691]
+            - generic [ref=e712]: Survivant
+          - paragraph [ref=e715]: TON CAPITAL VIE
+          - generic [ref=e716]:
+            - text: "915"
+            - generic [ref=e717]: min de vie
+          - paragraph [ref=e718]: La Faucheuse attendra.
+          - generic [ref=e721]:
+            - generic [ref=e722]: "0"
+            - generic [ref=e728]: 2 000
+          - generic [ref=e732]: Fictif à 100 %. Vivant pour de vrai.
+        - generic [ref=e735]:
+          - generic [ref=e736]:
+            - heading "Aujourd’hui" [level=2] [ref=e737]
+            - generic [ref=e738]: Chaque petit choix compte
+          - generic [ref=e739]:
+            - generic [ref=e745]:
+              - strong [ref=e746]: +175 min
+              - text: Vie gagnée
+            - generic [ref=e752]:
+              - strong [ref=e753]: "-20 min"
+              - text: Vie perdue
+        - button "LE PROCHAIN PETIT PAS Garde ton propre rythme. Pas besoin d’en faire plus pour aujourd’hui." [ref=e754] [cursor=pointer]:
+          - generic [ref=e760]:
+            - text: LE PROCHAIN PETIT PAS
+            - strong [ref=e761]: Garde ton propre rythme.
+            - generic [ref=e762]: Pas besoin d’en faire plus pour aujourd’hui.
+        - generic [ref=e765]:
+          - generic [ref=e766]:
+            - heading "Le duel de la semaine" [level=2] [ref=e767]
+            - generic [ref=e777]: EN COURS
+          - generic [ref=e778]:
+            - generic [ref=e779]:
+              - img "Avatar survivant" [ref=e781]
+              - strong [ref=e799]: Toi
+              - generic [ref=e800]: +255 pts
+            - generic [ref=e801]: VS
+            - generic [ref=e802]:
+              - img "Avatar funambule" [ref=e804]
+              - strong [ref=e822]: Sam_Suffit
+              - generic [ref=e823]: +240 pts
+          - button "Tu tiens le cap." [ref=e824] [cursor=pointer]
+        - generic [ref=e827]:
+          - generic [ref=e828]:
+            - heading "Les derniers mouvements" [level=2] [ref=e829]
+            - button "Tout voir" [ref=e830] [cursor=pointer]
+          - generic [ref=e833]:
+            - generic [ref=e834]:
+              - generic [ref=e838]:
+                - strong [ref=e839]: Pause lecture test
+                - generic [ref=e840]: 8 sept., 10:06 · ×2
+              - generic [ref=e841]: +70 min
+            - generic [ref=e842]:
+              - generic [ref=e847]:
+                - strong [ref=e848]: Prendre l’air
+                - generic [ref=e849]: 8 sept., 09:03 · ×1
+              - generic [ref=e850]: +25 min
+            - generic [ref=e851]:
+              - generic [ref=e859]:
+                - strong [ref=e860]: Craquage gourmand
+                - generic [ref=e861]: 8 sept., 07:03 · ×1
+              - generic [ref=e862]: "-20 min"
+      - generic [ref=e292]: ON JOUE AVEC LES MINUTES. PAS AVEC LA SANTÉ.
+    - generic:
+      - button "Déclarer un excès" [ref=e299] [cursor=pointer]:
+        - generic [ref=e302]: Petit écart
+      - button "Ajouter une action saine" [ref=e304] [cursor=pointer]:
+        - generic [ref=e308]: Bonne habitude
+    - navigation "Navigation principale" [ref=e310]:
+      - button "Survie" [ref=e311] [cursor=pointer]
+      - button "Ligue" [ref=e316] [cursor=pointer]
+      - button "Némésis" [ref=e324] [cursor=pointer]
+      - button "Amis" [ref=e335] [cursor=pointer]
+      - button "Profil" [ref=e342] [cursor=pointer]

@@ -1,0 +1,23 @@
+-- OPTIONAL template: run only after migrating 003 and deploying the app.
+-- Prerequisites: enable pg_cron + pg_net in Supabase, then create Vault secrets
+-- through the dashboard (no values in this file):
+--   viegame_push_dispatch_url = HTTPS public origin + /api/push/dispatch
+--   viegame_push_dispatch_token = same value as WEB_PUSH_DISPATCH_SECRET
+-- Never store SUPABASE_SECRET_KEY or VAPID private key in this cron job.
+-- The token belongs in Vault, not a literal in SQL/history.
+-- This template deliberately performs no network request until scheduled by you.
+
+-- select cron.schedule('viegame-web-push', '* * * * *', $job$
+--   select net.http_post(
+--     url := (select decrypted_secret from vault.decrypted_secrets where name='viegame_push_dispatch_url'),
+--     headers := jsonb_build_object(
+--       'Content-Type','application/json',
+--       'Authorization','Bearer '||(select decrypted_secret from vault.decrypted_secrets where name='viegame_push_dispatch_token')
+--     ),
+--     body := '{}'::jsonb,
+--     timeout_milliseconds := 60000
+--   );
+-- $job$);
+-- Disable with: select cron.unschedule('viegame-web-push');
+-- Check scheduler and pg_net responses in the dashboard; HTTP 401 means a token
+-- mismatch, 503 means deployment configuration or queue access needs attention.

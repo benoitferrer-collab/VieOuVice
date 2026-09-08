@@ -1,0 +1,145 @@
+- generic [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e60] [cursor=pointer]
+  - alert [ref=e5]
+  - generic [ref=e64]:
+    - banner [ref=e65]:
+      - link "Excès-O-Meter, accueil" [ref=e66] [cursor=pointer]:
+        - /url: /
+        - text: EXCÈS
+        - generic [ref=e73]: ·
+        - text: O
+        - generic [ref=e74]: ·
+        - text: METER
+      - button "Notifications" [ref=e75] [cursor=pointer]:
+        - generic [ref=e79]: "1"
+    - generic [ref=e80]:
+      - generic [ref=e81]:
+        - text: MODE DÉMO
+        - generic [ref=e83]: · données fictives
+      - button "Se connecter" [ref=e84] [cursor=pointer]
+    - generic [ref=e87]:
+      - generic [ref=e88]: Survivant
+      - generic [ref=e90]: 845 min de vie
+      - button "Comprendre les règles" [ref=e91] [cursor=pointer]
+    - main [ref=e97]:
+      - generic [ref=e98]:
+        - generic [ref=e99]:
+          - paragraph [ref=e100]: TON BULLETIN DE SURVIE
+          - heading "Salut, survivant." [level=1] [ref=e101]
+          - paragraph [ref=e102]: Un jour de plus. Bien joué.
+        - generic [ref=e103]:
+          - generic [ref=e104]: MAR
+          - generic [ref=e105]: "8"
+      - generic [ref=e106]:
+        - generic [ref=e107]:
+          - generic [ref=e108]:
+            - generic [ref=e109]: ENCORE DANS LA PARTIE
+            - button "Règles du compteur" [ref=e111] [cursor=pointer]
+          - generic [ref=e115]:
+            - generic [ref=e118]: ✦
+            - generic [ref=e119]: +
+            - img "Avatar survivant" [ref=e120]
+            - generic [ref=e141]: Survivant
+          - paragraph [ref=e144]: TON CAPITAL VIE
+          - generic [ref=e145]:
+            - text: "845"
+            - generic [ref=e146]: min de vie
+          - paragraph [ref=e147]: La Faucheuse attendra.
+          - generic [ref=e150]:
+            - generic [ref=e151]: "0"
+            - generic [ref=e157]: 2 000
+          - generic [ref=e161]: Fictif à 100 %. Vivant pour de vrai.
+        - generic [ref=e164]:
+          - generic [ref=e165]:
+            - heading "Aujourd’hui" [level=2] [ref=e166]
+            - generic [ref=e167]: Chaque petit choix compte
+          - generic [ref=e168]:
+            - generic [ref=e174]:
+              - strong [ref=e175]: +105 min
+              - text: Vie gagnée
+            - generic [ref=e181]:
+              - strong [ref=e182]: "-20 min"
+              - text: Vie perdue
+        - button "LE PROCHAIN PETIT PAS Garde ton propre rythme. Pas besoin d’en faire plus pour aujourd’hui." [ref=e183] [cursor=pointer]:
+          - generic [ref=e189]:
+            - text: LE PROCHAIN PETIT PAS
+            - strong [ref=e190]: Garde ton propre rythme.
+            - generic [ref=e191]: Pas besoin d’en faire plus pour aujourd’hui.
+        - generic [ref=e194]:
+          - generic [ref=e195]:
+            - heading "Le duel de la semaine" [level=2] [ref=e196]
+            - generic [ref=e206]: EN COURS
+          - generic [ref=e207]:
+            - generic [ref=e208]:
+              - img "Avatar survivant" [ref=e210]
+              - strong [ref=e228]: Toi
+              - generic [ref=e229]: +185 pts
+            - generic [ref=e230]: VS
+            - generic [ref=e231]:
+              - img "Avatar funambule" [ref=e233]
+              - strong [ref=e251]: Sam_Suffit
+              - generic [ref=e252]: +240 pts
+          - button "55 points vous séparent." [ref=e253] [cursor=pointer]
+        - generic [ref=e256]:
+          - generic [ref=e257]:
+            - heading "Les derniers mouvements" [level=2] [ref=e258]
+            - button "Tout voir" [ref=e259] [cursor=pointer]
+          - generic [ref=e262]:
+            - generic [ref=e263]:
+              - generic [ref=e268]:
+                - strong [ref=e269]: Prendre l’air
+                - generic [ref=e270]: 8 sept., 09:03 · ×1
+              - generic [ref=e271]: +25 min
+            - generic [ref=e272]:
+              - generic [ref=e280]:
+                - strong [ref=e281]: Craquage gourmand
+                - generic [ref=e282]: 8 sept., 07:03 · ×1
+              - generic [ref=e283]: "-20 min"
+            - generic [ref=e284]:
+              - generic [ref=e288]:
+                - strong [ref=e289]: Une bonne nuit
+                - generic [ref=e290]: 8 sept., 04:03 · ×8
+              - generic [ref=e291]: +80 min
+      - generic [ref=e292]: ON JOUE AVEC LES MINUTES. PAS AVEC LA SANTÉ.
+    - generic:
+      - button "Déclarer un excès" [ref=e299] [cursor=pointer]:
+        - generic [ref=e302]: Petit écart
+      - button "Ajouter une action saine" [ref=e304] [cursor=pointer]:
+        - generic [ref=e308]: Bonne habitude
+    - navigation "Navigation principale" [ref=e310]:
+      - button "Survie" [ref=e311] [cursor=pointer]
+      - button "Ligue" [ref=e316] [cursor=pointer]
+      - button "Némésis" [ref=e324] [cursor=pointer]
+      - button "Amis" [ref=e335] [cursor=pointer]
+      - button "Profil" [ref=e342] [cursor=pointer]
+    - dialog [ref=e347]:
+      - generic [ref=e348]:
+        - banner [ref=e350]:
+          - heading "Une bonne habitude" [level=2] [ref=e351]
+          - button "Fermer" [active] [ref=e352] [cursor=pointer]
+        - paragraph [ref=e356]: Les petites habitudes font leur chemin.
+        - button "Créer une bonne action" [ref=e357] [cursor=pointer]
+        - generic [ref=e364]:
+          - generic [ref=e365]: Rechercher une action
+          - searchbox "Rechercher une action" [ref=e369]
+        - generic "Origine des actions" [ref=e370]:
+          - button "Toutes" [pressed] [ref=e371] [cursor=pointer]
+          - button "Officielles" [ref=e372] [cursor=pointer]
+          - button "Communauté" [ref=e373] [cursor=pointer]
+        - generic [ref=e374]:
+          - button "Prendre l’air +25 min / unité" [ref=e375] [cursor=pointer]:
+            - strong [ref=e380]: Prendre l’air
+            - generic [ref=e381]: +25 min / unité
+          - button "Une bonne nuit +10 min / unité" [ref=e382] [cursor=pointer]:
+            - strong [ref=e386]: Une bonne nuit
+            - generic [ref=e387]: +10 min / unité
+          - button "Bouger un peu +40 min / unité" [ref=e388] [cursor=pointer]:
+            - strong [ref=e392]: Bouger un peu
+            - generic [ref=e393]: +40 min / unité
+          - button "Une vraie pause +15 min / unité" [ref=e394] [cursor=pointer]:
+            - strong [ref=e399]: Une vraie pause
+            - generic [ref=e400]: +15 min / unité
+        - alert
+        - button "Confirmer ma déclaration" [disabled] [ref=e401]
+        - paragraph [ref=e404]: Aucun calcul de santé. Aucun conseil médical.
+    - text: LA FAUCHEUSE ATTENDRA.

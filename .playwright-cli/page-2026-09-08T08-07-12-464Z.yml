@@ -1,0 +1,121 @@
+- generic [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e60] [cursor=pointer]
+  - alert [ref=e5]
+  - generic [ref=e64]:
+    - banner [ref=e65]:
+      - link "Excès-O-Meter, accueil" [ref=e66] [cursor=pointer]:
+        - /url: /
+        - text: EXCÈS
+        - generic [ref=e73]: ·
+        - text: O
+        - generic [ref=e74]: ·
+        - text: METER
+      - button "Notifications" [ref=e75] [cursor=pointer]:
+        - generic [ref=e79]: "1"
+    - generic [ref=e80]:
+      - generic [ref=e81]: MODE DÉMO
+      - button "Se connecter" [ref=e84] [cursor=pointer]
+    - generic [ref=e87]:
+      - generic [ref=e88]: Survivant
+      - generic [ref=e90]: 915 min de vie
+      - button "Comprendre les règles" [ref=e91] [cursor=pointer]
+    - main [ref=e97]:
+      - generic [ref=e99]:
+        - paragraph [ref=e100]: CARTE DE MORTEL
+        - heading "Profil" [level=1] [ref=e504]
+        - paragraph [ref=e102]: Ta légende, petits écarts compris.
+      - generic [ref=e505]:
+        - generic [ref=e506]:
+          - img "Avatar survivant" [ref=e507]
+          - heading "Mortel_mais_pas_trop" [level=2] [ref=e528]
+          - generic [ref=e529]: Survivant
+          - generic [ref=e530]:
+            - generic [ref=e531]:
+              - strong [ref=e532]: "4"
+              - text: déclarations
+            - generic [ref=e533]:
+              - strong [ref=e534]: "1"
+              - text: trophée(s)
+            - generic [ref=e535]:
+              - strong [ref=e536]: "#2"
+              - text: dans ta ligue
+        - heading "Le cabinet des curiosités" [level=2] [ref=e538]
+        - generic [ref=e545]:
+          - generic [ref=e546]:
+            - strong [ref=e550]: Premier souffle
+            - generic [ref=e551]: Débloqué
+          - generic [ref=e552]:
+            - strong [ref=e555]: Esprit du Maine Coon
+            - generic [ref=e556]: À venir
+          - generic [ref=e557]:
+            - strong [ref=e561]: La Grande Scopa
+            - generic [ref=e562]: À venir
+        - generic [ref=e563]:
+          - button "Mon journal" [ref=e564] [cursor=pointer]
+          - button "Préférences et confidentialité" [ref=e570] [cursor=pointer]
+          - button "Les règles du jeu" [ref=e577] [cursor=pointer]
+          - button "Exporter mes données" [ref=e584] [cursor=pointer]
+          - button "Réinitialiser la démo" [ref=e591] [cursor=pointer]
+      - generic [ref=e292]: ON JOUE AVEC LES MINUTES. PAS AVEC LA SANTÉ.
+    - generic:
+      - button "Déclarer un excès" [ref=e299] [cursor=pointer]:
+        - generic [ref=e302]: Petit écart
+      - button "Ajouter une action saine" [ref=e304] [cursor=pointer]:
+        - generic [ref=e308]: Bonne habitude
+    - navigation "Navigation principale" [ref=e310]:
+      - button "Survie" [ref=e311] [cursor=pointer]
+      - button "Ligue" [ref=e316] [cursor=pointer]
+      - button "Némésis" [ref=e324] [cursor=pointer]
+      - button "Amis" [ref=e335] [cursor=pointer]
+      - button "Profil" [ref=e342] [cursor=pointer]
+    - dialog [ref=e599]:
+      - generic [ref=e600]:
+        - banner [ref=e602]:
+          - heading "À ta façon" [level=2] [ref=e603]
+          - button "Fermer" [active] [ref=e604] [cursor=pointer]
+        - generic [ref=e608]:
+          - generic [ref=e609]:
+            - strong [ref=e610]: Moins d’animations
+            - generic [ref=e611]: Une expérience plus calme.
+          - switch "Moins d’animations Une expérience plus calme." [ref=e612]
+        - generic [ref=e613]:
+          - generic [ref=e614]:
+            - strong [ref=e615]: Humour atténué
+            - generic [ref=e616]: Des messages plus sobres.
+          - switch "Humour atténué Des messages plus sobres." [ref=e617]
+        - generic [ref=e618]:
+          - generic [ref=e619]:
+            - strong [ref=e620]: Participer aux duels
+            - generic [ref=e621]: Appariement à la prochaine saison. Désactivé par défaut.
+          - switch "Participer aux duels Appariement à la prochaine saison. Désactivé par défaut." [ref=e622]
+        - generic [ref=e623]:
+          - heading "Mon cercle et mes alertes" [level=3] [ref=e624]
+          - generic [ref=e628]:
+            - generic [ref=e629]:
+              - strong [ref=e630]: Partager mes déclarations avec mes amis
+              - generic [ref=e631]: Tes amis acceptés pourront voir le nom de l’action et sa valeur dans leurs notifications. Désactivé au départ.
+            - switch "Partager mes déclarations avec mes amis Tes amis acceptés pourront voir le nom de l’action et sa valeur dans leurs notifications. Désactivé au départ." [ref=e632]
+          - generic [ref=e633]:
+            - generic [ref=e634]:
+              - strong [ref=e635]: Activité de mes amis
+              - generic [ref=e636]: Recevoir les déclarations qu’ils choisissent de partager. Une alerte par ami et par heure.
+            - switch "Activité de mes amis Recevoir les déclarations qu’ils choisissent de partager. Une alerte par ami et par heure." [checked] [ref=e637]
+          - generic [ref=e638]:
+            - generic [ref=e639]:
+              - strong [ref=e640]: Événements de duel
+              - generic [ref=e641]: Début du duel, changement de leader et résultat final.
+            - switch "Événements de duel Début du duel, changement de leader et résultat final." [checked] [ref=e642]
+          - paragraph [ref=e643]: Ton journal complet reste privé. Les blocages coupent les interactions futures.
+          - status
+        - region "Notifications du navigateur" [ref=e646]:
+          - heading "Notifications du navigateur" [level=3] [ref=e647]
+          - paragraph [ref=e648]: Avec ton accord, le jeu peut te prévenir même fermé. Seul « Du nouveau dans ta partie » apparaît, sans nom, action ni score.
+          - status [ref=e649]: En démo, aucune notification n’est envoyée.
+        - heading "Gérer mon cercle" [level=3] [ref=e650]
+        - generic [ref=e651]:
+          - generic [ref=e652]:
+            - text: Pseudonyme à bloquer
+            - textbox "Pseudonyme à bloquer" [ref=e653]
+          - button "Bloquer ce joueur" [disabled] [ref=e654]
+        - paragraph [ref=e655]: La gestion des comptes est disponible en mode connecté.
+        - status

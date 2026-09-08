@@ -1,0 +1,70 @@
+- generic [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e60] [cursor=pointer]
+  - alert [ref=e5]
+  - generic [ref=e64]:
+    - banner [ref=e65]:
+      - link "Excès-O-Meter, accueil" [ref=e66] [cursor=pointer]:
+        - /url: /
+        - text: EXCÈS
+        - generic [ref=e73]: ·
+        - text: O
+        - generic [ref=e74]: ·
+        - text: METER
+      - button "Notifications" [ref=e75] [cursor=pointer]:
+        - generic [ref=e79]: "1"
+    - generic [ref=e80]:
+      - generic [ref=e81]: MODE DÉMO
+      - button "Se connecter" [ref=e84] [cursor=pointer]
+    - generic [ref=e87]:
+      - generic [ref=e88]: Survivant
+      - generic [ref=e90]: 915 min de vie
+      - button "Comprendre les règles" [ref=e91] [cursor=pointer]
+    - main [ref=e97]:
+      - generic [ref=e99]:
+        - paragraph [ref=e100]: CARTE DE MORTEL
+        - heading "Profil" [level=1] [ref=e504]
+        - paragraph [ref=e102]: Ta légende, petits écarts compris.
+      - generic [ref=e505]:
+        - generic [ref=e506]:
+          - img "Avatar survivant" [ref=e507]
+          - heading "Mortel_mais_pas_trop" [level=2] [ref=e528]
+          - generic [ref=e529]: Survivant
+          - generic [ref=e530]:
+            - generic [ref=e531]:
+              - strong [ref=e532]: "4"
+              - text: déclarations
+            - generic [ref=e533]:
+              - strong [ref=e534]: "1"
+              - text: trophée(s)
+            - generic [ref=e535]:
+              - strong [ref=e536]: "#2"
+              - text: dans ta ligue
+        - heading "Le cabinet des curiosités" [level=2] [ref=e538]
+        - generic [ref=e545]:
+          - generic [ref=e546]:
+            - strong [ref=e550]: Premier souffle
+            - generic [ref=e551]: Débloqué
+          - generic [ref=e552]:
+            - strong [ref=e555]: Esprit du Maine Coon
+            - generic [ref=e556]: À venir
+          - generic [ref=e557]:
+            - strong [ref=e561]: La Grande Scopa
+            - generic [ref=e562]: À venir
+        - generic [ref=e563]:
+          - button "Mon journal" [ref=e564] [cursor=pointer]
+          - button "Préférences et confidentialité" [ref=e570] [cursor=pointer]
+          - button "Les règles du jeu" [ref=e577] [cursor=pointer]
+          - button "Exporter mes données" [ref=e584] [cursor=pointer]
+          - button "Réinitialiser la démo" [ref=e591] [cursor=pointer]
+      - generic [ref=e292]: ON JOUE AVEC LES MINUTES. PAS AVEC LA SANTÉ.
+    - generic:
+      - button "Déclarer un excès" [ref=e299] [cursor=pointer]:
+        - generic [ref=e302]: Petit écart
+      - button "Ajouter une action saine" [ref=e304] [cursor=pointer]:
+        - generic [ref=e308]: Bonne habitude
+    - navigation "Navigation principale" [ref=e310]:
+      - button "Survie" [ref=e311] [cursor=pointer]
+      - button "Ligue" [ref=e316] [cursor=pointer]
+      - button "Némésis" [ref=e324] [cursor=pointer]
+      - button "Amis" [ref=e335] [cursor=pointer]
+      - button "Profil" [active] [ref=e342] [cursor=pointer]
