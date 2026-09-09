@@ -1,9 +1,17 @@
 "use client";
 import { Crown, Trophy } from "lucide-react";
 import { promotionCount, signed, type GameState } from "@/lib/game";
-import { Reaper } from "./avatar";
+import { PlayerIdentity } from "./progression/player-identity";
+import type { PlayerLook } from "@/lib/progression/types";
+import { COSMETICS } from "@/lib/progression/metadata";
 
-export function Leaderboard({ state }: { state: GameState }) {
+export function Leaderboard({
+  state,
+  looks = {},
+}: {
+  state: GameState;
+  looks?: Record<string, PlayerLook>;
+}) {
   const sorted = [...state.players].sort(
     (a, b) => b.weekly_score - a.weekly_score || a.id.localeCompare(b.id),
   );
@@ -29,11 +37,19 @@ export function Leaderboard({ state }: { state: GameState }) {
               {index === 0 ? <Crown size={19} /> : index + 1}
             </span>
             <div className="mini-avatar">
-              <Reaper variant={p.avatar} />
+              <PlayerIdentity variant={p.avatar} look={looks[p.id]} />
             </div>
             <span className="leader-name">
               <strong>{p.id === state.id ? "Toi" : p.nickname}</strong>
               {p.id === state.id && <small>{state.nickname}</small>}
+              {looks[p.id]?.equipped.title && (
+                <small>
+                  {
+                    COSMETICS.find((c) => c.id === looks[p.id].equipped.title)
+                      ?.label
+                  }
+                </small>
+              )}
             </span>
             <b>{signed(p.weekly_score)}</b>
           </div>

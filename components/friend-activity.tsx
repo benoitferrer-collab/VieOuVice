@@ -2,6 +2,9 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowDownLeft, ArrowUpRight, LockKeyhole, Users } from "lucide-react";
 import { Sheet } from "./sheet";
+import { EncouragementList } from "./progression/encouragement-list";
+import { PlayerIdentity } from "./progression/player-identity";
+import type { PlayerLook } from "@/lib/progression/types";
 import { signed, type Friend } from "@/lib/game";
 import type {
   FriendActivityPage,
@@ -13,11 +16,15 @@ export function FriendActivity({
   rpc,
   onClose,
   demo,
+  encouragementRpc,
+  look,
 }: {
   friend: Friend;
   rpc: HubRpc;
   onClose: () => void;
   demo: boolean;
+  encouragementRpc?: HubRpc;
+  look?: PlayerLook;
 }) {
   const [page, setPage] = useState<FriendActivityPage | null>(null);
   const [busy, setBusy] = useState(true),
@@ -80,6 +87,14 @@ export function FriendActivity({
   }
   return (
     <Sheet title={`La semaine de ${friend.nickname}`} onClose={onClose}>
+      {look && (
+        <PlayerIdentity
+          look={look}
+          variant={friend.avatar}
+          nickname={friend.nickname}
+          showName
+        />
+      )}
       <p className="muted">
         Les déclarations partagées des sept derniers jours.
       </p>
@@ -124,7 +139,23 @@ export function FriendActivity({
             </div>
             <div className="friend-history">
               {actions.length ? (
-                actions.map((a) => <HistoryRow key={a.id} action={a} />)
+                encouragementRpc ? (
+                  <EncouragementList
+                    ids={actions.map((a) => a.id)}
+                    rpc={encouragementRpc}
+                  >
+                    {(render) =>
+                      actions.map((a) => (
+                        <div key={a.id}>
+                          <HistoryRow action={a} />
+                          {render(a.id)}
+                        </div>
+                      ))
+                    }
+                  </EncouragementList>
+                ) : (
+                  actions.map((a) => <HistoryRow key={a.id} action={a} />)
+                )
               ) : (
                 <div className="empty-state">
                   <Users size={30} />

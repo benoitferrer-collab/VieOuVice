@@ -1827,6 +1827,9 @@ input[type="checkbox"] {
 .friend-profile-button small { display:flex; align-items:center; gap:3px; color:var(--lime,#c5f76b); font-size:11px; margin-top:5px; }
 .friend-profile-button strong { overflow-wrap:anywhere; }
 .friend-history-row { display:flex; align-items:center; gap:10px; border-bottom:1px solid #ffffff12; padding:15px 0; }
+.catalog-filters { display:flex; flex-wrap:wrap; gap:6px; margin:16px 0 8px; }
+.catalog-filters button { padding:8px 10px; border:1px solid #ffffff18; border-radius:12px; color:var(--muted); font-size:11px; }
+.catalog-filters button.active { background:#c4f16d15; border-color:#c4f16d55; color:var(--lime); }
 .friend-history-row>div { flex:1; min-width:0; }
 .friend-history-row strong { display:block; font-size:13px; overflow-wrap:anywhere; }
 .friend-history-row small { display:block; font-size:11px; color:#8e98aa; margin-top:5px; }
@@ -1839,3 +1842,12 @@ input[type="checkbox"] {
 .competition-badge strong { font-size:13px; }
 .competition-badge small { color:#9faabc; font-size:11px; margin-top:5px; }
 .competition-badge span { font-size:11px; margin-top:7px; color:#c5f76b; }
+
+/* Personal progression and shared encouragements */
+.progression-profile-summary { color: var(--muted); font-size: .85rem; margin: 10px auto; max-width: 100%; overflow-wrap: anywhere; }
+.progression-trio { display: flex; align-items: center; gap: 12px; padding: 16px; margin: 12px 0 22px; color: #b7f34b; border: 1px solid #b7f34b40; border-radius: 18px; background: #b7f34b0a; }
+.progression-trio small { display:block; margin-top:4px; color:#a9acbd; }
+.friend-history .encouragements, .action-list .encouragements { padding: 0 0 12px 38px; }
+.mini-avatar .player-identity, .events-avatar .player-identity { width:100%; }
+.profile-card > .player-identity { margin-inline:auto; }
+@media(max-width:360px) { .friend-history .encouragements, .action-list .encouragements { padding-left:0; } }

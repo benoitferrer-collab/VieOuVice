@@ -98,6 +98,7 @@ export type CompetitionsProps = {
   demo: boolean;
   rpc: HubRpc;
   changed: () => Promise<void>;
+  appearanceRpc?: HubRpc;
 };
 export type AdminPanelProps = {
   userId: string;

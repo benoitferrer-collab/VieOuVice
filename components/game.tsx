@@ -42,6 +42,12 @@ import { Competitions } from "./competitions";
 import { AdminPanel } from "./admin-panel";
 import { FriendActivity } from "./friend-activity";
 import { CompetitionBadges } from "./competition-badges";
+import { useProgression } from "@/lib/progression/use-progression";
+import { Missions } from "./progression/missions";
+import { Wardrobe } from "./progression/wardrobe";
+import { PlayerIdentity } from "./progression/player-identity";
+import { EncouragementList } from "./progression/encouragement-list";
+import { COSMETICS } from "@/lib/progression/metadata";
 import {
   gaugePercent,
   parisDay,
@@ -81,6 +87,7 @@ type Panel =
   | "friend"
   | "donate"
   | "admin"
+  | "wardrobe"
   | null;
 export function Game({
   configured,
@@ -91,6 +98,7 @@ export function Game({
 }) {
   const game = useGame(configured);
   const social = useSocialHub(game.state, game.demo);
+  const progression = useProgression(game.state, game.demo, social.hub);
   const [selectedFriend, setSelectedFriend] = useState<{
     owner: string;
     friend: Friend;
@@ -220,6 +228,17 @@ export function Game({
             {game.error || configError}
           </div>
         )}
+        {progression.error && (
+          <p role="alert" className="notice">
+            {progression.error}{" "}
+            <button
+              className="text-button"
+              onClick={() => void progression.refresh()}
+            >
+              Réessayer
+            </button>
+          </p>
+        )}
         {social.error && (
           <div className="error-banner" role="alert">
             {social.error}
@@ -318,6 +337,7 @@ export function Game({
                       <span className="stage-spark spark-one">✦</span>
                       <span className="stage-spark spark-two">+</span>
                       <Reaper
+                        cosmetics={progression.data?.equipped}
                         variant={
                           state.balance <= 0
                             ? 3
@@ -366,6 +386,17 @@ export function Game({
                       demo={game.demo}
                       rpc={social.rpc}
                       changed={social.refresh}
+                      appearanceRpc={
+                        progression.data ? progression.rpc : undefined
+                      }
+                    />
+                  )}
+                  {progression.data && (
+                    <Missions
+                      progression={progression.data}
+                      rpc={progression.rpc}
+                      changed={progression.refresh}
+                      demo={game.demo}
                     />
                   )}
                   <section className="today-section">
@@ -532,7 +563,7 @@ export function Game({
                       {game.demo ? "Classement fictif" : "Cette semaine"}
                     </span>
                   </div>
-                  <Leaderboard state={state} />
+                  <Leaderboard state={state} looks={progression.looks} />
                   <p className="fine-print">
                     {promotionCount(state.players.length)} montée(s) et
                     descente(s) à la clôture. Les dons ne rapportent aucun point
@@ -658,7 +689,10 @@ export function Game({
                     state.friends.map((friend) => (
                       <div className="friend-row" key={friend.id}>
                         <div className="mini-avatar">
-                          <Reaper variant={friend.avatar} />
+                          <PlayerIdentity
+                            variant={friend.avatar}
+                            look={progression.looks[friend.id]}
+                          />
                         </div>
                         <div className="friend-name">
                           {friend.status === "accepted" && social.hub ? (
@@ -670,6 +704,18 @@ export function Game({
                               aria-label={`Voir la semaine de ${friend.nickname}`}
                             >
                               <strong>{friend.nickname}</strong>
+                              {progression.looks[friend.id]?.equipped.title && (
+                                <small>
+                                  {
+                                    COSMETICS.find(
+                                      (c) =>
+                                        c.id ===
+                                        progression.looks[friend.id].equipped
+                                          .title,
+                                    )?.label
+                                  }
+                                </small>
+                              )}
                               <small>
                                 Voir ses 7 derniers jours{" "}
                                 <ChevronRight size={13} />
@@ -739,8 +785,21 @@ export function Game({
               {tab === "profil" && (
                 <>
                   <section className="profile-card">
-                    <Reaper variant={state.avatar} large />
+                    <PlayerIdentity
+                      variant={state.avatar}
+                      look={progression.looks[state.id]}
+                      large
+                    />
                     <h2>{state.nickname}</h2>
+                    {progression.data && (
+                      <p className="progression-profile-summary">
+                        {COSMETICS.find(
+                          (c) => c.id === progression.data?.equipped.title,
+                        )?.label || "Ta légende commence ici"}{" "}
+                        · Niveau {progression.data.level} ·{" "}
+                        {progression.data.xp} XP
+                      </p>
+                    )}
                     <span className={"pill " + status.className}>
                       {status.name}
                     </span>
@@ -751,7 +810,10 @@ export function Game({
                       <span>
                         <strong>
                           {state.trophies.length +
-                            (social.hub?.badges.length || 0)}
+                            (social.hub?.badges.length || 0) +
+                            (progression.data?.badges.filter(
+                              (b) => b.id === "premier_trio",
+                            ).length || 0)}
                         </strong>
                         trophée(s)
                       </span>
@@ -802,7 +864,27 @@ export function Game({
                   {social.hub && (
                     <CompetitionBadges badges={social.hub.badges} />
                   )}
+                  {progression.data?.badges.some(
+                    (b) => b.id === "premier_trio",
+                  ) && (
+                    <div className="progression-trio">
+                      <Medal size={22} />
+                      <span>
+                        <strong>Premier trio</strong>
+                        <small>
+                          Trois missions terminées dans une même semaine.
+                        </small>
+                      </span>
+                    </div>
+                  )}
                   <div className="menu-list">
+                    {progression.data && (
+                      <MenuItem
+                        icon={<Sparkles size={20} />}
+                        label="Personnaliser mon avatar"
+                        onClick={() => setPanel("wardrobe")}
+                      />
+                    )}
                     {social.hub?.is_admin && !game.demo && (
                       <MenuItem
                         icon={<Shield size={20} />}
@@ -837,9 +919,22 @@ export function Game({
                           return;
                         }
                         const url = URL.createObjectURL(
-                          new Blob([JSON.stringify(state, null, 2)], {
-                            type: "application/json",
-                          }),
+                          new Blob(
+                            [
+                              JSON.stringify(
+                                {
+                                  ...state,
+                                  progression: progression.data,
+                                  competition_badges: social.hub?.badges || [],
+                                },
+                                null,
+                                2,
+                              ),
+                            ],
+                            {
+                              type: "application/json",
+                            },
+                          ),
                         );
                         const a = document.createElement("a");
                         a.href = url;
@@ -864,6 +959,7 @@ export function Game({
                         if (game.demo) {
                           game.localPatch(makeDemo());
                           social.resetDemo();
+                          progression.resetDemo();
                           tell("Une nouvelle démo commence.");
                         } else {
                           void (async () => {
@@ -1036,11 +1132,31 @@ export function Game({
                 </button>
               ))}
             </div>
-            <ActionList
-              actions={state.actions.filter(
-                (a) => journalKind === "all" || a.kind === journalKind,
-              )}
-            />
+            {progression.data ? (
+              <EncouragementList
+                ids={state.actions
+                  .filter(
+                    (a) => journalKind === "all" || a.kind === journalKind,
+                  )
+                  .map((a) => a.id)}
+                rpc={progression.rpc}
+              >
+                {(render) => (
+                  <ActionList
+                    actions={state.actions.filter(
+                      (a) => journalKind === "all" || a.kind === journalKind,
+                    )}
+                    renderEncouragements={render}
+                  />
+                )}
+              </EncouragementList>
+            ) : (
+              <ActionList
+                actions={state.actions.filter(
+                  (a) => journalKind === "all" || a.kind === journalKind,
+                )}
+              />
+            )}
             <p className="fine-print">
               Tes 100 dernières déclarations. Journal privé ; l’export contient
               l’historique complet.
@@ -1060,7 +1176,7 @@ export function Game({
                   }
                   key={n.id}
                   onClick={() => {
-                    setPanel(null);
+                    setPanel(n.kind === "reaction_digest" ? "journal" : null);
                     setTab(notificationTab(n.target_tab));
                     void game.readNotice(n.id).catch((e) => tell(String(e)));
                     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1126,6 +1242,19 @@ export function Game({
             }}
             mutate={game.mutate}
             saveSocial={game.saveSocialSettings}
+            reactionDigest={
+              progression.data
+                ? {
+                    enabled: progression.data.notify_reactions,
+                    save: async (enabled) => {
+                      await progression.rpc("set_reaction_preferences", {
+                        p_enabled: enabled,
+                      });
+                      await progression.refresh();
+                    },
+                  }
+                : undefined
+            }
             historySharing={
               social.hub
                 ? {
@@ -1152,11 +1281,23 @@ export function Game({
             onClose={() => setPanel(null)}
           />
         )}
+        {panel === "wardrobe" && progression.data && (
+          <Wardrobe
+            progression={progression.data}
+            variant={state.avatar}
+            rpc={progression.rpc}
+            changed={progression.refresh}
+            demo={game.demo}
+            onClose={() => setPanel(null)}
+          />
+        )}
         {selectedFriend?.owner === state.id && social.hub && (
           <FriendActivity
             key={`${state.id}:${selectedFriend.friend.id}`}
             friend={selectedFriend.friend}
             rpc={social.rpc}
+            encouragementRpc={progression.data ? progression.rpc : undefined}
+            look={progression.looks[selectedFriend.friend.id]}
             demo={game.demo}
             onClose={() => setSelectedFriend(null)}
           />

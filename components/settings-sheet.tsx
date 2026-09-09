@@ -14,11 +14,16 @@ export function SettingsSheet({
   mutate,
   saveSocial,
   historySharing,
+  reactionDigest,
 }: {
   state: GameState;
   demo: boolean;
   saveSocial: (settings: SocialSettings) => Promise<void>;
   historySharing?: {
+    enabled: boolean;
+    save: (enabled: boolean) => Promise<void>;
+  };
+  reactionDigest?: {
     enabled: boolean;
     save: (enabled: boolean) => Promise<void>;
   };
@@ -81,6 +86,38 @@ export function SettingsSheet({
       />
       <WebPushSettings demo={demo} />
       {historySharing && <HistorySharing {...historySharing} />}
+      {reactionDigest && (
+        <label className="setting-row">
+          <span>
+            <strong>Récapitulatif des encouragements</strong>
+            <span>
+              Regrouper les réactions de mes amis dans une alerte horaire. Le
+              réglage « Activité de mes amis » doit aussi être activé.
+            </span>
+          </span>
+          <input
+            type="checkbox"
+            role="switch"
+            checked={reactionDigest.enabled}
+            disabled={busy}
+            onChange={async (e) => {
+              setBusy(true);
+              setError("");
+              try {
+                await reactionDigest.save(e.target.checked);
+              } catch (caught) {
+                setError(
+                  caught instanceof Error
+                    ? caught.message
+                    : "Préférence non enregistrée.",
+                );
+              } finally {
+                setBusy(false);
+              }
+            }}
+          />
+        </label>
+      )}
       <h3 className="settings-heading">Gérer mon cercle</h3>
       <form
         onSubmit={async (e) => {

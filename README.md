@@ -42,3 +42,6 @@ Les tests distants nécessitent un projet SaaS de test : [instructions](docs/tes
 
 Stack : Next.js App Router, React, TypeScript strict, Tailwind CSS, Framer Motion, Supabase. Hébergement Vercel prévu ; serveur Node compatible possible. Le jeu conserve ses fonctions principales sans notifications système.
 # VieOuVice
+
+## Mise à jour encouragements et progression
+Les migrations 005–006 ajoutent les réactions entre amis, leurs récapitulatifs, les missions hebdomadaires (150 XP maximum) et le vestiaire d’avatar. Le [guide progression](docs/progression-social.md) détaille le bundle SQL, le job de récapitulatif et la publication GitHub/Vercel. Les scripts SQL restent à valider sur un projet de test avant production.

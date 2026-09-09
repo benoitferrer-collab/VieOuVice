@@ -15,9 +15,12 @@ import type {
   CompetitionDetail,
   CompetitionSummary,
   CompetitionsProps,
+  HubRpc,
 } from "@/lib/events/types";
 import { competitionPhase } from "@/lib/events/rules";
-import { Reaper } from "./avatar";
+import { PlayerIdentity } from "./progression/player-identity";
+import { LookList } from "./progression/look-list";
+import { COSMETICS } from "@/lib/progression/metadata";
 import { Sheet } from "./sheet";
 import "./events.css";
 
@@ -57,6 +60,7 @@ export function Competitions({
   demo,
   rpc,
   changed,
+  appearanceRpc,
 }: CompetitionsProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detail, setDetail] = useState<CompetitionDetail | null>(null);
@@ -209,6 +213,7 @@ export function Competitions({
             </div>
           ) : detail ? (
             <CompetitionDetails
+              appearanceRpc={appearanceRpc}
               detail={detail}
               demo={demo}
               error={error}
@@ -259,6 +264,7 @@ function CompetitionDetails({
   moreBusy,
   onRegistration,
   onMore,
+  appearanceRpc,
 }: {
   detail: CompetitionDetail;
   demo: boolean;
@@ -267,6 +273,7 @@ function CompetitionDetails({
   moreBusy: boolean;
   onRegistration: (join: boolean) => Promise<void>;
   onMore: () => Promise<void>;
+  appearanceRpc?: HubRpc;
 }) {
   const phase = competitionPhase(detail);
   const registrationOpen = phase === "upcoming";
@@ -345,26 +352,46 @@ function CompetitionDetails({
         )}
       </div>
       {detail.leaderboard.length ? (
-        <div className="events-leaderboard">
-          {detail.leaderboard.map((standing) => (
-            <div className="events-standing" key={standing.user_id}>
-              <span className="events-rank">
-                {standing.rank === 1 ? <Trophy size={17} /> : standing.rank}
-              </span>
-              <span className="events-avatar">
-                <Reaper variant={standing.avatar} />
-              </span>
-              <span className="events-standing-name">
-                <strong>{standing.nickname}</strong>
-                <small>
-                  {standing.action_count} action
-                  {standing.action_count > 1 ? "s" : ""}
-                </small>
-              </span>
-              <b>{scoreFormat.format(standing.score)} min</b>
+        <LookList
+          ids={detail.leaderboard.map((p) => p.user_id)}
+          rpc={appearanceRpc}
+        >
+          {(looks) => (
+            <div className="events-leaderboard">
+              {detail.leaderboard.map((standing) => (
+                <div className="events-standing" key={standing.user_id}>
+                  <span className="events-rank">
+                    {standing.rank === 1 ? <Trophy size={17} /> : standing.rank}
+                  </span>
+                  <span className="events-avatar">
+                    <PlayerIdentity
+                      variant={standing.avatar}
+                      look={looks[standing.user_id]}
+                    />
+                  </span>
+                  <span className="events-standing-name">
+                    <strong>{standing.nickname}</strong>
+                    {looks[standing.user_id]?.equipped.title && (
+                      <small>
+                        {
+                          COSMETICS.find(
+                            (c) =>
+                              c.id === looks[standing.user_id].equipped.title,
+                          )?.label
+                        }
+                      </small>
+                    )}
+                    <small>
+                      {standing.action_count} action
+                      {standing.action_count > 1 ? "s" : ""}
+                    </small>
+                  </span>
+                  <b>{scoreFormat.format(standing.score)} min</b>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          )}
+        </LookList>
       ) : (
         <div className="events-empty">
           <Trophy size={27} aria-hidden="true" />

@@ -1,0 +1,437 @@
+.progression-missions {
+  margin-top: 28px;
+}
+.progression-heading,
+.mission-heading,
+.mission-status,
+.progression-week {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.progression-heading > svg {
+  flex: 0 0 auto;
+  color: var(--lime);
+}
+.progression-heading .eyebrow {
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.progression-heading h2 {
+  font-size: 18px;
+}
+.progression-intro {
+  margin: 12px 0 7px;
+  color: #d8deea;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.progression-note,
+.progression-demo {
+  margin: 8px 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.7;
+}
+.progression-demo {
+  color: #c4acff;
+}
+.progression-level {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 9px;
+  margin-top: 15px;
+  padding: 16px;
+  border: 1px solid #c4acff30;
+  border-radius: 16px;
+  background: linear-gradient(125deg, #c4acff13, #b7f34b08);
+}
+.progression-level strong {
+  font-size: 16px;
+  color: #c4acff;
+}
+.progression-level > span {
+  align-self: center;
+  color: var(--muted);
+  font-size: 10px;
+}
+.progression-level > small {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 10px;
+}
+.progression-missions progress {
+  display: block;
+  appearance: none;
+  width: 100%;
+  min-width: 0;
+  height: 6px;
+  border: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ffffff12;
+  accent-color: var(--lime);
+}
+.progression-level progress {
+  grid-column: 1 / -1;
+}
+.progression-missions progress::-webkit-progress-bar {
+  background: #ffffff12;
+  border-radius: 8px;
+}
+.progression-missions progress::-webkit-progress-value {
+  background: var(--lime);
+  border-radius: 8px;
+}
+.progression-missions progress::-moz-progress-bar {
+  background: var(--lime);
+  border-radius: 8px;
+}
+.progression-week {
+  flex-wrap: wrap;
+  margin-top: 18px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.progression-week strong {
+  color: var(--lime);
+}
+.mission-list {
+  display: grid;
+  gap: 9px;
+  margin: 14px 0;
+}
+.mission-card {
+  padding: 14px;
+  border: 1px solid #ffffff15;
+  border-radius: 15px;
+  background: var(--surface);
+}
+.mission-selected {
+  border-color: #c4acff44;
+}
+.mission-awarded {
+  border-color: #b7f34b40;
+  background: linear-gradient(120deg, #b7f34b0b, transparent), var(--surface);
+}
+.mission-heading h3 {
+  min-width: 0;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.mission-xp {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex: 0 0 auto;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--lime);
+}
+.mission-card > p {
+  margin: 7px 0 10px;
+  font-size: 11px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+.mission-choose,
+.progression-retry {
+  min-height: 40px;
+  padding: 9px 11px;
+  border: 1px solid #c4acff33;
+  border-radius: 9px;
+  background: #c4acff0a;
+  color: #d3c1ff;
+  font-size: 11px;
+  font-weight: 700;
+}
+.mission-choose {
+  width: 100%;
+}
+.mission-choose:disabled {
+  opacity: 0.6;
+}
+.mission-status {
+  margin-bottom: 8px;
+  font-size: 10px;
+  color: #c4acff;
+}
+.mission-awarded .mission-status {
+  color: var(--lime);
+}
+.progression-error {
+  margin: 10px 0;
+  padding: 11px;
+  border: 1px solid #ff727e35;
+  border-radius: 10px;
+  color: #ff9da5;
+  background: #ff727e09;
+  font-size: 11px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.progression-error p {
+  margin: 0;
+}
+.progression-error button {
+  margin-top: 8px;
+}
+.progression-earned {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 12px 0;
+  color: var(--lime);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.progression-earned svg {
+  flex: 0 0 auto;
+}
+.encouragements {
+  margin-top: 8px;
+  min-width: 0;
+}
+.encouragement-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.encouragement-buttons button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  min-width: 49px;
+  padding: 4px 9px;
+  border: 1px solid #ffffff18;
+  border-radius: 20px;
+  background: #ffffff04;
+  color: var(--muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.encouragement-buttons button > span:first-child {
+  font-size: 16px;
+}
+.encouragement-buttons button[aria-pressed="true"] {
+  color: var(--lime);
+  border-color: #b7f34b70;
+  background: #b7f34b14;
+}
+.encouragement-buttons button:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+.encouragements > small {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.wardrobe {
+  min-width: 0;
+}
+.wardrobe-preview {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  padding: 12px;
+  margin: 14px 0;
+  border: 1px solid #c4acff22;
+  border-radius: 20px;
+  background:
+    radial-gradient(ellipse at top, #c4acff13, transparent 75%), var(--surface);
+}
+.wardrobe-preview .reaper-large {
+  width: 185px;
+  max-width: 100%;
+  height: 185px;
+  margin: 0;
+}
+.wardrobe-preview-label {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  justify-self: start;
+  color: var(--muted);
+  font-size: 10px;
+}
+.wardrobe-preview > strong {
+  color: #d3c1ff;
+  font-size: 14px;
+}
+.wardrobe-preview > span:last-child {
+  margin: 5px 0 3px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.wardrobe-equipped {
+  display: grid;
+  gap: 7px;
+  margin: 12px 0 16px;
+}
+.wardrobe-equipped > div {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  gap: 10px;
+  font-size: 10px;
+}
+.wardrobe-equipped dt {
+  color: var(--muted);
+}
+.wardrobe-equipped dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.wardrobe-slots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border-radius: 13px;
+  background: var(--surface);
+}
+.wardrobe-slots button {
+  min-height: 42px;
+  padding: 7px 3px;
+  border-radius: 9px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.wardrobe-slots button[aria-pressed="true"] {
+  color: var(--lime);
+  background: #2a343e;
+}
+.wardrobe-inventory {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+.wardrobe-item {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  padding: 13px;
+  text-align: left;
+  border: 1px solid #ffffff15;
+  border-radius: 13px;
+  background: var(--surface);
+}
+.wardrobe-item[aria-pressed="true"] {
+  border-color: #c4acff;
+  background: #c4acff0c;
+}
+.wardrobe-item-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+}
+.wardrobe-item-heading > strong {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.wardrobe-item-heading > svg {
+  flex: 0 0 auto;
+  color: var(--lime);
+}
+.wardrobe-item-locked .wardrobe-item-heading > svg {
+  color: var(--muted);
+}
+.wardrobe-item > span:not(.wardrobe-item-heading),
+.wardrobe-item > small {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.6;
+}
+.wardrobe-item > small {
+  color: #c4acff;
+}
+.wardrobe-apply {
+  margin-top: 16px;
+}
+.wardrobe-apply .progression-note svg {
+  display: inline;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+.player-identity {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  vertical-align: middle;
+  min-width: 0;
+}
+.player-identity-avatar {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+.player-identity .reaper-small {
+  display: block;
+  width: 40px;
+  height: 44px;
+}
+.player-identity-badges {
+  position: absolute;
+  bottom: 0;
+  right: -2px;
+  display: inline-flex;
+  gap: 1px;
+}
+.player-identity-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 50%;
+  background: #222938;
+  color: #ffca6a;
+  box-shadow: 0 0 0 1px #ffca6a33;
+}
+.player-identity-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.player-identity-copy strong {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.player-identity-copy small {
+  color: var(--muted);
+  font-size: 9px;
+}
+.player-identity-copy .player-identity-title {
+  color: #c4acff;
+}
+.player-identity-large {
+  flex-direction: column;
+  text-align: center;
+}
+.player-identity-large .player-identity-badges {
+  bottom: 6px;
+  right: 12px;
+  gap: 4px;
+}
+.player-identity-large .player-identity-badge {
+  padding: 5px;
+}
+@media (max-width: 350px) {
+  .progression-heading h2 {
+    font-size: 16px;
+  }
+  .progression-level,
+  .mission-card {
+    padding: 12px;
+  }
+  .wardrobe-slots button {
+    font-size: 10px;
+  }
+  .encouragement-buttons {
+    gap: 4px;
+  }
+}

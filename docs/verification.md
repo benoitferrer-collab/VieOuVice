@@ -1,3 +1,24 @@
+# Rapport de vérification — encouragements, missions et avatars, 9 septembre 2026
+
+## Vérifié localement
+- **52 tests Node passent**, zéro échec, via `node --import tsx --test tests/*.test.ts` (équivalent au runner npm ; cette invocation évite le socket IPC de la CLI tsx interdit dans le bac à sable). Couverture : réactions finales/reprises/retraits, Paris et changements d’heure, plafonds et attribution unique, choix de trois missions, nouvelle habitude à valeur positive, éligibilité de compétition, cosmétiques verrouillés et parité exacte du bundle005–006.
+- `npm run lint`, `npm run typecheck` et `npm run build` passent. Next.js16.3.4 compile neuf pages. Le serveur de recette a été arrêté avant le build final.
+- Recette navigateur sur le build de production local, en démo : choix d’une mission déjà accomplie →50XP ; mission compétition accomplie →100XP et niveau2 ; troisième choix → autres choix désactivés. Objet450XP impossible à équiper ; broche100XP équipée avec confirmation. Persistance des100XP constatée après rechargement et nouvelle entrée en démo.
+- Sur l’historique de Sam : 👏0→1 ; remplacement par 💪 donne 👏0/💪1 ; retrait donne les trois compteurs à0. Identité, titre et badge visibles. Réglage de récapitulatif présent dans les préférences.
+- Recette à320×780 : captures réactions, vestiaire et missions inspectées ; aucun débordement horizontal du document. Correction du manque d’espacement des filtres d’historique intégrée au build final. Aucun message d’erreur console pendant le parcours inspecté.
+- Revue statique indépendante du SQL : correction de la conservation des XP mérités avant annulation d’une compétition. Enveloppe et grants relus. Le test d’annulation vérifie explicitement que l’action synthétique est admissible au calcul des bonnes actions, pour éviter un faux succès dû au filtre temporel.
+- `supabase/update-progression-social.sql` contient exactement005puis006 dans une seule transaction. Tests SQL et job de récapitulatif livrés séparément.
+
+## Limite avant production
+Les migrations005–006 et leurs assertions PostgreSQL **n’ont pas été exécutées**. La CLI Supabase échoue sur la connexion distante IPv6 ; la tentative de liaison IPv4 échoue également. Aucune modification distante permanente, aucun commit ni push GitHub, aucun déploiement Vercel effectué.
+
+La validation SQL sur un projet SaaS de test, les parcours authentifiés multicomptes, la concurrence et la réception réelle des récapitulatifs Web Push restent à effectuer. Les tests Node et la démo ne prouvent pas ces points. Suivre [progression-social.md](progression-social.md) : bundleSQL, tests rollback, job puis publication depuis GitHub. Aucune nouvelle variable Vercel.
+
+---
+
+# Historique avant les migrations005–006
+Les rapports ci-dessous concernent les versions précédentes.
+
 # Rapport de vérification — mise à jour amis/admin/compétitions, 9 septembre 2026
 
 ## Version prête à installer

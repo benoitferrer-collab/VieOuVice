@@ -1,10 +1,13 @@
 import { useId } from "react";
+import type { EquippedLook } from "@/lib/progression/types";
 export function Reaper({
   variant = 0,
   large = false,
+  cosmetics,
 }: {
   variant?: number;
   large?: boolean;
+  cosmetics?: EquippedLook;
 }) {
   const id = useId();
   const color = ["#b7f34b", "#c4acff", "#ffca6a", "#ff8e99"][variant % 4];
@@ -23,6 +26,16 @@ export function Reaper({
       }
     >
       <defs>
+        <radialGradient id={id + "aurora"}>
+          <stop stopColor="#b7f34b" stopOpacity=".42" />
+          <stop offset=".6" stopColor="#9875e9" stopOpacity=".35" />
+          <stop offset="1" stopColor="#9875e9" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id={id + "golden"}>
+          <stop stopColor="#ffe7a4" stopOpacity=".65" />
+          <stop offset=".65" stopColor="#e9ae47" stopOpacity=".28" />
+          <stop offset="1" stopColor="#e9ae47" stopOpacity="0" />
+        </radialGradient>
         <linearGradient id={id + "robe"} x1="0" y1="0" x2="1" y2="1">
           <stop stopColor="#445047" />
           <stop offset=".5" stopColor="#28332c" />
@@ -33,6 +46,40 @@ export function Reaper({
           <stop offset="1" stopColor="#bcc8a6" />
         </linearGradient>
       </defs>
+      {(cosmetics?.background === "aurora" ||
+        cosmetics?.background === "golden") && (
+        <circle
+          cx="120"
+          cy="120"
+          r="118"
+          fill={`url(#${id}${cosmetics.background})`}
+        />
+      )}
+      {cosmetics?.background === "constellation" && (
+        <g>
+          <circle cx="120" cy="120" r="114" fill="#302652" opacity=".65" />
+          <path
+            d="M24 122 41 61 69 37M177 29 199 68 213 131 191 183M24 122 37 191 78 211"
+            stroke="#c4acff"
+            strokeWidth="1.5"
+            opacity=".5"
+            fill="none"
+          />
+          {[
+            [24, 122],
+            [41, 61],
+            [69, 37],
+            [177, 29],
+            [199, 68],
+            [213, 131],
+            [191, 183],
+            [37, 191],
+            [78, 211],
+          ].map(([cx, cy]) => (
+            <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="3" fill="#e9e0ff" />
+          ))}
+        </g>
+      )}
       {large && (
         <>
           <ellipse cx="122" cy="218" rx="61" ry="9" fill="#000" opacity=".25" />
@@ -105,6 +152,87 @@ export function Reaper({
       />
       <circle cx="111" cy="142" r="8" fill={color} />
       <path d="m111 137-3 6h4l-2 5 6-7h-4l2-4" fill="#263b1d" />
+      {cosmetics?.accessory === "leaf_pin" && (
+        <g>
+          <path
+            d="M132 157c-9-17 0-27 17-26 1 16-5 26-17 26Z"
+            fill="#b7f34b"
+            stroke="#e1ffa5"
+            strokeWidth="2"
+          />
+          <path
+            d="m129 162 13-23m-7 10 7-1"
+            fill="none"
+            stroke="#39542b"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </g>
+      )}
+      {cosmetics?.accessory === "halo" && (
+        <g fill="none" stroke="#f5de9b">
+          <ellipse
+            cx="115"
+            cy="17"
+            rx="38"
+            ry="9"
+            strokeWidth="10"
+            opacity=".17"
+          />
+          <ellipse cx="115" cy="17" rx="38" ry="9" strokeWidth="3" />
+        </g>
+      )}
+      {cosmetics?.accessory === "laurel" && (
+        <g fill="#e6c675" stroke="#ffe6a0" strokeWidth="1">
+          <path
+            d="M78 70q-8-28 18-44M158 70q8-28-18-44"
+            fill="none"
+            strokeWidth="3"
+          />
+          <ellipse
+            cx="77"
+            cy="57"
+            rx="5"
+            ry="10"
+            transform="rotate(-25 77 57)"
+          />
+          <ellipse
+            cx="84"
+            cy="42"
+            rx="5"
+            ry="10"
+            transform="rotate(-35 84 42)"
+          />
+          <ellipse
+            cx="94"
+            cy="30"
+            rx="5"
+            ry="9"
+            transform="rotate(-45 94 30)"
+          />
+          <ellipse
+            cx="159"
+            cy="57"
+            rx="5"
+            ry="10"
+            transform="rotate(25 159 57)"
+          />
+          <ellipse
+            cx="152"
+            cy="42"
+            rx="5"
+            ry="10"
+            transform="rotate(35 152 42)"
+          />
+          <ellipse
+            cx="142"
+            cy="30"
+            rx="5"
+            ry="9"
+            transform="rotate(45 142 30)"
+          />
+        </g>
+      )}
       {variant === 2 && (
         <ellipse
           cx="115"

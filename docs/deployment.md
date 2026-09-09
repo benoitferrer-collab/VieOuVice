@@ -29,3 +29,6 @@ Finaliser les mécanismes avancés demandés, la suppression/export complet des 
 
 ## Configuration locale — 8 septembre 2026
 URL et clé publique configurées dans `.env.local`, fichier ignoré par Git. La clé secrète reçue n’a pas été enregistrée ni utilisée. Installation `install.sql` effectuée par l’utilisateur. Vérification publique après installation : Auth répond HTTP 200, email activé ; catalogue, profils, journal et RPC `get_game_state` sont présents et refusent les accès anonymes (HTTP 401, PostgreSQL 42501). Aucune mutation distante n’a été exécutée par l’agent. Restent la vérification des URL Auth, l’activation de Cron (étape 6) et les tests avec des comptes authentifiés.
+
+## Mise à jour encouragements, missions et avatars
+Suivre [progression-social.md](progression-social.md). Après 001–004 : tester puis appliquer une fois `supabase/update-progression-social.sql`, programmer `supabase/reaction-jobs.sql`, puis publier le code par GitHub/Vercel. Aucune nouvelle variable d’environnement. Les migrations 005–006 ne sont pas exécutées automatiquement par le build.

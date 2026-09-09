@@ -19,3 +19,8 @@ test("notification routing only accepts game destinations", () => {
   assert.equal(notificationTab("https://attacker.test"), "survie");
   assert.equal(notificationTab("//attacker.test"), "survie");
 });
+test("encouragement digests use the journal destination", () => {
+  const digest = { ...notice, kind: "reaction_digest", target_tab: "survie" };
+  assert.ok(socialNotice(digest));
+  assert.equal(notificationTab(digest.target_tab), "survie");
+});

@@ -18,3 +18,6 @@ La durée de conservation, les textes de confidentialité et la procédure de su
 
 ## Limites de vérification
 Les migrations SQL sont fournies, pas exécutées sur une instance distante. Les invariants de RLS, Realtime, transactions et concurrence doivent être testés avec les JWT de plusieurs comptes SaaS. Un build frontend réussi ne prouve pas ces propriétés. Voir `docs/testing.md`.
+
+## Progression et encouragements (005–006)
+Tables privées sous RLS, accès direct révoqué, mutations via RPC authentifiées et fonctions definer à search_path vide. Les droits d’amitié, consentement, blocage et suspension sont revérifiés côté SQL. Les lectures groupées sont bornées à 50 déclarations ou 60 apparences. Les apparences publiques ne contiennent ni email, ni inventaire, ni choix de mission, ni total de XP. Les XP sont un registre immutable de 50 par mission, avec trois choix maximum sous verrou transactionnel ; l’équipement est contrôlé côté serveur. Le même verrou global que le jeu protège les mutations de réaction et les récompenses. Les tests SQL sous rôle authenticated sont fournis mais non exécutés durant cette reprise ; les tests HTTP multicomptes et concurrence restent nécessaires.
