@@ -1,11 +1,17 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, ArrowLeft, Mail, LockKeyhole } from "lucide-react";
 import { browserClient } from "@/lib/supabase/browser";
 import { credentialsSchema } from "@/lib/validation/schemas";
 import { Reaper } from "./avatar";
+import { Fingerprint } from "lucide-react";
+import {
+  authenticateWithPasskey,
+  passkeyErrorMessage,
+} from "@/lib/auth/passkeys";
+import { usePasskeySupport } from "@/lib/auth/use-passkey-support";
 export function AuthForm({
   onDemo,
   recovery = false,
@@ -21,8 +27,64 @@ export function AuthForm({
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const passkeysSupported = usePasskeySupport();
+  const pending = useRef(false);
+  const ceremony = useRef<AbortController | null>(null);
+  const authWatch = useRef<{ unsubscribe(): void } | null>(null);
+  useEffect(
+    () => () => {
+      ceremony.current?.abort();
+      ceremony.current = null;
+      authWatch.current?.unsubscribe();
+    },
+    [],
+  );
+  async function signInWithKey() {
+    if (pending.current || !passkeysSupported) return;
+    pending.current = true;
+    const controller = new AbortController();
+    ceremony.current = controller;
+    setBusy(true);
+    setMessage("");
+    let subscription: { unsubscribe(): void } | null = null;
+    try {
+      const auth = browserClient().auth;
+      ({
+        data: { subscription },
+      } = auth.onAuthStateChange((event, session) => {
+        if (event === "SIGNED_IN" && session) {
+          // This also handles our own successful ceremony: use the session that
+          // Supabase just established, without displaying a cancellation error.
+          controller.abort();
+          router.push("/");
+          router.refresh();
+        } else if (event === "SIGNED_OUT") {
+          controller.abort();
+          setMessage(
+            "La session a changé. Tu peux lancer une nouvelle connexion.",
+          );
+        }
+      }));
+      authWatch.current = subscription;
+      await authenticateWithPasskey(auth, controller.signal);
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      if (!controller.signal.aborted) setMessage(passkeyErrorMessage(error));
+    } finally {
+      subscription?.unsubscribe();
+      if (authWatch.current === subscription) authWatch.current = null;
+      pending.current = false;
+      if (ceremony.current === controller) {
+        ceremony.current = null;
+        setBusy(false);
+      }
+    }
+  }
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (pending.current) return;
+    pending.current = true;
     setBusy(true);
     setMessage("");
     try {
@@ -74,6 +136,7 @@ export function AuthForm({
     } catch (e) {
       setMessage(e instanceof Error ? e.message : "Connexion impossible.");
     } finally {
+      pending.current = false;
       setBusy(false);
     }
   }
@@ -106,7 +169,8 @@ export function AuthForm({
               <Mail size={18} />
               <input
                 type="email"
-                autoComplete="email"
+                autoComplete={mode === "login" ? "username" : "email"}
+                name="email"
                 value={email}
                 required
                 onChange={(e) => setEmail(e.target.value)}
@@ -122,6 +186,7 @@ export function AuthForm({
               <LockKeyhole size={18} />
               <input
                 type="password"
+                name="password"
                 minLength={10}
                 maxLength={128}
                 autoComplete={
@@ -154,26 +219,55 @@ export function AuthForm({
           <ArrowRight size={18} />
         </button>
       </form>
+      {mode === "login" && (
+        <div className="passkey-login">
+          <button
+            type="button"
+            className="secondary full"
+            disabled={busy || !passkeysSupported}
+            onClick={() => void signInWithKey()}
+          >
+            <Fingerprint size={19} /> Se connecter avec une clé d’accès
+          </button>
+          <p className="fine-print">
+            {passkeysSupported
+              ? "Apple Mots de passe ou ton gestionnaire habituel. Ajoute d’abord une clé depuis ton profil."
+              : "Les clés d’accès nécessitent un navigateur compatible et une connexion sécurisée."}
+          </p>
+        </div>
+      )}
       <p role="status" className="feedback">
         {message}
       </p>
       {mode === "login" ? (
         <>
-          <button className="text-button" onClick={() => setMode("reset")}>
+          <button
+            className="text-button"
+            disabled={busy}
+            onClick={() => setMode("reset")}
+          >
             Mot de passe oublié ?
           </button>
-          <button className="secondary full" onClick={() => setMode("signup")}>
+          <button
+            className="secondary full"
+            disabled={busy}
+            onClick={() => setMode("signup")}
+          >
             Je suis un nouveau mortel
           </button>
         </>
       ) : (
-        <button className="text-button" onClick={() => setMode("login")}>
+        <button
+          className="text-button"
+          disabled={busy}
+          onClick={() => setMode("login")}
+        >
           <ArrowLeft size={16} />
           Retour à la connexion
         </button>
       )}
       {onDemo && (
-        <button className="text-button" onClick={onDemo}>
+        <button className="text-button" disabled={busy} onClick={onDemo}>
           Explorer la démo sans compte
         </button>
       )}

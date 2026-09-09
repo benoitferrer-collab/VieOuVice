@@ -45,6 +45,7 @@ import { CompetitionBadges } from "./competition-badges";
 import { useProgression } from "@/lib/progression/use-progression";
 import { Missions } from "./progression/missions";
 import { Wardrobe } from "./progression/wardrobe";
+import { PasskeySettings } from "./passkey-settings";
 import { PlayerIdentity } from "./progression/player-identity";
 import { EncouragementList } from "./progression/encouragement-list";
 import { COSMETICS } from "@/lib/progression/metadata";
@@ -88,6 +89,7 @@ type Panel =
   | "donate"
   | "admin"
   | "wardrobe"
+  | "passkeys"
   | null;
 export function Game({
   configured,
@@ -903,6 +905,11 @@ export function Game({
                       onClick={() => setPanel("settings")}
                     />
                     <MenuItem
+                      icon={<LockKeyhole size={20} />}
+                      label="Mes clés d’accès"
+                      onClick={() => setPanel("passkeys")}
+                    />
+                    <MenuItem
                       icon={<CircleHelp size={20} />}
                       label="Les règles du jeu"
                       onClick={() => setPanel("rules")}
@@ -1280,6 +1287,15 @@ export function Game({
             }}
             onClose={() => setPanel(null)}
           />
+        )}
+        {panel === "passkeys" && (
+          <Sheet title="Mes clés d’accès" onClose={() => setPanel(null)}>
+            <PasskeySettings
+              key={`${game.demo}:${state.id}`}
+              userId={state.id}
+              demo={game.demo}
+            />
+          </Sheet>
         )}
         {panel === "wardrobe" && progression.data && (
           <Wardrobe

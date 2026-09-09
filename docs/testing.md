@@ -47,3 +47,6 @@ La recette authentifiée après installation, avec un compte ordinaire et l’ad
 
 ## Régressions progression/social (005–006)
 Après 001–004 et seed sur un projet SaaS de test, appliquer `supabase/update-progression-social.sql`, puis exécuter les fichiers rollback-only `supabase/tests/encouragements.sql` et `supabase/tests/progression.sql` dans SQL Editor. Le second comprend un scénario où une compétition est annulée avant que tous les participants aient chargé leurs XP. Contrôler ensuite les parcours à deux sessions et le Web Push selon [progression-social.md](progression-social.md). Les tests Node couvrent la démo, Paris/DST, les récompenses idempotentes, les limites, les catégories de compétition et la fidélité du bundle SQL ; ils ne remplacent pas les assertions PostgreSQL.
+
+## Clés d’accès
+`tests/passkeys.test.ts` couvre les capacités navigateur, le résultat de session confirmé, les annulations/rejets sans nouvelle tentative automatique, les messages sans détail interne et la vérification du propriétaire avec annulation après réponse différée. La recette réelle avec Apple Mots de passe est dans [passkeys.md](passkeys.md). Aucun authentificateur simulé ou credential réel créé pendant les tests de cette mise à jour.

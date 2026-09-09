@@ -32,3 +32,6 @@ URL et clé publique configurées dans `.env.local`, fichier ignoré par Git. La
 
 ## Mise à jour encouragements, missions et avatars
 Suivre [progression-social.md](progression-social.md). Après 001–004 : tester puis appliquer une fois `supabase/update-progression-social.sql`, programmer `supabase/reaction-jobs.sql`, puis publier le code par GitHub/Vercel. Aucune nouvelle variable d’environnement. Les migrations 005–006 ne sont pas exécutées automatiquement par le build.
+
+## Clés d’accès
+Activer Authentication → Passkeys dans Supabase avec RP ID `viegame.vercel.app` et origine `https://viegame.vercel.app`, puis publier le code via GitHub/Vercel. Aucun SQL et aucune nouvelle variable d’environnement. Voir [passkeys.md](passkeys.md) pour les limites de domaine, l’état expérimental et la recette avec le vrai gestionnaire de clés.

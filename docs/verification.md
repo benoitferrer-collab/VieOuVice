@@ -1,3 +1,17 @@
+# Rapport de vérification — clés d’accès, 9 septembre 2026
+
+- Intégration native Supabase Auth : opt-in client expérimental, bouton de connexion, gestion depuis Profil (ajout, liste, retrait confirmé), mot de passe et récupération conservés. Aucun endpoint, stockage de credential ou JWT personnalisé. Aucun changement SQL, de variable d’environnement ou de dépendance.
+- **57 tests Node passent**, zéro échec. Cinq tests passkeys couvrent capacités, session vérifiée, annulation/rejet, messages français sans données internes et propriétaire du compte. `npm run lint` et `npm run typecheck` passent sans avertissement ; build de production Next16.3.4 réussi après le dernier correctif.
+- Revue indépendante ciblée des méthodes SDK, permissions et sessions. Correction de l’annulation d’un prompt lors d’un événement SIGNED_IN/SIGNED_OUT et nettoyage de l’abonnement. La réussite propre au SDK redirige normalement sans message d’annulation. Le signal du SDK ne garantit pas l’annulation d’une vérification réseau déjà partie : limite documentée, aucune atomicité multionglets revendiquée.
+- Recette navigateur du build local : bouton passkey présent, champs de connexion avec autocomplete username/current-password, menu Profil → Mes clés d’accès accessible, démo clairement expliquée sans possibilité de créer de credential. Contrôle à320×780, document sans débordement horizontal (320/320), capture du panneau inspectée ; aucune erreur console pendant ce parcours. Serveur temporaire de recette arrêté.
+- Non exécuté : activation Passkeys dans Supabase, création dans Apple Mots de passe, authentification biométrique et révocation réelles. Ces opérations doivent être testées avec l’appareil du joueur sur l’origine configurée. Aucun credential créé/utilisé, aucun réglage Supabase changé, aucun Git/push/déploiement.
+
+Configuration exacte et recette : [passkeys.md](passkeys.md). Le support Supabase est encore expérimental. L’utilisateur a confirmé le démarrage de la mise à jour progression précédente ; cette confirmation ne vaut pas une recette détaillée de toutes les assertions SQL.
+
+---
+
+# Historique avant les clés d’accès
+
 # Rapport de vérification — encouragements, missions et avatars, 9 septembre 2026
 
 ## Vérifié localement

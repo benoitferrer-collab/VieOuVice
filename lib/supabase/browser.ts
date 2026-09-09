@@ -6,5 +6,7 @@ export function browserClient() {
     throw new Error(
       "Supabase non configuré. Utilisez la démo ou configurez .env.local.",
     );
-  return createBrowserClient(config.url, config.key);
+  return createBrowserClient(config.url, config.key, {
+    auth: { experimental: { passkey: true } },
+  });
 }

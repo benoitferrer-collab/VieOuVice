@@ -1851,3 +1851,23 @@ input[type="checkbox"] {
 .mini-avatar .player-identity, .events-avatar .player-identity { width:100%; }
 .profile-card > .player-identity { margin-inline:auto; }
 @media(max-width:360px) { .friend-history .encouragements, .action-list .encouragements { padding-left:0; } }
+
+/* Passkeys use the same browser session and profile panels as password login. */
+.passkey-login { margin-top:16px; }
+.passkey-login .secondary { gap:8px; font-size:12px; white-space:normal; }
+.passkey-login .fine-print { margin:10px 0 0; line-height:1.6; }
+.passkey-settings { padding-top:8px; }
+.passkey-intro>svg { color:var(--lime); }
+.passkey-intro p { font-size:13px; line-height:1.7; margin:12px 0; }
+.passkey-settings>.primary { margin-top:18px; gap:8px; }
+.passkey-list { padding:0; margin:20px 0 0; list-style:none; }
+.passkey-list>li { border-top:1px solid var(--line); padding:14px 0; }
+.passkey-row { display:flex; align-items:center; gap:10px; }
+.passkey-row>svg { flex-shrink:0; color:var(--lime); }
+.passkey-row>div { min-width:0; flex:1; }
+.passkey-row strong { font-size:13px; overflow-wrap:anywhere; }
+.passkey-row small { display:block; font-size:10px; color:var(--muted); line-height:1.8; }
+.passkey-row .icon-button { flex-shrink:0; }
+.passkey-confirm { background:var(--surface); padding:12px; margin-top:10px; border-radius:12px; font-size:12px; line-height:1.6; }
+.passkey-confirm>div { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.passkey-confirm .secondary { padding:8px 12px; font-size:12px; }

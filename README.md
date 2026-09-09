@@ -45,3 +45,6 @@ Stack : Next.js App Router, React, TypeScript strict, Tailwind CSS, Framer Motio
 
 ## Mise à jour encouragements et progression
 Les migrations 005–006 ajoutent les réactions entre amis, leurs récapitulatifs, les missions hebdomadaires (150 XP maximum) et le vestiaire d’avatar. Le [guide progression](docs/progression-social.md) détaille le bundle SQL, le job de récapitulatif et la publication GitHub/Vercel. Les scripts SQL restent à valider sur un projet de test avant production.
+
+## Clés d’accès (passkeys)
+Connexion sans saisie du mot de passe et création de clés depuis Profil → Mes clés d’accès, avec Apple Mots de passe ou un gestionnaire compatible. L’option native Supabase, encore expérimentale, doit être activée dans Authentication → Passkeys. Aucun SQL ni nouveau secret : [configuration et recette](docs/passkeys.md).
