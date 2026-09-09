@@ -17,6 +17,7 @@ import {
 } from "./validation/community";
 import { socialNotice } from "./notifications";
 import { actionSchema } from "./validation/schemas";
+import { GameSessionGate } from "./game-session";
 const STORAGE = "exces-o-meter:demo:v1";
 export function useGame(configured: boolean) {
   const [liveNotice, setLiveNotice] = useState<Notice | null>(null);
@@ -29,6 +30,16 @@ export function useGame(configured: boolean) {
   const [authenticated, setAuthenticated] = useState(false);
   const [needsProfile, setNeedsProfile] = useState(false);
   const current = useRef<GameState | null>(null);
+  const [session] = useState(() => new GameSessionGate());
+  const loadSequence = useRef(0);
+  const clearGame = useCallback(() => {
+    current.current = null;
+    setState(null);
+    setAuthenticated(false);
+    setNeedsProfile(false);
+    setLiveNotice(null);
+    seenNotices.current.clear();
+  }, []);
   const update = useCallback((value: GameState) => {
     const normalized = {
       ...value,
@@ -43,26 +54,51 @@ export function useGame(configured: boolean) {
     setState(normalized);
   }, []);
   const load = useCallback(async () => {
-    if (!configured) return;
+    if (!configured || session.isDemo()) return;
+    let ticket = session.capture();
+    const request = ++loadSequence.current;
+    const valid = () =>
+      session.isCurrent(ticket) && request === loadSequence.current;
     const db = browserClient();
-    const { data: auth, error: authError } = await db.auth.getUser();
-    if (authError || !auth.user) {
-      setAuthenticated(false);
-      return;
-    }
-    setAuthenticated(true);
-    const { data, error: rpcError } = await db.rpc("get_game_state");
-    if (rpcError)
-      throw new Error(
-        "Impossible de charger la partie. Vérifiez la connexion et l’installation Supabase.",
+    try {
+      const { data: auth, error: authError } = await db.auth.getUser();
+      if (!valid()) return;
+      if (authError || !auth.user) {
+        session.enterSignedOut();
+        clearGame();
+        setLoading(false);
+        return;
+      }
+      if (!session.isAccount(auth.user.id)) clearGame();
+      ticket = session.enterAccount(auth.user.id);
+      setAuthenticated(true);
+      const result = await session.load<GameState>(ticket, auth.user.id, () =>
+        db.rpc("get_game_state"),
       );
-    if (!data) {
-      setNeedsProfile(true);
-      return;
+      if (!valid() || result.status === "stale") return;
+      if (result.status === "identity-mismatch") {
+        clearGame();
+        throw new Error(
+          "La session a changé. Reconnecte-toi pour retrouver ta partie.",
+        );
+      }
+      if (result.status === "error")
+        throw new Error(
+          "Impossible de charger la partie. Vérifiez la connexion et l’installation Supabase.",
+        );
+      if (result.status !== "loaded") return;
+      if (!result.data) {
+        current.current = null;
+        setState(null);
+        setNeedsProfile(true);
+        return;
+      }
+      setNeedsProfile(false);
+      update(result.data);
+    } catch (caught) {
+      if (valid()) throw caught;
     }
-    setNeedsProfile(false);
-    update(data as GameState);
-  }, [configured, update]);
+  }, [configured, update, session, clearGame]);
   useEffect(() => {
     let active = true;
     const sync = () => setOnline(navigator.onLine);
@@ -77,6 +113,7 @@ export function useGame(configured: boolean) {
             saved = JSON.parse(localStorage.getItem(STORAGE) || "null");
           } catch {}
           if (active) {
+            session.enterDemo();
             setDemo(true);
             update(
               saved?.id === "demo-you" && Array.isArray(saved.actions)
@@ -95,10 +132,11 @@ export function useGame(configured: boolean) {
     void init();
     return () => {
       active = false;
+      session.enterSignedOut();
       window.removeEventListener("online", sync);
       window.removeEventListener("offline", sync);
     };
-  }, [configured, load, update]);
+  }, [configured, load, update, session]);
   useEffect(() => {
     if (demo && state)
       try {
@@ -108,11 +146,17 @@ export function useGame(configured: boolean) {
       }
   }, [state, demo]);
   useEffect(() => {
-    if (!configured || demo || !authenticated) return;
+    if (!configured || demo || !authenticated || !state?.id) return;
+    const ticket = session.capture();
     const db = browserClient();
     const refresh = () => {
-      void load().catch(() =>
-        setError("Connexion interrompue. Actualise pour retrouver ta partie."),
+      if (!session.isCurrent(ticket)) return;
+      void load().catch(
+        () =>
+          session.isCurrent(ticket) &&
+          setError(
+            "Connexion interrompue. Actualise pour retrouver ta partie.",
+          ),
       );
     };
     const channel = db
@@ -126,6 +170,7 @@ export function useGame(configured: boolean) {
           filter: `user_id=eq.${current.current?.id}`,
         },
         (payload) => {
+          if (!session.isCurrent(ticket)) return;
           const notice =
             payload.eventType === "INSERT" ? socialNotice(payload.new) : null;
           if (notice && !seenNotices.current.has(notice.id)) {
@@ -151,36 +196,48 @@ export function useGame(configured: boolean) {
       )
       .subscribe();
     window.addEventListener("online", refresh);
-    const {
-      data: { subscription },
-    } = db.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_OUT") {
-        setLiveNotice(null);
-        seenNotices.current.clear();
-        setAuthenticated(false);
-        setState(null);
-        current.current = null;
-      }
-    });
     return () => {
       void db.removeChannel(channel);
-      subscription.unsubscribe();
       window.removeEventListener("online", refresh);
     };
-  }, [configured, demo, authenticated, load]);
+  }, [configured, demo, authenticated, load, session, state?.id]);
   useEffect(() => {
     if (!configured) return;
     const {
       data: { subscription },
-    } = browserClient().auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN")
+    } = browserClient().auth.onAuthStateChange((event, auth) => {
+      if (event === "SIGNED_OUT") {
+        session.enterSignedOut();
+        clearGame();
+        setDemo(false);
+        setLoading(false);
+        setError("");
+      }
+      if (event === "SIGNED_IN" && auth?.user) {
+        if (!session.isAccount(auth.user.id)) {
+          session.enterAccount(auth.user.id);
+          clearGame();
+          setDemo(false);
+        }
+        const ticket = session.capture();
         window.setTimeout(() => {
-          void load().catch(() => setError("Chargement impossible. Réessaie."));
+          if (!session.isCurrent(ticket)) return;
+          void load()
+            .catch(() => {
+              if (session.isCurrent(ticket))
+                setError("Chargement impossible. Réessaie.");
+            })
+            .finally(() => {
+              if (session.isCurrent(ticket)) setLoading(false);
+            });
         }, 0);
+      }
     });
     return () => subscription.unsubscribe();
-  }, [configured, load]);
+  }, [configured, load, session, clearGame]);
   const startDemo = () => {
+    session.enterDemo();
+    clearGame();
     setDemo(true);
     setError("");
     update(makeDemo());
@@ -204,16 +261,24 @@ export function useGame(configured: boolean) {
         "Hors connexion. Ton brouillon est conservé ; confirme-le après reconnexion.",
       );
     const db = browserClient();
+    const ticket = session.capture();
+    const assertSession = () => {
+      if (!session.isCurrent(ticket))
+        throw new Error("La session a changé. Reconnecte-toi pour continuer.");
+    };
     const { data, error: rpcError } = await db.rpc("record_action", intent);
+    assertSession();
     if (rpcError) {
       const { data: existing } = await db
         .from("actions")
         .select("catalog_id,quantity,minutes_impact")
         .eq("idempotency_key", key)
         .maybeSingle();
+      assertSession();
       if (existing) {
         const impact = recoveredImpact(existing, item.id, quantity);
         await load();
+        assertSession();
         return impact;
       }
       throw new Error(
@@ -223,16 +288,22 @@ export function useGame(configured: boolean) {
       );
     }
     await load();
+    assertSession();
     return data.minutes_impact as number;
   }
   async function mutate(name: string, payload: Record<string, unknown>) {
     if (demo) throw new Error("Cette opération nécessite un compte connecté.");
     if (!navigator.onLine)
       throw new Error("Hors connexion. Réessaie après reconnexion.");
+    const ticket = session.capture();
     const { data, error: rpcError } = await browserClient().rpc(name, payload);
+    if (!session.isCurrent(ticket))
+      throw new Error("La session a changé. Reconnecte-toi pour continuer.");
     if (rpcError)
       throw new Error(rpcError.message || "Opération non confirmée.");
     await load();
+    if (!session.isCurrent(ticket))
+      throw new Error("La session a changé. Reconnecte-toi pour continuer.");
     return data;
   }
   async function createCatalog(input: CommunityActionInput) {
@@ -273,6 +344,10 @@ export function useGame(configured: boolean) {
     }
   }
   async function signOut() {
+    const ticket = session.enterSignedOut();
+    clearGame();
+    setError("");
+    setLoading(false);
     if (demo) {
       if (configured) {
         setDemo(false);
@@ -280,13 +355,13 @@ export function useGame(configured: boolean) {
         current.current = null;
         await load();
       } else {
+        session.enterDemo();
         update(makeDemo());
       }
     } else {
-      await browserClient().auth.signOut();
-      setState(null);
-      current.current = null;
-      setAuthenticated(false);
+      const { error: signOutError } = await browserClient().auth.signOut();
+      if (signOutError && session.isCurrent(ticket))
+        setError("Déconnexion non confirmée. Réessaie.");
     }
   }
   return {
@@ -307,14 +382,16 @@ export function useGame(configured: boolean) {
     liveNotice,
     readNotice,
     refresh: async () => {
+      const ticket = session.capture();
       setError("");
       setLoading(true);
       try {
         await load();
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Chargement impossible.");
+        if (session.isCurrent(ticket))
+          setError(e instanceof Error ? e.message : "Chargement impossible.");
       } finally {
-        setLoading(false);
+        if (session.isCurrent(ticket)) setLoading(false);
       }
     },
   };

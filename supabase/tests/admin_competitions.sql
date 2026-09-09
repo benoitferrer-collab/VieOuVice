@@ -1,4 +1,5 @@
--- NOT EXECUTED by the agent. Manual owner-only integration checks after 001-004 + seed.
+-- Executed on 2026-09-08 with migration 004 inside an outer rollback-only transaction.
+-- Standalone owner-only integration checks after 001-004 + seed.
 -- Synthetic users only; all changes (including season maintenance) ROLLBACK.
 -- JWT emulation is supplemented by ACL assertions, not a substitute for HTTP tests.
 begin;

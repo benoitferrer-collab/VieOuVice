@@ -497,7 +497,16 @@ function AdminEvents({
               <div className="events-subheading">
                 <div>
                   <span className={`events-phase events-phase-${phase}`}>
-                    {phase}
+                    {
+                      {
+                        draft: "Brouillon",
+                        cancelled: "Annulé",
+                        completed: "Terminé",
+                        upcoming: "À venir",
+                        active: "En cours",
+                        ended: "Clôture en cours",
+                      }[phase]
+                    }
                   </span>
                   <h3>{event.title}</h3>
                 </div>

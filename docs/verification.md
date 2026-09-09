@@ -1,3 +1,23 @@
+# Rapport de vérification — mise à jour amis/admin/compétitions, 9 septembre 2026
+
+## Version prête à installer
+- 41 tests Node passent, zéro échec. Les nouveaux cas couvrent scores/fenêtres/égalités, inscriptions démo, gel des résultats et badges, parité du bundle SQL, réponses différées après déconnexion/connexion B ou passage en démo, identité incohérente, onboarding et ancienne erreur réseau.
+- `npm run typecheck`, `npm run lint` et `npm run build` passent. Build Next.js 16.3.4 : neuf pages générées, routes Auth/export/push compilées. Le premier essai avait rencontré deux fichiers générés `.next/dev/types` malformés pendant l’exécution simultanée de dev/build ; retrait de ces deux fichiers générés, arrêt du dev et build séquentiel réussi. Aucun contournement TypeScript ajouté.
+- Migration 004 et `supabase/tests/admin_competitions.sql` exécutés ensemble dans une transaction distante temporaire via Supabase CLI. Assertions passées et `rollback_confirmed: true` après annulation. Les comptes synthétiques, droits, tables et modifications de test n’ont pas été conservés. Le test contrôle notamment les SELECT sous rôle authenticated, les RPC, la confidentialité, le dernier admin, les quotas, les inscriptions, les bornes de score et les récompenses figées. L’activation réelle de l’admin n’a pas été exécutée.
+- Revue statique indépendante du SQL et de l’intégration. Correction d’une lacune de suspension sur SELECT direct, alignement strict des validations SQL/TypeScript, puis correction des réponses de l’ancienne session dans le hook de jeu. Le helper de session testé est celui utilisé par le hook ; les mutations et événements Realtime obsolètes sont également ignorés.
+- Recette navigateur de la démo : inscription puis désinscription, classement à zéro avant le début, historique Sam partagé avec trois déclarations et filtre bonnes actions, historique Jo privé, préférences de partage séparées, badges de profil et absence d’administration en démo. Sur 320 × 780, compétition et réglages sans débordement horizontal : page 320 px, dialog client/scroll 318 px. Capture de compétition inspectée ; pas d’erreur ni avertissement console relevé pendant ce parcours.
+- Après la dernière correction, recette du build de production local : entrée en démo, retour au formulaire de connexion, nouvelle entrée en démo, compétitions affichées. Serveur temporaire sur 3001 arrêté après recette ; aucun autre serveur arrêté.
+
+## Installation et limites
+Les fichiers sont locaux. Aucun commit, push GitHub, déploiement Vercel ou installation permanente de la migration 004 n’a été effectué. Le projet Vercel existant utilise GitHub ; suivre [admin-competitions.md](admin-competitions.md) pour appliquer le bundle SQL, activer la clôture périodique, puis publier depuis la branche GitHub de production. Aucune nouvelle variable Vercel n’est requise.
+
+La recette admin/second joueur avec de vraies sessions HTTP, la concurrence multi-connexions et la réception des badges sur la version déployée restent à effectuer après installation. Les assertions SQL sous rôle authenticated ne constituent pas un test HTTP avec JWT réels. Pas de test lecteur d’écran pendant cette mise à jour.
+
+---
+
+# Historique des vérifications avant la migration 004
+Les sections suivantes décrivent les étapes précédentes, et non l’état actuel de cette mise à jour.
+
 # Rapport de vérification — 8 septembre 2026
 
 ## Exécuté
