@@ -45,6 +45,7 @@ import { CompetitionBadges } from "./competition-badges";
 import { useProgression } from "@/lib/progression/use-progression";
 import { Missions } from "./progression/missions";
 import { Wardrobe } from "./progression/wardrobe";
+import { PlayerGuide } from "./player-guide";
 import { PasskeySettings } from "./passkey-settings";
 import { PlayerIdentity } from "./progression/player-identity";
 import { EncouragementList } from "./progression/encouragement-list";
@@ -86,6 +87,7 @@ const tabs = [
 type Tab = (typeof tabs)[number]["id"];
 type Panel =
   | "rules"
+  | "guide"
   | "health"
   | "excess"
   | "journal"
@@ -1002,6 +1004,11 @@ export function Game({
                       onClick={() => setPanel("passkeys")}
                     />
                     <MenuItem
+                      icon={<BookOpen size={20} />}
+                      label="Guide du joueur"
+                      onClick={() => setPanel("guide")}
+                    />
+                    <MenuItem
                       icon={<CircleHelp size={20} />}
                       label="Les règles du jeu"
                       onClick={() => setPanel("rules")}
@@ -1158,6 +1165,7 @@ export function Game({
             create={game.createCatalog}
           />
         )}
+        {panel === "guide" && <PlayerGuide onClose={() => setPanel(null)} />}
         {panel === "rules" && (
           <Sheet title="Les règles des vivants" onClose={() => setPanel(null)}>
             <div className="rules-intro">

@@ -1,3 +1,12 @@
+# Guide du joueur intégré — 10 septembre 2026
+
+- Menu Profil → Guide du joueur disponible sans condition en démo et avec compte. Démarrage rapide et 13 rubriques dépliables : objectif, connexion, compteurs, déclarations, communauté, ligue, duels, compétitions, missions, amis, dons, notifications et confidentialité.
+- Contenu vérifié contre les composants et règles locales. La différence entre bilan net de pertes en ligue et solde net de gains en compétition est explicite. Aucun réglage serveur ni changement de score.
+- Lint, typecheck et build de production réussis. Recette navigateur du build local : ouverture depuis Profil, rubrique compétitions dépliée, lecture à 320×780 sans débordement horizontal (320/320). Échap ferme le panneau et restitue le focus à son bouton de menu.
+- Aucun push, déploiement ni changement Supabase. La publication de ce guide demande uniquement le déploiement du code via GitHub/Vercel.
+
+---
+
 # Rapport de vérification — compteurs, classements et catalogue, 10 septembre 2026
 
 - **66 tests Node passent**, zéro échec, via `node --import tsx --test tests/*.test.ts`. `npm run lint`, `npm run typecheck` et `npm run build` réussissent. Parité exacte des bundles 007, 008 et du bundle commun, catalogue unique et mise à niveau de la démo couverts.

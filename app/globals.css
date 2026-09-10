@@ -1892,3 +1892,24 @@ input[type="checkbox"] {
 .loss-score small { display:block; color:var(--muted); font-size:9px; font-weight:400; }
 .score-summary strong { overflow-wrap:anywhere; }
 @media(max-width:360px) { .life-time-details>div { padding:10px; } .leader-row .loss-score { max-width:82px; font-size:11px; } }
+
+/* Guide accessible depuis le profil, en démo et en mode connecté. */
+.player-guide { line-height: 1.7; }
+.player-guide-intro { padding: 12px 0 20px; }
+.player-guide-intro > svg { color: var(--lime, #c7f766); }
+.player-guide h3 { font-size: 1rem; line-height: 1.5; margin: 10px 0; }
+.player-guide-intro p, .player-guide-body p { color: var(--muted, #a5a8b7); font-size: .9rem; }
+.player-guide-start { padding: 16px; margin-bottom: 20px; border: 1px solid #c7f76630; border-radius: 16px; background: #c7f76608; }
+.player-guide-start ol { padding-left: 20px; font-size: .9rem; }
+.player-guide-start li + li { margin-top: 8px; }
+.player-guide-chapter { border-bottom: 1px solid #ffffff14; }
+.player-guide-chapter summary { display: flex; align-items: center; gap: 12px; padding: 18px 2px; cursor: pointer; list-style: none; font-size: .92rem; font-weight: 650; line-height: 1.45; }
+.player-guide-chapter summary::-webkit-details-marker { display: none; }
+.player-guide-chapter summary:focus-visible { outline: 2px solid #c7f766; outline-offset: 3px; border-radius: 6px; }
+.player-guide-number { color: #c7f766; font-size: .7rem; font-variant-numeric: tabular-nums; }
+.player-guide-chapter summary > span:nth-child(2) { flex: 1; min-width: 0; }
+.player-guide-chapter summary > svg { flex-shrink: 0; }
+.player-guide-chapter[open] summary > svg { transform: rotate(180deg); }
+.player-guide-body { padding: 0 2px 14px; overflow-wrap: anywhere; }
+.player-guide-body p + p { margin-top: 14px; }
+.player-guide > .fine-print { margin-top: 24px; }
