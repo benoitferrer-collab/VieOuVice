@@ -115,3 +115,13 @@ Contrôles publics en lecture seule effectués : Auth HTTP 200, inscription emai
 - HTTP local : `/api/push/config` répond 200, `Cache-Control: no-store`, `configured:false`, `publicKey:null` ; POST `/api/push/dispatch` sans autorisation répond 401. Aucun push envoyé.
 - `supabase/update-community-notifications.sql` regroupe 002 + 003 en une transaction, sans modifier l’installation originale déjà appliquée. Tests SQL communauté/push fournis pour un projet SaaS de test. Ces nouvelles migrations, Realtime entre comptes, consentement système et réception app fermée restent à valider après configuration/déploiement.
 - Aucun envoi sur GitHub, aucune publication ni modification distante effectués pendant cette reprise.
+
+## 10 septembre 2026 — accueil guidé et messages
+
+- Lint et TypeScript réussis. Les 71 tests Node passent via `node --import tsx --test tests/*.test.ts` ; le lanceur `npm test` est bloqué par la restriction locale de création du socket IPC de tsx.
+- Build de production réussi avec `npm run build -- --webpack`. Le build Turbopack dans cet environnement échoue sur une restriction de création de processus/port, sans changement de la commande Vercel. La route temporaire de recette `qa-welcome` a été supprimée avant le build final.
+- PostgreSQL 18 temporaire, socket local privé sans écoute TCP : migrations 001–009 appliquées, seed chargé, schéma Auth minimal simulé. `supabase/tests/friend_messages.sql` et `supabase/tests/web_push.sql` passent et annulent leurs fixtures. Instance arrêtée après vérification.
+- Le contrôle élargi `supabase/tests/encouragements.sql` échoue à « Digest absent or ineligible ». Le même échec est reproduit dans une seconde base locale avec seulement 001–008 : il préexiste à 009. La suite SQL complète ne peut donc pas être déclarée verte ; cette anomalie reste à examiner séparément.
+- Navigateur en démo : message fictif envoyé, balises HTML affichées littéralement, champ vidé après confirmation, envoi vide désactivé, historique retrouvé à la réouverture. Affichage messagerie inspecté à 320 px. Aucun message réel envoyé.
+- Accueil testé par une route temporaire sans RPC de création : pseudonyme/avatar conservés après Retour, explication des compteurs, découverte de mission puis fin du parcours. Largeur document/scroll de 320/320 px ; aucun compte créé. Route de recette retirée.
+- Connexion de vérification CLI Supabase expirée. Aucun SQL exécuté ni déploiement permanent sur le SaaS pendant cette reprise. Tests Auth/PostgREST entre deux comptes et livraison Web Push sur téléphone à effectuer après installation ; voir `docs/friend-messages.md`.

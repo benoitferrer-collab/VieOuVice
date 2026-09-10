@@ -1913,3 +1913,26 @@ input[type="checkbox"] {
 .player-guide-body { padding: 0 2px 14px; overflow-wrap: anywhere; }
 .player-guide-body p + p { margin-top: 14px; }
 .player-guide > .fine-print { margin-top: 24px; }
+
+.welcome-steps { display: flex; list-style: none; gap: 10px; padding: 0; margin: 24px 0; font-size: .72rem; color: #a5a8b7; }
+.welcome-steps li { flex: 1; border-top: 3px solid #ffffff20; padding-top: 10px; }
+.welcome-steps li[aria-current="step"] { color: #c7f766; border-color: #c7f766; }
+.welcome-cards article { background: #ffffff05; border: 1px solid #ffffff14; padding: 16px; border-radius: 16px; margin: 14px 0; }
+.welcome-cards h2 { font-size: 1.1rem; margin: 0 0 8px; }
+.welcome-cards p, .welcome-mission { font-size: .9rem; line-height: 1.7; color: #b6b9c6; }
+.welcome-mission { padding-left: 24px; }
+.welcome-mission li + li { margin-top: 10px; }
+.messages-entry { margin: 22px 0; }
+.messages-entry > button { flex-wrap: wrap; }
+.message-contact { display: flex; width: 100%; justify-content: space-between; align-items: center; gap: 16px; padding: 20px 0; border-bottom: 1px solid #ffffff20; text-align: left; }
+.message-contact span:first-child { overflow-wrap: anywhere; }
+.message-contact span:last-child { font-size: .75rem; color: #c7f766; text-align: right; }
+.conversation h3 { margin: 16px 0 6px; overflow-wrap: anywhere; }
+.message-list { display: flex; flex-direction: column; gap: 12px; padding: 0; margin: 20px 0; list-style: none; }
+.message-bubble { max-width: 92%; align-self: flex-start; padding: 12px 14px; border: 1px solid #ffffff14; background: #ffffff08; border-radius: 14px 14px 14px 3px; overflow-wrap: anywhere; }
+.message-bubble.mine { align-self: flex-end; background: #c7f7660d; border-color: #c7f76630; border-radius: 14px 14px 3px 14px; }
+.message-bubble p { white-space: pre-wrap; font-size: .9rem; line-height: 1.6; margin: 5px 0 8px; }
+.message-author, .message-bubble time { font-size: .68rem; color: #a5a8b7; }
+.message-compose textarea { display: block; box-sizing: border-box; width: 100%; resize: vertical; min-height: 90px; padding: 12px; border: 1px solid #ffffff25; border-radius: 12px; background: #ffffff08; color: inherit; font: inherit; margin: 8px 0; }
+.message-compose textarea:focus-visible { outline: 2px solid #c7f766; }
+.message-compose textarea:disabled { opacity: .6; }

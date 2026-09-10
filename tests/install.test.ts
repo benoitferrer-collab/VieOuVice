@@ -123,3 +123,13 @@ test("combined loss and catalogue upgrade preserves both migrations", () => {
       );
   }
 });
+
+test("private messages manual upgrade matches migration 009 exactly", () => {
+  assert.equal(
+    readFileSync("supabase/update-friend-messages.sql", "utf8"),
+    readFileSync(
+      "supabase/migrations/202609100009_friend_messages.sql",
+      "utf8",
+    ),
+  );
+});

@@ -18,6 +18,7 @@ const noticeSchema = z.object({
     "duel_finished",
     "friend_accepted",
     "reaction_digest",
+    "friend_message",
   ]),
   actor_id: z.string().nullable().optional(),
   target_tab: z.enum(tabs).optional(),

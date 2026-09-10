@@ -18,6 +18,7 @@ import {
   Leaf,
   LogOut,
   Medal,
+  MessageCircle,
   Moon,
   Plus,
   Settings2,
@@ -45,6 +46,8 @@ import { CompetitionBadges } from "./competition-badges";
 import { useProgression } from "@/lib/progression/use-progression";
 import { Missions } from "./progression/missions";
 import { Wardrobe } from "./progression/wardrobe";
+import { MessageCenter } from "./message-center";
+import { useMessages } from "@/lib/messages/use-messages";
 import { PlayerGuide } from "./player-guide";
 import { PasskeySettings } from "./passkey-settings";
 import { PlayerIdentity } from "./progression/player-identity";
@@ -88,6 +91,7 @@ type Tab = (typeof tabs)[number]["id"];
 type Panel =
   | "rules"
   | "guide"
+  | "messages"
   | "health"
   | "excess"
   | "journal"
@@ -124,6 +128,11 @@ export function Game({
   const [toast, setToast] = useState("");
   const [journalKind, setJournalKind] = useState<"all" | Kind>("all");
   const [lossRanking, setLossRanking] = useState<LossRanking>("gross");
+  const messaging = useMessages(
+    game.state,
+    game.demo,
+    tab === "amis" || panel === "messages",
+  );
   function tell(message: string) {
     setToast(message);
     window.setTimeout(() => setToast(""), 5000);
@@ -777,6 +786,33 @@ export function Game({
                       Ajouter un ami
                     </button>
                   </section>
+                  <section
+                    className="messages-entry"
+                    aria-label="Messagerie privée"
+                  >
+                    <button
+                      className="secondary full"
+                      onClick={() => setPanel("messages")}
+                      disabled={!messaging.inbox}
+                    >
+                      <MessageCircle size={20} /> Mes messages
+                      {messaging.inbox ? (
+                        <span className="count-badge">
+                          {messaging.inbox.unread_count} non lu
+                          {messaging.inbox.unread_count > 1 ? "s" : ""}
+                        </span>
+                      ) : null}
+                    </button>
+                    <p className="fine-print">
+                      Conversations privées entre amis acceptés. Les alertes de
+                      messages se règlent dans la messagerie.
+                    </p>
+                    {messaging.error && (
+                      <p role="status" className="coral">
+                        {messaging.error}
+                      </p>
+                    )}
+                  </section>
                   <div className="section-heading">
                     <h2>Dans ton cercle</h2>
                     <span className="count-badge">{state.friends.length}</span>
@@ -1163,6 +1199,19 @@ export function Game({
             demo={game.demo}
             communityEnabled={!!state.community_enabled}
             create={game.createCatalog}
+          />
+        )}
+        {panel === "messages" && messaging.inbox && (
+          <MessageCenter
+            key={`${game.demo}:${state.id}`}
+            userId={state.id}
+            drafts={messaging.drafts}
+            friends={state.friends}
+            demo={game.demo}
+            inbox={messaging.inbox}
+            rpc={messaging.rpc}
+            refresh={messaging.refresh}
+            onClose={() => setPanel(null)}
           />
         )}
         {panel === "guide" && <PlayerGuide onClose={() => setPanel(null)} />}

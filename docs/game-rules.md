@@ -51,3 +51,9 @@ Les encouragements sont limités à une réaction par ami et déclaration partag
 
 ## Temps perdu et catalogue étendu
 Les compteurs personnels agrègent tout le journal, hors bonus, dons et XP. Affichage en minutes, heures ou années fictives de 365 jours. Voir [loss-scoring.md](loss-scoring.md) et les 18 [catégories supplémentaires](catalog-actions.md). Les anciens barèmes et saisons clôturées restent conservés.
+
+## Accueil guidé et conversations privées
+
+Les nouveaux profils découvrent leur avatar, les compteurs fictifs et une première mission en trois étapes. Aucune mission n’est sélectionnée automatiquement. Le Guide du joueur reste disponible aux profils existants.
+
+Amis → Mes messages permet les échanges de texte entre amis acceptés, sans gain de score ni XP. Limites : 2 000 caractères, 20 envois par minute et 200 par jour de Paris. Le blocage et la suspension empêchent les échanges. Les notifications de messages sont réglables dans ce panneau ; l’alerte téléphone reste générique et utilise le consentement Web Push existant. Les données sont conservées dans Supabase et l’export personnel ; aucun chiffrement de bout en bout ni suppression de message n’est proposé. Voir `docs/friend-messages.md`.

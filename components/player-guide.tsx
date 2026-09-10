@@ -16,7 +16,7 @@ const chapters = [
     paragraphs: [
       "Le jeu fonctionne sur le Web : ouvre son adresse dans ton navigateur, sur ordinateur ou téléphone. Aucun téléchargement depuis un store n’est nécessaire.",
       "Pour découvrir les écrans, choisis « Explorer la démo sans compte ». Ses joueurs et résultats sont fictifs et enregistrés dans ce navigateur ; cette simulation est indépendante de ta vraie partie.",
-      "Pour jouer avec tes amis, crée un compte par email, confirme ton adresse si demandé, puis choisis ton pseudonyme et ton avatar. Reviens avec le même compte pour retrouver ta partie sur un autre appareil. Une connexion Internet est nécessaire pour enregistrer tes vraies déclarations.",
+      "Pour jouer avec tes amis, crée un compte par email, confirme ton adresse si demandé, puis suis les trois étapes de bienvenue : ton pseudonyme et ton avatar, les compteurs fictifs, puis la découverte de ta première mission. Ton profil est créé à la dernière confirmation ; aucune mission n’est choisie automatiquement. Reviens avec le même compte pour retrouver ta partie sur un autre appareil. Une connexion Internet est nécessaire pour enregistrer tes vraies déclarations.",
       "Tu disposes de cinq onglets : Survie pour ton tableau de bord, Ligue pour les classements, Némésis pour le duel, Amis pour ton cercle, et Profil pour ton journal, ton avatar et tes préférences.",
     ],
   },
@@ -94,6 +94,17 @@ const chapters = [
       "Pour consulter un ami, ouvre sa semaine depuis l’onglet Amis. L’historique reste inaccessible s’il ne le partage pas. Une amitié ne donne pas automatiquement accès à ses déclarations.",
       "Réagis à une déclaration partagée avec 👏, 💪 ou 😂. Tu disposes d’une seule réaction par déclaration : choisir un autre emoji la remplace ; recliquer le même la retire. Les réactions n’ajoutent ni minutes ni XP.",
       "Le réglage « Partager mes déclarations avec mes amis » concerne les alertes d’activité et est distinct du partage de l’historique. Tu peux choisir séparément ce que tes amis voient dans leur fil de notifications et dans ta semaine.",
+    ],
+  },
+  {
+    title: "Envoyer un message privé à un ami",
+    paragraphs: [
+      "Ouvre Amis → Mes messages, puis choisis une personne de ton cercle. Seuls les amis ayant accepté ton invitation peuvent échanger. Écris ton texte et appuie sur Envoyer ; attends sa confirmation. La conversation s’actualise toutes les dix secondes lorsque le jeu est visible.",
+      "Les messages sont limités à 2 000 caractères, 20 envois par minute et 200 par jour (heure de Paris). Ils ne rapportent ni minutes ni XP. Cette version accepte uniquement le texte, sans pièces jointes. Les messages envoyés ne sont pas directement modifiables ou supprimables.",
+      "Le nombre de non-lus apparaît dans Mes messages et auprès de chaque ami. Les anciens échanges se consultent avec Voir les messages précédents. Les messages récupérés dans une conversation active sont marqués comme lus ; ouvrir seulement la liste des conversations ne les marque pas comme lus.",
+      "En cas d’envoi non confirmé, utilise Réessayer cet envoi. La même reprise reste disponible en rouvrant la conversation pendant cette session, tant que tu ne recharges pas la page et ne te déconnectes pas. Après une fermeture complète, vérifie l’historique avant de renvoyer un texte.",
+      "Le réglage Notifications des messages, dans la messagerie, contrôle les alertes dans la cloche et leur envoi au téléphone. Pour le téléphone, l’autorisation du navigateur reste nécessaire. Seule une alerte générique est affichée hors du jeu, jamais le contenu du message.",
+      "Un blocage, une suspension ou la fin de l’amitié coupe l’accès à la conversation dans le jeu. Les échanges restent conservés dans les données du compte et leur export. La messagerie ne propose pas de chiffrement de bout en bout : évite d’y envoyer des mots de passe ou des informations sensibles.",
     ],
   },
   {

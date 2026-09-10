@@ -24,3 +24,13 @@ test("encouragement digests use the journal destination", () => {
   assert.ok(socialNotice(digest));
   assert.equal(notificationTab(digest.target_tab), "survie");
 });
+
+test("private message notices route to friends without needing message content", () => {
+  const message = socialNotice({
+    ...notice,
+    kind: "friend_message",
+    message: "Tu as reçu un message privé.",
+  });
+  assert.ok(message);
+  assert.equal(notificationTab(message.target_tab), "amis");
+});
