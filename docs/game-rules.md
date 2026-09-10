@@ -10,7 +10,7 @@ Les règles ci-dessous reprennent les arbitrages proposés dans le document de c
 - Solde signé ; statut Zombie à zéro ou moins ; saisie et gains sains toujours possibles. Une réanimation ne dépend pas obligatoirement d’un don.
 - Bonus initial unique : 500 minutes, sans points hebdomadaires.
 - Zombie ≤ 0 ; Funambule 1–250 ; Survivant 251–1999 ; Divinité ≥ 2000.
-- Score de ligue : somme des impacts d’actions de la semaine. Le solde global est préservé à la clôture, le score de la nouvelle saison commence à zéro.
+- Score de ligue et duel : total positif des pertes dues aux excès de la semaine, le plus élevé gagne. Les bonnes habitudes ne réduisent pas ce score officiel. Une seconde vue compare le bilan net (pertes moins récupérations). Le solde global est préservé à la clôture, le score de la nouvelle saison commence à zéro.
 - Semaine : lundi 00:00 Europe/Paris → lundi suivant, borne finale exclue. Les jours de plafonds utilisent Paris aussi. Les saisons sont calculées avec des bornes calendaires locales, pas 168 heures fixes.
 - Ligues de 30 maximum, 5 divisions. `floor(effectif / 6)` promotions et relégations, donc aucune sous 6 membres. Bornes de division respectées. Tri score décroissant puis UUID PostgreSQL croissant.
 - Némésis facultatif : consentement désactivé par défaut. Appariement réciproque au changement de saison, même ligue, score précédent proche, évitement des répétitions lorsque possible et des blocages.
@@ -48,3 +48,6 @@ Les administrateurs créent des compétitions de 90 jours maximum. Inscription a
 Chaque semaine du lundi au lundi, heure de Paris, choisir trois missions parmi cinq : pauses sur trois jours, bonnes habitudes sur trois jours, trois catégories saines, nouvelle bonne habitude, action saine éligible dans une compétition rejointe. Les actions positives de la semaine comptent même avant le choix. Une mission vaut 50 XP, maximum 150 XP par semaine ; aucun effet sur les minutes de vie ou la ligue. Un niveau tous les 100 XP. Les choix et récompenses attribuées sont conservés. Le premier trio donne un badge. Accessoires, titres et décors sont équipables selon XP ou badges de compétition ; détails dans [progression-social.md](progression-social.md).
 
 Les encouragements sont limités à une réaction par ami et déclaration partagée des sept derniers jours. Ils ne rapportent pas de XP. Les changements réels sont limités à 20 par minute et 100 par jour de Paris ; les reprises identiques ne consomment pas de quota.
+
+## Temps perdu et catalogue étendu
+Les compteurs personnels agrègent tout le journal, hors bonus, dons et XP. Affichage en minutes, heures ou années fictives de 365 jours. Voir [loss-scoring.md](loss-scoring.md) et les 18 [catégories supplémentaires](catalog-actions.md). Les anciens barèmes et saisons clôturées restent conservés.

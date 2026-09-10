@@ -1,3 +1,5 @@
+import { expandedCatalog } from "./catalog-expansion";
+import { normalizeDemoTime, type LifeStats } from "./life-time";
 export type Kind = "excess" | "health";
 export type CatalogItem = {
   id: string;
@@ -27,6 +29,8 @@ export type Player = {
   nickname: string;
   avatar: number;
   weekly_score: number;
+  weekly_stats?: LifeStats;
+  official_rank?: number;
 };
 export type Friend = {
   id: string;
@@ -55,6 +59,11 @@ export type GameState = {
   avatar: number;
   balance: number;
   weekly_score: number;
+  loss_scoring?: boolean;
+  official_rank?: number;
+  league_size?: number;
+  life_stats?: LifeStats;
+  weekly_stats?: LifeStats;
   actions: Action[];
   catalog: CatalogItem[];
   players: Player[];
@@ -71,6 +80,7 @@ export type GameState = {
   social_settings?: SocialSettings;
 };
 export const catalog: CatalogItem[] = [
+  ...expandedCatalog,
   {
     id: "walk",
     label: "Prendre l’air",
@@ -193,7 +203,7 @@ export function makeDemo(): GameState {
   const now = new Date();
   const time = (h: number) =>
     new Date(now.getTime() - h * 3600000).toISOString();
-  return {
+  return normalizeDemoTime({
     id: "demo-you",
     nickname: "Mortel_mais_pas_trop",
     avatar: 0,
@@ -292,7 +302,7 @@ export function makeDemo(): GameState {
         read_at: null,
       },
     ],
-  };
+  });
 }
 // Simulation only. Connected mutations always go through PostgreSQL.
 export function applyDemoAction(
@@ -337,7 +347,7 @@ export function applyDemoAction(
           ),
         )
       : item.coefficient * quantity;
-  return {
+  return normalizeDemoTime({
     ...state,
     balance: state.balance + impact,
     weekly_score: state.weekly_score + impact,
@@ -359,5 +369,5 @@ export function applyDemoAction(
         ? { ...p, weekly_score: state.weekly_score + impact }
         : p,
     ),
-  };
+  });
 }

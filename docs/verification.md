@@ -1,3 +1,13 @@
+# Rapport de vérification — compteurs, classements et catalogue, 10 septembre 2026
+
+- **66 tests Node passent**, zéro échec, via `node --import tsx --test tests/*.test.ts`. `npm run lint`, `npm run typecheck` et `npm run build` réussissent. Parité exacte des bundles 007, 008 et du bundle commun, catalogue unique et mise à niveau de la démo couverts.
+- SQL : application temporaire du bundle 007–008 et exécution intégrale de `supabase/tests/loss_scoring.sql` sur le projet lié, dans une transaction externe sans COMMIT. Retour CLI réussi et `rollback_confirmed: true`. Aucun changement permanent. Assertions sur plus de 100 actions, bonus/dons exclus, bilan négatif, saison close inchangée, saison ouverte compensée, ledger immuable, retries, confidentialité, rangs officiels avant masquage et droits des helpers.
+- Revue SQL indépendante : aucun point bloquant ; comparaisons d’assertions rendues insensibles aux valeurs SQL NULL avant exécution.
+- Recette du build local en démo : 20 minutes perdues, 105 récupérées, bilan de 85 récupérées ; années affichées avec arrondi ; Cléo première en brut, Sam premier en net. Recherche « salade », déclaration +20 confirmée dans le journal ; pertes toujours 20, récupération 125, bilan 105 récupérées. La mission de troisième bonne habitude s’est aussi accomplie.
+- Résumé inspecté visuellement à 320×780 : cartes lisibles, aucune largeur débordante (document 320/320). Aucun compte de production utilisé dans le navigateur. Activation permanente de la migration et publication GitHub/Vercel restent à effectuer par l’utilisateur : [loss-scoring.md](loss-scoring.md).
+
+---
+
 # Rapport de vérification — clés d’accès, 9 septembre 2026
 
 - Intégration native Supabase Auth : opt-in client expérimental, bouton de connexion, gestion depuis Profil (ajout, liste, retrait confirmé), mot de passe et récupération conservés. Aucun endpoint, stockage de credential ou JWT personnalisé. Aucun changement SQL, de variable d’environnement ou de dépendance.

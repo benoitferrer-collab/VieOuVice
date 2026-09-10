@@ -166,6 +166,10 @@ export function ActionSheet({
               ? "Les petites habitudes font leur chemin."
               : "Sans jugement. On tient juste le compte du jeu."}
           </p>
+          <p className="muted sheet-description">
+            Barèmes fictifs : choisis une seule catégorie pour une même
+            consommation ou activité.
+          </p>
           {communityEnabled && (
             <button
               type="button"

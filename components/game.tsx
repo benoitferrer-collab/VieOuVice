@@ -64,6 +64,12 @@ import { Sheet } from "./sheet";
 import { AuthForm } from "./auth-form";
 import { ActionList } from "./action-list";
 import { Leaderboard } from "./leaderboard";
+import { LifeTimeSummary } from "./life-time-summary";
+import {
+  formatLifeDuration,
+  rankByLoss,
+  type LossRanking,
+} from "@/lib/life-time";
 import { ActionSheet } from "./action-sheet";
 import { Onboarding } from "./onboarding";
 import { SettingsSheet } from "./settings-sheet";
@@ -115,6 +121,7 @@ export function Game({
   const [panel, setPanel] = useState<Panel>(null);
   const [toast, setToast] = useState("");
   const [journalKind, setJournalKind] = useState<"all" | Kind>("all");
+  const [lossRanking, setLossRanking] = useState<LossRanking>("gross");
   function tell(message: string) {
     setToast(message);
     window.setTimeout(() => setToast(""), 5000);
@@ -163,11 +170,18 @@ export function Game({
   const earned = today.reduce((n, a) => n + Math.max(0, a.minutes_impact), 0);
   const lost = today.reduce((n, a) => n + Math.min(0, a.minutes_impact), 0);
   const rank =
+    state.official_rank ??
     [...state.players]
       .sort(
         (a, b) => b.weekly_score - a.weekly_score || a.id.localeCompare(b.id),
       )
       .findIndex((p) => p.id === state.id) + 1;
+  const selectedRank =
+    state.loss_scoring && lossRanking === "net"
+      ? rankByLoss(state.players, lossRanking).findIndex(
+          (p) => p.id === state.id,
+        ) + 1
+      : rank;
   const subtitle = {
     survie: "Un jour de plus. Bien joué.",
     ligue: "La survie est un sport collectif.",
@@ -356,27 +370,41 @@ export function Game({
                         {status.name}
                       </span>
                     </div>
-                    <p className="survival-caption">TON CAPITAL VIE</p>
-                    <div className={"balance " + status.className}>
-                      {new Intl.NumberFormat("fr-FR").format(state.balance)}
-                      <span>min de vie</span>
-                    </div>
-                    <p className="reaper-quote">
-                      {state.soft ? "Ton aventure continue." : status.message}
-                    </p>
-                    <div className="survival-track">
-                      <span
-                        style={{ width: gaugePercent(state.balance) + "%" }}
-                      />
-                    </div>
-                    <div className="scale">
-                      <span>
-                        <Skull size={12} />0
-                      </span>
-                      <span>
-                        2 000 <Sparkles size={12} />
-                      </span>
-                    </div>
+                    {state.loss_scoring && state.life_stats ? (
+                      <>
+                        <LifeTimeSummary stats={state.life_stats} />
+                        <p className="life-capital-note">
+                          Capital du jeu : {signed(state.balance)} min, bonus et
+                          dons inclus.
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="survival-caption">TON CAPITAL VIE</p>
+                        <div className={"balance " + status.className}>
+                          {new Intl.NumberFormat("fr-FR").format(state.balance)}
+                          <span>min de vie</span>
+                        </div>
+                        <p className="reaper-quote">
+                          {state.soft
+                            ? "Ton aventure continue."
+                            : status.message}
+                        </p>
+                        <div className="survival-track">
+                          <span
+                            style={{ width: gaugePercent(state.balance) + "%" }}
+                          />
+                        </div>
+                        <div className="scale">
+                          <span>
+                            <Skull size={12} />0
+                          </span>
+                          <span>
+                            2 000 <Sparkles size={12} />
+                          </span>
+                        </div>
+                      </>
+                    )}
                     <div className="card-disclaimer">
                       <Shield size={12} />
                       Fictif à 100 %. Vivant pour de vrai.
@@ -478,7 +506,9 @@ export function Game({
                             </div>
                             <strong>Toi</strong>
                             <span className="lime">
-                              {signed(state.weekly_score)} pts
+                              {state.loss_scoring
+                                ? `${formatLifeDuration(state.weekly_score)} perdues`
+                                : `${signed(state.weekly_score)} pts`}
                             </span>
                           </div>
                           <span className="versus">VS</span>
@@ -488,7 +518,9 @@ export function Game({
                             </div>
                             <strong>{state.nemesis.nickname}</strong>
                             <span>
-                              {signed(state.nemesis.weekly_score)} pts
+                              {state.loss_scoring
+                                ? `${formatLifeDuration(state.nemesis.weekly_score)} perdues`
+                                : `${signed(state.nemesis.weekly_score)} pts`}
                             </span>
                           </div>
                         </div>
@@ -497,7 +529,7 @@ export function Game({
                           onClick={() => setTab("nemesis")}
                         >
                           {state.nemesis.weekly_score > state.weekly_score
-                            ? `${state.nemesis.weekly_score - state.weekly_score} points vous séparent.`
+                            ? `${state.nemesis.weekly_score - state.weekly_score} ${state.loss_scoring ? "minutes" : "points"} vous séparent.`
                             : "Tu tiens le cap."}
                           <ArrowRight size={16} />
                         </button>
@@ -532,8 +564,8 @@ export function Game({
                     <span className="eyebrow amber">SAISON EN COURS</span>
                     <h2>{state.league_name || "Ta première ligue"}</h2>
                     <p className="muted">
-                      {state.players.length} mortels. Une semaine pour se
-                      dépasser.
+                      {state.league_size ?? state.players.length} mortels. Une
+                      semaine pour se dépasser.
                     </p>
                     <div className="season-pill">
                       <Clock3 size={15} />
@@ -547,15 +579,54 @@ export function Game({
                       }).format(new Date(state.season_end))}
                     </div>
                   </div>
+                  {state.loss_scoring && (
+                    <div
+                      className="loss-ranking-tabs"
+                      aria-label="Choisir le classement"
+                    >
+                      <button
+                        className={lossRanking === "gross" ? "selected" : ""}
+                        aria-pressed={lossRanking === "gross"}
+                        onClick={() => setLossRanking("gross")}
+                      >
+                        Excès cumulés
+                      </button>
+                      <button
+                        className={lossRanking === "net" ? "selected" : ""}
+                        aria-pressed={lossRanking === "net"}
+                        onClick={() => setLossRanking("net")}
+                      >
+                        Bilan net
+                      </button>
+                    </div>
+                  )}
                   <div className="score-summary">
                     <span>
-                      Ta position<strong>{rank ? `#${rank}` : "—"}</strong>
+                      Ta position
+                      <strong>{selectedRank ? `#${selectedRank}` : "—"}</strong>
                     </span>
                     <span>
-                      Score hebdomadaire
+                      {state.loss_scoring
+                        ? lossRanking === "gross"
+                          ? "Pertes de la semaine"
+                          : "Bilan de la semaine"
+                        : "Score hebdomadaire"}
                       <strong className="lime">
-                        {signed(state.weekly_score)}
-                        <small> pts</small>
+                        {state.loss_scoring
+                          ? formatLifeDuration(
+                              lossRanking === "net"
+                                ? (state.weekly_stats?.net_lost_minutes ?? 0)
+                                : state.weekly_score,
+                            )
+                          : signed(state.weekly_score)}
+                        <small>
+                          {state.loss_scoring
+                            ? lossRanking === "net" &&
+                              (state.weekly_stats?.net_lost_minutes ?? 0) < 0
+                              ? " récupérées"
+                              : " perdues"
+                            : " pts"}
+                        </small>
                       </strong>
                     </span>
                   </div>
@@ -565,11 +636,24 @@ export function Game({
                       {game.demo ? "Classement fictif" : "Cette semaine"}
                     </span>
                   </div>
-                  <Leaderboard state={state} looks={progression.looks} />
+                  <Leaderboard
+                    state={state}
+                    looks={progression.looks}
+                    mode={lossRanking}
+                  />
                   <p className="fine-print">
-                    {promotionCount(state.players.length)} montée(s) et
-                    descente(s) à la clôture. Les dons ne rapportent aucun point
-                    de ligue.
+                    {state.loss_scoring &&
+                      (lossRanking === "gross"
+                        ? "Le plus grand total de pertes dues aux excès est premier. "
+                        : "Pertes moins récupérations, du bilan le plus perdu au plus récupéré. ")}
+                    {promotionCount(state.league_size ?? state.players.length)}{" "}
+                    montée(s) et descente(s) à la clôture
+                    {state.loss_scoring
+                      ? ", selon le classement Excès cumulés."
+                      : "."}{" "}
+                    Les dons ne changent pas le classement.
+                    {state.loss_scoring &&
+                      " Les rangs officiels sont conservés même si certains joueurs sont masqués. Le bilan net compare les joueurs visibles."}
                   </p>
                 </>
               )}
@@ -590,14 +674,20 @@ export function Game({
                           <div>
                             <Reaper variant={state.avatar} />
                             <strong>Toi</strong>
-                            <b className="lime">{signed(state.weekly_score)}</b>
+                            <b className="lime">
+                              {state.loss_scoring
+                                ? formatLifeDuration(state.weekly_score)
+                                : signed(state.weekly_score)}
+                            </b>
                           </div>
                           <Swords className="lavender" size={30} />
                           <div>
                             <Reaper variant={state.nemesis.avatar} />
                             <strong>{state.nemesis.nickname}</strong>
                             <b className="lavender">
-                              {signed(state.nemesis.weekly_score)}
+                              {state.loss_scoring
+                                ? formatLifeDuration(state.nemesis.weekly_score)
+                                : signed(state.nemesis.weekly_score)}
                             </b>
                           </div>
                         </div>
@@ -619,7 +709,9 @@ export function Game({
                           />
                         </div>
                         <p className="muted">
-                          Le score de la semaine décide du duel.
+                          {state.loss_scoring
+                            ? "Le plus grand total de minutes fictives perdues par les excès cette semaine remporte le duel."
+                            : "Le score de la semaine décide du duel."}
                         </p>
                       </>
                     ) : (
@@ -1092,9 +1184,10 @@ export function Game({
               <div>
                 <h3>Une nouvelle course chaque lundi</h3>
                 <p>
-                  Les actions comptent dans ton score hebdomadaire. Les dons et
-                  le bonus de bienvenue n’y comptent pas. Semaine à l’heure de
-                  Paris.
+                  {state.loss_scoring
+                    ? "Le plus grand total de pertes dues aux excès gagne la ligue et le duel. Un second classement montre les pertes moins les récupérations. Les dons, le bonus de bienvenue et les XP ne comptent pas. Les compétitions spéciales suivent le critère annoncé sur leur fiche."
+                    : "Les actions comptent dans ton score hebdomadaire. Les dons et le bonus de bienvenue n’y comptent pas."}{" "}
+                  Semaine à l’heure de Paris.
                 </p>
               </div>
             </div>

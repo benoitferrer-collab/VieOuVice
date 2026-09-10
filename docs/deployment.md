@@ -35,3 +35,6 @@ Suivre [progression-social.md](progression-social.md). Après 001–004 : tester
 
 ## Clés d’accès
 Activer Authentication → Passkeys dans Supabase avec RP ID `viegame.vercel.app` et origine `https://viegame.vercel.app`, puis publier le code via GitHub/Vercel. Aucun SQL et aucune nouvelle variable d’environnement. Voir [passkeys.md](passkeys.md) pour les limites de domaine, l’état expérimental et la recette avec le vrai gestionnaire de clés.
+
+## Temps perdu, double classement et catalogue
+Après 001–006, appliquer une seule fois `supabase/update-loss-and-actions.sql` (007–008), puis pousser le code vers GitHub/Vercel. Aucune nouvelle variable ou tâche planifiée. Instructions et cas où 007 est déjà installée : [loss-scoring.md](loss-scoring.md).

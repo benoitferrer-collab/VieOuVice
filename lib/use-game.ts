@@ -18,6 +18,7 @@ import {
 import { socialNotice } from "./notifications";
 import { actionSchema } from "./validation/schemas";
 import { GameSessionGate } from "./game-session";
+import { normalizeDemoTime } from "./life-time";
 const STORAGE = "exces-o-meter:demo:v1";
 export function useGame(configured: boolean) {
   const [liveNotice, setLiveNotice] = useState<Notice | null>(null);
@@ -41,6 +42,7 @@ export function useGame(configured: boolean) {
     seenNotices.current.clear();
   }, []);
   const update = useCallback((value: GameState) => {
+    if (value.id === "demo-you") value = normalizeDemoTime(value);
     const normalized = {
       ...value,
       community_enabled: value.community_enabled ?? value.id === "demo-you",
