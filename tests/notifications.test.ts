@@ -34,3 +34,9 @@ test("private message notices route to friends without needing message content",
   assert.ok(message);
   assert.equal(notificationTab(message.target_tab), "amis");
 });
+
+test("message alerts open the dedicated inbox even for old friend targets", () => {
+  assert.equal(notificationTab("amis", "friend_message"), "messages");
+  assert.equal(notificationTab("messages"), "messages");
+  assert.equal(notificationTab("amis", "friend_action"), "amis");
+});

@@ -25,6 +25,10 @@ begin
  mid:=(x->>'id')::bigint;
  select id into nid from public.notifications where user_id=b and event_key='friend_message:'||mid;
  if nid is null or not private.push_notification_eligible(nid) or not exists(select 1 from private.push_outbox where notification_id=nid and subscription_id=subid) then raise exception 'Push not queued';end if;
+ if to_regprocedure('private.authorize_push_job_before_message_tab(uuid,uuid)') is not null then
+  update private.push_outbox set status='leased',lease_token='11111111-1111-4111-8111-111111111111',lease_until=clock_timestamp()+interval '60 seconds',attempts=1 where notification_id=nid;
+  if (select public.authorize_push_job(id,lease_token)->>'target_tab' from private.push_outbox where notification_id=nid) is distinct from 'messages' then raise exception 'Message push destination incorrect';end if;
+ end if;
  if exists(select 1 from public.notifications where id=nid and message like '%Bonjour%') then raise exception 'Message text leaked';end if;
  perform set_config('request.jwt.claim.sub',b::text,true);execute 'set local role authenticated';
  x:=public.get_message_inbox();if (x->>'unread_count')::int is distinct from 1 then raise exception 'Unread inbox';end if;

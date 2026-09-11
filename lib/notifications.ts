@@ -1,7 +1,8 @@
 import { z } from "zod";
 import type { Notice } from "./game";
-const tabs = ["survie", "ligue", "nemesis", "amis"] as const;
-export function notificationTab(value: unknown): (typeof tabs)[number] {
+const tabs = ["survie", "ligue", "nemesis", "amis", "messages"] as const;
+export function notificationTab(value: unknown, kind?: string): (typeof tabs)[number] {
+  if (kind === "friend_message") return "messages";
   return tabs.includes(value as (typeof tabs)[number])
     ? (value as (typeof tabs)[number])
     : "survie";

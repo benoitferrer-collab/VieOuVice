@@ -88,13 +88,13 @@ const tabs = [
   { id: "ligue", label: "Ligue", icon: Trophy },
   { id: "nemesis", label: "Némésis", icon: Swords },
   { id: "amis", label: "Amis", icon: Users },
+  { id: "messages", label: "Messages", icon: MessageCircle },
   { id: "profil", label: "Profil", icon: UserRound },
 ] as const;
 type Tab = (typeof tabs)[number]["id"];
 type Panel =
   | "rules"
   | "guide"
-  | "messages"
   | "health"
   | "excess"
   | "journal"
@@ -135,7 +135,7 @@ export function Game({
   const messaging = useMessages(
     game.state,
     game.demo,
-    tab === "amis" || panel === "messages",
+    true,
   );
   function tell(message: string) {
     setToast(message);
@@ -202,6 +202,7 @@ export function Game({
     ligue: "La survie est un sport collectif.",
     nemesis: "Un peu de rivalité, beaucoup de jeu.",
     amis: "On survit mieux à plusieurs.",
+    messages: "Un petit mot pour ta bande.",
     profil: "Ta légende, petits écarts compris.",
   };
   return (
@@ -311,6 +312,8 @@ export function Game({
                     ? "LE CLASSEMENT"
                     : tab === "nemesis"
                       ? "TON DUEL DE LA SEMAINE"
+                      : tab === "messages"
+                      ? "Messages"
                       : tab === "amis"
                         ? "LE CERCLE DES VIVANTS"
                         : "CARTE DE MORTEL"}
@@ -801,33 +804,6 @@ export function Game({
                       Ajouter un ami
                     </button>
                   </section>
-                  <section
-                    className="messages-entry"
-                    aria-label="Messagerie privée"
-                  >
-                    <button
-                      className="secondary full"
-                      onClick={() => setPanel("messages")}
-                      disabled={!messaging.inbox}
-                    >
-                      <MessageCircle size={20} /> Mes messages
-                      {messaging.inbox ? (
-                        <span className="count-badge">
-                          {messaging.inbox.unread_count} non lu
-                          {messaging.inbox.unread_count > 1 ? "s" : ""}
-                        </span>
-                      ) : null}
-                    </button>
-                    <p className="fine-print">
-                      Conversations privées entre amis acceptés. Les alertes de
-                      messages se règlent dans la messagerie.
-                    </p>
-                    {messaging.error && (
-                      <p role="status" className="coral">
-                        {messaging.error}
-                      </p>
-                    )}
-                  </section>
                   <div className="section-heading">
                     <h2>Dans ton cercle</h2>
                     <span className="count-badge">{state.friends.length}</span>
@@ -928,6 +904,18 @@ export function Game({
                     classement.
                   </p>
                 </>
+              )}
+              {tab === "messages" && (
+                <section className="messages-page" aria-label="Messagerie privée">
+                  <div className="section-heading"><h2>Tes conversations</h2></div>
+                  {messaging.error ? (
+                    <div role="status"><p className="coral">{messaging.error}</p><button className="secondary" onClick={() => void messaging.refresh()}>Réessayer</button></div>
+                  ) : !messaging.inbox ? <p role="status" className="muted">Chargement des conversations…</p> : (
+                    <MessageCenter key={`${game.demo}:${state.id}`} userId={state.id}
+                      drafts={messaging.drafts} friends={state.friends} demo={game.demo}
+                      inbox={messaging.inbox} rpc={messaging.rpc} refresh={messaging.refresh} />
+                  )}
+                </section>
               )}
               {tab === "profil" && (
                 <>
@@ -1145,7 +1133,7 @@ export function Game({
             <span>ON JOUE AVEC LES MINUTES. PAS AVEC LA SANTÉ.</span>
           </footer>
         </main>
-        <div className="floating-actions">
+        {tab !== "messages" && <div className="floating-actions">
           <button
             className="fab excess-fab"
             onClick={() => setPanel("excess")}
@@ -1164,7 +1152,7 @@ export function Game({
             <span>Bonne habitude</span>
             <Plus size={17} />
           </button>
-        </div>
+        </div>}
         <nav className="bottom-nav" aria-label="Navigation principale">
           {tabs.map((t) => (
             <button
@@ -1181,6 +1169,11 @@ export function Game({
             >
               <t.icon size={21} strokeWidth={tab === t.id ? 2.3 : 1.7} />
               <span>{t.label}</span>
+              {t.id === "messages" && !!messaging.inbox?.unread_count && (
+                <b className="nav-unread" aria-label={`${messaging.inbox.unread_count} messages non lus`}>
+                  {messaging.inbox.unread_count > 99 ? "99+" : messaging.inbox.unread_count}
+                </b>
+              )}
               {tab === t.id && <i />}
             </button>
           ))}
@@ -1191,7 +1184,7 @@ export function Game({
             notice={game.liveNotice}
             onOpen={() => {
               setPanel(null);
-              setTab(notificationTab(game.liveNotice?.target_tab));
+              setTab(notificationTab(game.liveNotice?.target_tab, game.liveNotice?.kind));
               void game
                 .readNotice(game.liveNotice!.id)
                 .catch((e) => tell(String(e)));
@@ -1215,19 +1208,6 @@ export function Game({
             demo={game.demo}
             communityEnabled={!!state.community_enabled}
             create={game.createCatalog}
-          />
-        )}
-        {panel === "messages" && messaging.inbox && (
-          <MessageCenter
-            key={`${game.demo}:${state.id}`}
-            userId={state.id}
-            drafts={messaging.drafts}
-            friends={state.friends}
-            demo={game.demo}
-            inbox={messaging.inbox}
-            rpc={messaging.rpc}
-            refresh={messaging.refresh}
-            onClose={() => setPanel(null)}
           />
         )}
         {panel === "guide" && <PlayerGuide onClose={() => setPanel(null)} />}
@@ -1355,7 +1335,7 @@ export function Game({
                   key={n.id}
                   onClick={() => {
                     setPanel(n.kind === "reaction_digest" ? "journal" : null);
-                    setTab(notificationTab(n.target_tab));
+                    setTab(notificationTab(n.target_tab, n.kind));
                     void game.readNotice(n.id).catch((e) => tell(String(e)));
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}

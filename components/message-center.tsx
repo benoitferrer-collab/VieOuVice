@@ -1,7 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, Send } from "lucide-react";
-import { Sheet } from "./sheet";
 import type { Friend } from "@/lib/game";
 import type { MessageRpc } from "@/lib/messages/use-messages";
 import {
@@ -21,14 +20,13 @@ type Props = {
   inbox: MessageInbox | null;
   rpc: MessageRpc;
   refresh: () => Promise<void>;
-  onClose: () => void;
 };
 export function MessageCenter(props: Props) {
   const [friendId, setFriendId] = useState("");
   const accepted = props.friends.filter((f) => f.status === "accepted");
   const friend = accepted.find((f) => f.id === friendId);
   return (
-    <Sheet title="Messages entre amis" onClose={props.onClose}>
+    <div className="message-center">
       {props.demo && (
         <p className="notice">
           Démo : messages simulés dans cette session, aucun envoi réel.
@@ -86,7 +84,7 @@ export function MessageCenter(props: Props) {
           </p>
         </>
       )}
-    </Sheet>
+    </div>
   );
 }
 function MessagePreference({

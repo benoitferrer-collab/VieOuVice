@@ -36,3 +36,9 @@ Un blocage ou la fin de l’amitié coupe l’accès dans le jeu et empêche les
 - Bloquer A : les échanges deviennent indisponibles et les notifications encore en attente ne doivent plus être envoyées.
 
 Validation locale : migrations 001–009 appliquées dans PostgreSQL 18 isolé avec un schéma Auth minimal de test ; assertions SQL de messagerie réussies et fixtures annulées. Cette vérification ne remplace pas la recette Supabase Auth/PostgREST et la réception Web Push sur appareil réel.
+
+## Onglet Messages (migration 013)
+
+La messagerie possède une page dans le menu du bas, avec le compteur de non-lus actualisé toutes les dix secondes lorsque le jeu est visible. Ouvrir la liste ne marque pas les messages comme lus ; les contrôles et brouillons de conversation sont conservés. Les boutons de déclaration sont masqués sur cette page pour laisser la place aux échanges.
+
+Déployer le code puis exécuter une seule fois `supabase/update-message-destination.sql` après 012. Cette migration dirige les notifications push de messages vers Messages, sans modifier les messages ni les notifications enregistrées. Sans elle, la page fonctionne mais les push continuent d’ouvrir Amis. Aucune nouvelle variable serveur.

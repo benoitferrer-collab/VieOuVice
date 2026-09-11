@@ -816,7 +816,7 @@ small {
   backdrop-filter: blur(20px);
   border-top: 1px solid #ffffff0c;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   padding: 8px 7px calc(10px + env(safe-area-inset-bottom));
 }
 .bottom-nav button {
@@ -1945,3 +1945,11 @@ input[type="checkbox"] {
 .consumption-recap dl>div{display:flex;gap:12px;justify-content:space-between;padding:12px 0;border-bottom:1px solid #ffffff14}.consumption-recap dd{margin:0;text-align:right;flex-shrink:0}.consumption-recap dd small{display:block;color:#aaaebc}.consumption-recap dt{overflow-wrap:anywhere}
 .advanced-notification-settings{margin:24px 0}.advanced-notification-settings .quiet-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.advanced-notification-settings label{min-width:0}.advanced-notification-settings input[type=time],.advanced-notification-settings input[type=text]{display:block;width:100%;padding:10px;border:1px solid #ffffff24;border-radius:10px;background:#1b2133;color:inherit}.advanced-notification-settings .timezone-field{grid-column:1/-1}
 @media(max-width:400px){.coop-section,.consumption-recap{padding:14px}.coop-card{padding:14px}.coop-heading h2{font-size:1.15rem}.coop-buttons>button{flex:1}.advanced-notification-settings .quiet-fields{grid-template-columns:1fr}}
+
+.bottom-nav .nav-unread {
+  position: absolute; top: -3px; right: 2px; min-width: 17px;
+  padding: 2px 4px; border-radius: 12px; background: var(--coral, #ff827a);
+  color: #101525; font-size: 9px; line-height: 13px;
+}
+.message-center { display: grid; gap: 14px; min-width: 0; }
+.messages-page { padding-bottom: 16px; }

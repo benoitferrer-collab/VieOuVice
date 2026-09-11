@@ -8,7 +8,7 @@ export function validPushEndpoint(endpoint: unknown): endpoint is string {
     return url.protocol === "https:" && !url.username && !url.password && !url.port && !url.hash;
   } catch { return false; }
 }
-const tabs = new Set(["survie", "ligue", "nemesis", "amis"]);
+const tabs = new Set(["survie", "ligue", "nemesis", "amis", "messages"]);
 export function pushClickPath(tab: unknown) {
   return `/?tab=${typeof tab === "string" && tabs.has(tab) ? tab : "survie"}`;
 }

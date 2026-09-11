@@ -52,7 +52,7 @@ export type Notice = {
   read_at: string | null;
   kind?: string;
   actor_id?: string | null;
-  target_tab?: "survie" | "ligue" | "nemesis" | "amis";
+  target_tab?: "survie" | "ligue" | "nemesis" | "amis" | "messages";
 };
 export type GameState = {
   id: string;

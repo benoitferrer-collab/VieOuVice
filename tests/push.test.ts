@@ -30,3 +30,7 @@ test("retry decisions expire invalid subscriptions and bound transient attempts"
   assert.equal(pushRetry(503, 5), "failed");
   assert.equal(pushRetry(401, 1), "failed");
 });
+
+test("push links accept the dedicated Messages destination", () => {
+  assert.equal(pushClickPath("messages"), "/?tab=messages");
+});
