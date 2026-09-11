@@ -19,7 +19,7 @@ const categories = [
   [
     "reactions",
     "Encouragements",
-    "Un récapitulatif horaire ; les alertes des amis doivent aussi être activées.",
+    "Une alerte dès un nouvel encouragement ; active aussi les alertes des amis.",
   ],
   [
     "competitions",

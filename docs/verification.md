@@ -133,3 +133,7 @@ Contrôles publics en lecture seule effectués : Auth HTTP 200, inscription emai
 Recette CUA démo : défi sportif créé avec Sam fictif, déclaration sportive15min =>15/180 ; bière fictive=>récapitulatif quantité1 sur7/30jours ; horaires silencieux enregistrés en simulation. Rendu375px, document/scroll375/375, console sans erreur. Aucun compte créé, invitation ou notification réelle. Deux workers ont fourni une partie du SQL puis ont été interrompus faute de crédits ; intégration, corrections et revue statique finale effectuées par l’agent principal, sans revue indépendante complète.
 
 Aucune modification distante ni Git/push/déploiement. Procédure de migration et recette SaaS dans `docs/cooperative-alerts.md`.
+
+## 11 septembre 2026 — notifications événementielles (012)
+
+80 tests Node réussis, ESLint et TypeScript sans erreur, build de production Webpack réussi. La régression des tags de notification a échoué avant le correctif, puis passé. Migration 012 appliquée sur la base PostgreSQL locale contenant 001–011 ; tests instant_notifications, notification_preferences et web_push réussis. Faux pg_net/Vault transactionnels : aucun appel réseau. Échec d’enqueue simulé : déclaration et job durable conservés. Bundle SQL identique à la migration. Aucune modification de production, aucun envoi réel et aucun push GitHub. Déploiement et test téléphone à effectuer selon docs/instant-notifications.md.

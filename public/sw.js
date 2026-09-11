@@ -12,7 +12,8 @@ self.addEventListener("push", (event) => {
   try { data = event.data?.json() || {}; } catch { /* Generic notification. */ }
   event.waitUntil(self.registration.showNotification("Du nouveau dans ta partie", {
     body: "Ouvre le jeu pour voir tes nouveautés.",
-    tag: "viegame-social",
+    tag: typeof data.deliveryId === "string" && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(data.deliveryId)
+      ? "viegame-" + data.deliveryId : "viegame-social",
     data: { url: safePushPath(data.url) },
   }));
 });

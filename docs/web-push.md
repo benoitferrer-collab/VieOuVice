@@ -2,6 +2,10 @@
 
 Les notifications dans le jeu fonctionnent indépendamment du push. Le push reste volontaire : le bouton demande la permission du navigateur et associe uniquement ce navigateur au compte connecté. La démo n’inscrit aucun abonnement. Aucun nom, action, montant ou score ne sort dans le payload : « Du nouveau dans ta partie », puis un lien vers un onglet du jeu.
 
+## Envoi dès les événements (migration 012)
+
+Pour une base déjà à jour jusqu’à 011, suivre [le guide de mise à jour](instant-notifications.md). Le déclencheur de la file appelle maintenant le worker dès la transaction validée, avec le cron comme secours. Les notifications distinctes ont des tags distincts ; une reprise du même envoi conserve son tag.
+
 ## Déployer
 
 1. Exécuter une seule fois **`supabase/update-community-notifications.sql`** dans SQL Editor après la base initiale (équivalent aux migrations **002 puis 003**, ne pas faire les deux). La migration 003 ajoute les abonnements privés, une file durable et les RPC. Ne pas réexécuter une installation initiale sur une base existante.
@@ -34,7 +38,7 @@ Sur iPhone, installer le jeu sur l’écran d’accueil et l’ouvrir depuis cet
 - Seul `service_role` peut louer, autoriser et terminer un job via les RPC d’administration. Chaque job dispose d’un jeton de lease aléatoire et d’un bail de 60 secondes ; dix jobs maximum et une boucle de 20 secondes maximum par invocation, chaque envoi limité à cinq secondes. Les accès Supabase ont également un timeout.
 - Le contrôle juste avant l’envoi revérifie blocages, préférences du destinataire, partage de l’auteur pour une activité, amitié acceptée ou paire de duel de la saison concernée et consentement PvP des deux joueurs. Les alertes déjà lues et les événements périmés après 24 heures sont annulés. Une alerte lue reste inéligible après désactivation/réactivation des préférences. Un retrait de consentement intervenant après le dernier contrôle ne peut rappeler un message déjà accepté par le fournisseur ; durée de vie fournisseur : cinq minutes.
 - Les réponses 404/410 suppriment l’abonnement et ses jobs. Les erreurs réseau, 408, 429 et 5xx sont réessayées avec délais bornés (60, 120, 240, 480 secondes), cinq tentatives maximum. Les autres erreurs sont terminales. La file est purgée après sept jours ; elle ne stocke aucun payload privé.
-- La livraison est au moins une fois : un arrêt entre acceptation fournisseur et accusé durable peut produire un doublon. Le tag unique côté navigateur regroupe l’affichage. Aucun système Web Push ne garantit une réception immédiate ou une livraison exactement une fois.
+- La livraison est au moins une fois : un arrêt entre acceptation fournisseur et accusé durable peut produire un doublon. Le tag par livraison déduplique les reprises sur le même navigateur sans remplacer les autres alertes. Aucun système Web Push ne garantit une réception immédiate ou une livraison exactement une fois.
 - L’export personnel inclut les dates et identifiants de ses propres abonnements, sans clés cryptographiques. Le service worker n’accepte que quatre onglets du jeu sur la même origine et ignore tout titre reçu.
 
 Le composant expose `WebPushSettings({ demo, userId? })` et `cleanupWebPushBeforeSignOut()`. Attendre le cleanup **avant** `auth.signOut()` : les deux retraits (serveur puis navigateur) sont tentés indépendamment ; un seul succès garantit l’arrêt des futurs envois de ce navigateur. Si les deux échouent, la déconnexion affiche l’erreur et peut être réessayée. Un endpoint inconnu du compte courant est invalidé dans le navigateur avant toute nouvelle inscription. Pour un ordinateur partagé, se déconnecter explicitement avant de laisser la place : fermer l’onglet seul laisse les notifications volontaires actives.

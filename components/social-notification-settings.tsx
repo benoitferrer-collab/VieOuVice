@@ -44,7 +44,7 @@ export function SocialNotificationSettings({
             key: "notify_friends",
             title: "Activité de mes amis",
             detail:
-              "Recevoir les déclarations qu’ils choisissent de partager. Une alerte par ami et par heure.",
+              "Recevoir les déclarations qu’ils choisissent de partager. Une alerte pour chaque déclaration partagée.",
           },
           {
             key: "notify_duels",

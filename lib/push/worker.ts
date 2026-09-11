@@ -48,10 +48,10 @@ export async function dispatchPush(
             endpoint: delivery.endpoint,
             keys: { p256dh: delivery.p256dh, auth: delivery.auth },
           },
-          JSON.stringify(pushPayload(delivery.target_tab)),
+          JSON.stringify(pushPayload(delivery.target_tab, job.id)),
           {
             TTL: 300,
-            urgency: "normal",
+            urgency: "high",
             timeout: 5000,
             vapidDetails: {
               subject: config.subject,
@@ -80,6 +80,13 @@ export async function dispatchPush(
     });
     if (finishError) throw new Error("Push queue acknowledgement unavailable");
     processed++;
+  }
+  // Continue a full batch without waiting for the retry cron. Quiet hours and
+  // future retries are excluded by the server-side wake-up RPC.
+  if (processed > 0) {
+    const continuation = await db.rpc("request_push_dispatch");
+    if (continuation.error && !["PGRST202", "42883"].includes(continuation.error.code))
+      throw new Error("Push continuation unavailable");
   }
   return { processed, sent };
 }

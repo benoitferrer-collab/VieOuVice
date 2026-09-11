@@ -30,3 +30,20 @@ test("service worker ignores untrusted titles and constrains every click to game
   await pending;
   assert.equal(opened, "/?tab=nemesis");
 });
+
+test("distinct deliveries keep distinct banners and retries reuse their banner", async () => {
+  const handlers = new Map<string, (event: unknown) => void>();
+  const tags: string[] = [];
+  runInNewContext(readFileSync(new URL("../public/sw.js", import.meta.url), "utf8"), { URL, self: {
+    location: { origin: "https://game.example" },
+    addEventListener: (name: string, callback: (event: unknown) => void) => handlers.set(name, callback),
+    registration: { showNotification: async (_: string, options: { tag: string }) => { tags.push(options.tag); } },
+  } });
+  for (const deliveryId of ["11111111-1111-4111-8111-111111111111", "22222222-2222-4222-8222-222222222222", "11111111-1111-4111-8111-111111111111"]) {
+    let pending: Promise<unknown> = Promise.resolve();
+    handlers.get("push")!({ data: { json: () => ({ deliveryId }) }, waitUntil: (p: Promise<unknown>) => { pending = p; } });
+    await pending;
+  }
+  assert.notEqual(tags[0], tags[1]);
+  assert.equal(tags[0], tags[2]);
+});

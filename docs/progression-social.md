@@ -18,13 +18,13 @@ Les migrations 001 à 004 doivent déjà être installées. La mise à jour est 
 
 Le bundle ne réinstalle ni le jeu initial ni le compte administrateur. Les anciennes variables Supabase et Web Push restent utilisées. En absence des nouvelles RPC, l’application masque les nouveaux écrans plutôt que d’empêcher le reste du jeu de fonctionner.
 
-## Récapitulatifs et consentement
-Les réactions de l’heure terminée sont regroupées en une notification générique par destinataire et heure d’émission. Il ne s’agit donc pas d’une alerte immédiate par clic. Le rattrapage est limité aux dernières 24 heures. Remplacer, retirer puis remettre un emoji ne crée pas un nouveau récapitulatif pour la même paire personne/déclaration.
+## Encouragements et consentement
+Avec la migration 012, chaque premier encouragement est notifié dès la réaction, sans attendre la fin de l’heure. Remplacer, retirer puis remettre un emoji ne crée pas une nouvelle alerte pour la même paire personne/déclaration. Voir [la mise à jour des notifications](instant-notifications.md). Avant 012, les réactions restent regroupées par heure.
 
 Le destinataire peut désactiver les récapitulatifs dans ses préférences. Le réglage général des notifications d’amis reste également nécessaire. Pour le navigateur fermé, son autorisation et l’abonnement Web Push restent requis. Le partage du journal, l’amitié, les blocages et les suspensions sont revérifiés lors de la préparation et de l’expédition. Les notifications non lues devenues inéligibles sont nettoyées. Une alerte déjà remise par le navigateur ne peut pas être rappelée.
 
 ## Recette après installation
-Avec deux comptes de test amis et le partage d’historique activé : réagir, changer d’emoji et retirer ; vérifier le compteur depuis le compte auteur. Tester aussi un journal privé et un blocage. Avec deux appareils autorisés aux notifications, fermer le jeu, attendre la fin de l’heure et le passage des deux jobs, puis vérifier un unique récapitulatif générique.
+Avec deux comptes de test amis et le partage d’historique activé : réagir, changer d’emoji et retirer ; vérifier le compteur depuis le compte auteur. Tester aussi un journal privé et un blocage. Avec deux appareils autorisés aux notifications, fermer le jeu puis ajouter un premier encouragement sur une nouvelle déclaration : avec 012, vérifier la réception d’une alerte générique sans attendre la fin de l’heure.
 
 Choisir une mission déjà accomplie, vérifier 50 XP, actualiser et vérifier que les XP ne doublent pas. Choisir trois missions, vérifier l’impossibilité d’une quatrième. Essayer un objet verrouillé, équiper un objet acquis, puis contrôler son affichage depuis le compte ami. Tester une compétition avec une bonne action éligible avant annulation et vérifier la conservation des XP.
 
