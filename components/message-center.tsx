@@ -5,6 +5,8 @@ import type { Friend } from "@/lib/game";
 import type { MessageRpc } from "@/lib/messages/use-messages";
 import {
   messageBody,
+  messageReactions,
+  type MessageReaction,
   mergeMessages,
   type Message,
   type MessageInbox,
@@ -13,6 +15,8 @@ import {
 } from "@/lib/messages/rules";
 
 type Props = {
+  selectedFriendId: string;
+  onSelectFriend: (id:string)=>void;
   drafts: Map<string, MessageDraft>;
   userId: string;
   friends: Friend[];
@@ -22,8 +26,12 @@ type Props = {
   refresh: () => Promise<void>;
 };
 export function MessageCenter(props: Props) {
-  const [friendId, setFriendId] = useState("");
-  const accepted = props.friends.filter((f) => f.status === "accepted");
+  const friendId = props.selectedFriendId;
+  const setFriendId = props.onSelectFriend;
+  const accepted = props.friends.filter((f) => f.status === "accepted").sort((a,b) => {
+    const recent = (id:string) => props.inbox?.conversations.find(c=>c.friend_id === id)?.last_message_at ?? "";
+    return recent(b.id).localeCompare(recent(a.id)) || a.nickname.localeCompare(b.nickname);
+  });
   const friend = accepted.find((f) => f.id === friendId);
   return (
     <div className="message-center">
@@ -47,6 +55,7 @@ export function MessageCenter(props: Props) {
           </p>
           {accepted.length ? (
             accepted.map((f) => {
+              const summary = props.inbox?.conversations.find(c=>c.friend_id === f.id);
               const unread =
                 props.inbox?.conversations.find((c) => c.friend_id === f.id)
                   ?.unread_count ?? 0;
@@ -56,7 +65,10 @@ export function MessageCenter(props: Props) {
                   className="message-contact"
                   onClick={() => setFriendId(f.id)}
                 >
-                  <span>{f.nickname}</span>
+                  <span className="message-contact-copy"><strong>{f.nickname}</strong>
+                    <span className="message-preview">{summary?.last_message ? `${summary.last_message.sender_id === props.userId ? "Toi : " : ""}${summary.last_message.body}` : summary?.last_message_at ? "Ouvrir la conversation" : "Commence la conversation"}</span>
+                    {summary?.last_message_at && <time dateTime={summary.last_message_at}>{new Date(summary.last_message_at).toLocaleString("fr-FR",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</time>}
+                  </span>
                   <span>
                     {unread
                       ? `${unread} non lu${unread > 1 ? "s" : ""}`
@@ -334,6 +346,8 @@ function Conversation({
                 minute: "2-digit",
               })}
             </time>
+            <MessageReactionBar message={m} userId={userId} rpc={rpc}
+              onChange={(updated) => { if (alive.current) setMessages(old=>mergeMessages(old,[updated])); }} />
           </li>
         ))}
       </ol>
@@ -390,4 +404,23 @@ function Conversation({
       </form>
     </section>
   );
+}
+
+function MessageReactionBar({message,userId,rpc,onChange}:{message:Message;userId:string;rpc:MessageRpc;onChange:(message:Message)=>void}) {
+  const [busy,setBusy]=useState(false);
+  const [error,setError]=useState("");
+  async function react(reaction:MessageReaction) {
+    if(busy) return;
+    setBusy(true);setError("");
+    try {
+      const own=message.reactions?.find(r=>r.user_id===userId)?.reaction;
+      onChange(await rpc<Message>("set_message_reaction",{p_message_id:message.id,p_reaction:own===reaction?null:reaction}));
+    } catch(e) {setError(e instanceof Error ? e.message : "Réaction non enregistrée.");}
+    finally {setBusy(false);}
+  }
+  return <><div className="message-reactions" aria-label="Réactions au message">
+    {messageReactions.map(r=><button key={r.id} type="button" disabled={busy}
+      aria-label={r.label} aria-pressed={message.reactions?.some(v=>v.user_id===userId && v.reaction===r.id) ?? false}
+      onClick={()=>void react(r.id)}>{r.emoji}<span>{message.reactions?.filter(v=>v.reaction===r.id).length || ""}</span></button>)}
+  </div>{error && <p className="coral" role="alert">{error}</p>}</>;
 }

@@ -47,3 +47,19 @@ test("distinct deliveries keep distinct banners and retries reuse their banner",
   assert.notEqual(tags[0], tags[1]);
   assert.equal(tags[0], tags[2]);
 });
+
+test("service worker preserves the conversation link but strips unrelated query data", async () => {
+  const handlers = new Map<string, (event: unknown)=>void>();
+  let opened = "";
+  runInNewContext(readFileSync(new URL("../public/sw.js", import.meta.url), "utf8"), {URL,self:{
+    location:{origin:"https://game.example"},
+    addEventListener:(name:string,callback:(event:unknown)=>void)=>handlers.set(name,callback),
+    clients:{matchAll:async()=>[],openWindow:async(url:string)=>{opened=url;}},
+  }});
+  const peer="11111111-1111-4111-8111-111111111111";
+  for(const [url,expected] of [[`/?tab=messages&friend=${peer}&body=private`,`/?tab=messages&friend=${peer}`],["/?tab=messages&friend=invalid","/?tab=messages"]]) {
+    let pending:Promise<unknown>=Promise.resolve();
+    handlers.get("notificationclick")!({notification:{close(){},data:{url}},waitUntil:(p:Promise<unknown>)=>{pending=p;}});
+    await pending;assert.equal(opened,expected);
+  }
+});

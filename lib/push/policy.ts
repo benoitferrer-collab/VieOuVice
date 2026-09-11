@@ -9,11 +9,13 @@ export function validPushEndpoint(endpoint: unknown): endpoint is string {
   } catch { return false; }
 }
 const tabs = new Set(["survie", "ligue", "nemesis", "amis", "messages"]);
-export function pushClickPath(tab: unknown) {
-  return `/?tab=${typeof tab === "string" && tabs.has(tab) ? tab : "survie"}`;
+export function pushClickPath(tab: unknown, friendId?: string) {
+  const selected = typeof tab === "string" && tabs.has(tab) ? tab : "survie";
+  const peer = selected === "messages" && friendId && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(friendId) ? `&friend=${friendId}` : "";
+  return `/?tab=${selected}${peer}`;
 }
-export function pushPayload(tab: unknown, deliveryId?: string) {
-  return { title: "Du nouveau dans ta partie", url: pushClickPath(tab),
+export function pushPayload(tab: unknown, deliveryId?: string, friendId?: string) {
+  return { title: "Du nouveau dans ta partie", url: pushClickPath(tab, friendId),
     ...(deliveryId && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(deliveryId) ? { deliveryId } : {}),
   };
 }

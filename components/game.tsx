@@ -121,11 +121,15 @@ export function Game({
     owner: string;
     friend: Friend;
   } | null>(null);
+  const [messageFriend,setMessageFriend] = useState("");
   const [tab, setTab] = useState<Tab>("survie");
   useEffect(() => {
     const requested = new URLSearchParams(window.location.search).get("tab");
     if (requested) {
-      window.setTimeout(() => setTab(notificationTab(requested)), 0);
+      window.setTimeout(() => {
+        setTab(notificationTab(requested));
+        if(requested === "messages") setMessageFriend(new URLSearchParams(window.location.search).get("friend") ?? "");
+      }, 0);
     }
   }, []);
   const [panel, setPanel] = useState<Panel>(null);
@@ -911,7 +915,7 @@ export function Game({
                   {messaging.error ? (
                     <div role="status"><p className="coral">{messaging.error}</p><button className="secondary" onClick={() => void messaging.refresh()}>Réessayer</button></div>
                   ) : !messaging.inbox ? <p role="status" className="muted">Chargement des conversations…</p> : (
-                    <MessageCenter key={`${game.demo}:${state.id}`} userId={state.id}
+                    <MessageCenter key={`${game.demo}:${state.id}:${messageFriend}`} selectedFriendId={messageFriend} onSelectFriend={setMessageFriend} userId={state.id}
                       drafts={messaging.drafts} friends={state.friends} demo={game.demo}
                       inbox={messaging.inbox} rpc={messaging.rpc} refresh={messaging.refresh} />
                   )}
@@ -1185,6 +1189,7 @@ export function Game({
             onOpen={() => {
               setPanel(null);
               setTab(notificationTab(game.liveNotice?.target_tab, game.liveNotice?.kind));
+              setMessageFriend(game.liveNotice?.kind === "friend_message" ? game.liveNotice.actor_id ?? "" : "");
               void game
                 .readNotice(game.liveNotice!.id)
                 .catch((e) => tell(String(e)));
@@ -1336,6 +1341,7 @@ export function Game({
                   onClick={() => {
                     setPanel(n.kind === "reaction_digest" ? "journal" : null);
                     setTab(notificationTab(n.target_tab, n.kind));
+                    setMessageFriend(n.kind === "friend_message" ? n.actor_id ?? "" : "");
                     void game.readNotice(n.id).catch((e) => tell(String(e)));
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}

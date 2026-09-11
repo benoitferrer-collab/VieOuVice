@@ -34,3 +34,10 @@ test("retry decisions expire invalid subscriptions and bound transient attempts"
 test("push links accept the dedicated Messages destination", () => {
   assert.equal(pushClickPath("messages"), "/?tab=messages");
 });
+
+test("conversation links preserve only valid peer UUIDs on the Messages tab", () => {
+  const peer = "11111111-1111-4111-8111-111111111111";
+  assert.equal(pushClickPath("messages",peer), `/?tab=messages&friend=${peer}`);
+  assert.equal(pushClickPath("amis",peer), "/?tab=amis");
+  assert.equal(pushClickPath("messages","https://evil.test"), "/?tab=messages");
+});

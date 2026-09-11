@@ -42,3 +42,14 @@ Validation locale : migrations 001–009 appliquées dans PostgreSQL 18 isolé a
 La messagerie possède une page dans le menu du bas, avec le compteur de non-lus actualisé toutes les dix secondes lorsque le jeu est visible. Ouvrir la liste ne marque pas les messages comme lus ; les contrôles et brouillons de conversation sont conservés. Les boutons de déclaration sont masqués sur cette page pour laisser la place aux échanges.
 
 Déployer le code puis exécuter une seule fois `supabase/update-message-destination.sql` après 012. Cette migration dirige les notifications push de messages vers Messages, sans modifier les messages ni les notifications enregistrées. Sans elle, la page fonctionne mais les push continuent d’ouvrir Amis. Aucune nouvelle variable serveur.
+
+## Aperçus, liens directs et réactions (014)
+
+Après le déploiement Vercel, exécuter une fois `supabase/update-messaging-improvements.sql` dans SQL Editor, après 013. Ne pas réexécuter les anciennes migrations. Aucune variable ou clé supplémentaire.
+
+- La liste montre les 120 premiers caractères du dernier message et sa date. Les derniers échanges passent en tête ; aucun message n’est marqué lu depuis cette liste. Les aperçus sont limités aux amitiés encore autorisées.
+- Les notifications dans le jeu et les nouveaux push ouvrent directement l’interlocuteur. Le push contient uniquement le lien avec un UUID d’interlocuteur, aucun nom ni extrait. La conversation exige toujours une session et les contrôles d’accès serveur ; le lien n’accorde aucun accès. Les push reçus avant cette mise à jour gardent leur ancien lien.
+- Chaque participant peut réagir à un message par 👏, 💪, 😂 ou ❤️. Une réaction par participant, remplaçable ou retirable. Les mutations sont plafonnées à 20/minute et 200/jour ; une reprise identique ne consomme pas de quota. Aucune notification supplémentaire pour les réactions ; elles s’actualisent avec la conversation. Les données de réaction sont incluses dans les messages exportés.
+- Rouvrir le jeu après déploiement pour mettre à jour le service worker, puis tester avec un nouveau message depuis un ami.
+
+Tests : 86 tests Node, SQL local pour les aperçus, ordre, remplacement/retrait, quotas, refus des tiers et anciens amis ; lien push contrôlé après autorisation. Démo navigateur : message simulé, cœur ajouté, retour liste et aperçu en première position ; largeur 375 px sans débordement. Aucun message réel envoyé ni migration distante appliquée par l’agent.

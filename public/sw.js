@@ -3,7 +3,11 @@ function safePushPath(value) {
   try {
     const url = new URL(value, self.location.origin);
     const tab = url.searchParams.get("tab");
-    if (url.origin === self.location.origin && url.pathname === "/" && ["survie", "ligue", "nemesis", "amis", "messages"].includes(tab)) return "/?tab=" + tab;
+    if (url.origin === self.location.origin && url.pathname === "/" && ["survie", "ligue", "nemesis", "amis", "messages"].includes(tab)) {
+      const friend = url.searchParams.get("friend");
+      const suffix = tab === "messages" && friend && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(friend) ? "&friend=" + friend : "";
+      return "/?tab=" + tab + suffix;
+    }
   } catch { /* Use the application home for malformed payloads. */ }
   return "/?tab=survie";
 }

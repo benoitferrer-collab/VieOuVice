@@ -1953,3 +1953,12 @@ input[type="checkbox"] {
 }
 .message-center { display: grid; gap: 14px; min-width: 0; }
 .messages-page { padding-bottom: 16px; }
+
+.message-contact-copy { display: grid; gap: 5px; min-width: 0; flex: 1; text-align: left; }
+.message-contact .message-contact-copy .message-preview { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #a2abc0; font-size: 12px; }
+.message-contact time { font-size: 10px; color: #818ba2; }
+.message-contact > span:last-child { flex-shrink: 0; }
+.message-reactions { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.message-reactions button { min-width: 44px; min-height: 44px; border: 1px solid #ffffff18; border-radius: 12px; padding: 5px; }
+.message-reactions button[aria-pressed="true"] { border-color: var(--lime); background: #b7f34b18; }
+.message-reactions button span { margin-left: 3px; font-size: 11px; }

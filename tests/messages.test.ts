@@ -71,3 +71,20 @@ test("demo retries stay idempotent and only selected incoming messages become re
   assert.ok(read.state.messages[0].read_at);
   assert.equal(read.state.messages[1].read_at, null);
 });
+
+test("demo inbox includes latest preview and sorts recent conversations first", () => {
+  const messages = [{...m("1"), body:"Ancien"}, {...m("2"), recipient_id:"c", body:"Récent", created_at:"2026-09-11T10:00:00Z"}];
+  const result = demoMessageRpc<import("../lib/messages/rules").MessageInbox>({messages,enabled:true},"a",["b","c"],"get_message_inbox");
+  assert.equal(result.data.conversations[0].friend_id,"c");
+  assert.equal(result.data.conversations[0].last_message?.body,"Récent");
+});
+test("demo message reactions replace, remove, and reject nonparticipants", () => {
+  const base = {messages:[m("1")],enabled:true};
+  const first = demoMessageRpc<Message>(base,"b",["a"],"set_message_reaction",{p_message_id:"1",p_reaction:"heart"});
+  assert.deepEqual(first.data.reactions,[{user_id:"b",reaction:"heart"}]);
+  const second = demoMessageRpc<Message>(first.state,"b",["a"],"set_message_reaction",{p_message_id:"1",p_reaction:"clap"});
+  assert.deepEqual(second.data.reactions,[{user_id:"b",reaction:"clap"}]);
+  const removed = demoMessageRpc<Message>(second.state,"b",["a"],"set_message_reaction",{p_message_id:"1",p_reaction:null});
+  assert.deepEqual(removed.data.reactions,[]);
+  assert.throws(()=>demoMessageRpc(base,"c",["a"],"set_message_reaction",{p_message_id:"1",p_reaction:"clap"}));
+});

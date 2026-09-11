@@ -28,6 +28,9 @@ begin
  if to_regprocedure('private.authorize_push_job_before_message_tab(uuid,uuid)') is not null then
   update private.push_outbox set status='leased',lease_token='11111111-1111-4111-8111-111111111111',lease_until=clock_timestamp()+interval '60 seconds',attempts=1 where notification_id=nid;
   if (select public.authorize_push_job(id,lease_token)->>'target_tab' from private.push_outbox where notification_id=nid) is distinct from 'messages' then raise exception 'Message push destination incorrect';end if;
+  if to_regprocedure('private.authorize_push_job_before_conversation_link(uuid,uuid)') is not null then
+   if (select public.authorize_push_job(id,lease_token)->>'friend_id' from private.push_outbox where notification_id=nid) is distinct from a::text then raise exception 'Push peer incorrect';end if;
+  end if;
  end if;
  if exists(select 1 from public.notifications where id=nid and message like '%Bonjour%') then raise exception 'Message text leaked';end if;
  perform set_config('request.jwt.claim.sub',b::text,true);execute 'set local role authenticated';

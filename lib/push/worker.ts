@@ -9,6 +9,7 @@ type Delivery = {
   p256dh: string;
   auth: string;
   target_tab: string;
+  friend_id?: string;
 };
 export async function dispatchPush(
   config: NonNullable<ReturnType<typeof pushServerConfig>>,
@@ -48,7 +49,7 @@ export async function dispatchPush(
             endpoint: delivery.endpoint,
             keys: { p256dh: delivery.p256dh, auth: delivery.auth },
           },
-          JSON.stringify(pushPayload(delivery.target_tab, job.id)),
+          JSON.stringify(pushPayload(delivery.target_tab, job.id, delivery.friend_id)),
           {
             TTL: 300,
             urgency: "high",
