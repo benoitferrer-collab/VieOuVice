@@ -1,3 +1,4 @@
+import { cooperativeCatalog } from "./cooperative/catalog";
 import { expandedCatalog } from "./catalog-expansion";
 import type { Action, GameState, Player } from "./game";
 import { parisWeek } from "./progression/rules";
@@ -102,7 +103,7 @@ export function normalizeDemoTime(
     ...state,
     catalog: [
       ...state.catalog,
-      ...expandedCatalog.filter(
+      ...[...expandedCatalog, ...cooperativeCatalog].filter(
         (item) => !state.catalog.some((existing) => existing.id === item.id),
       ),
     ],

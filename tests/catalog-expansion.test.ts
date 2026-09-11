@@ -34,7 +34,7 @@ test("saved demo receives catalogue additions once without losing custom actions
   const custom = { ...original, id: "custom-test" };
   state.catalog = [original, custom];
   const upgraded = normalizeDemoTime(state);
-  assert.equal(upgraded.catalog.length, 20);
+  assert.equal(upgraded.catalog.length, 23);
   assert.deepEqual(normalizeDemoTime(upgraded).catalog, upgraded.catalog);
   assert.deepEqual(upgraded.catalog[1], custom);
 });

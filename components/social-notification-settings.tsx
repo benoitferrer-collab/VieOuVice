@@ -11,7 +11,9 @@ export function SocialNotificationSettings({
   settings,
   available,
   save,
+  sharingOnly = false,
 }: {
+  sharingOnly?: boolean;
   settings?: SocialSettings;
   available: boolean;
   save: (settings: SocialSettings) => Promise<void>;
@@ -50,35 +52,37 @@ export function SocialNotificationSettings({
             detail: "Début du duel, changement de leader et résultat final.",
           },
         ] as const
-      ).map((item) => (
-        <label key={item.key} className="setting-row">
-          <span>
-            <strong>{item.title}</strong>
-            <span>{item.detail}</span>
-          </span>
-          <input
-            type="checkbox"
-            role="switch"
-            checked={value[item.key]}
-            disabled={busy || !available}
-            onChange={async (e) => {
-              setBusy(true);
-              setError("");
-              try {
-                await save({ ...value, [item.key]: e.target.checked });
-              } catch (e) {
-                setError(
-                  e instanceof Error
-                    ? e.message
-                    : "Préférences non enregistrées.",
-                );
-              } finally {
-                setBusy(false);
-              }
-            }}
-          />
-        </label>
-      ))}
+      )
+        .filter((item) => !sharingOnly || item.key === "share_activity")
+        .map((item) => (
+          <label key={item.key} className="setting-row">
+            <span>
+              <strong>{item.title}</strong>
+              <span>{item.detail}</span>
+            </span>
+            <input
+              type="checkbox"
+              role="switch"
+              checked={value[item.key]}
+              disabled={busy || !available}
+              onChange={async (e) => {
+                setBusy(true);
+                setError("");
+                try {
+                  await save({ ...value, [item.key]: e.target.checked });
+                } catch (e) {
+                  setError(
+                    e instanceof Error
+                      ? e.message
+                      : "Préférences non enregistrées.",
+                  );
+                } finally {
+                  setBusy(false);
+                }
+              }}
+            />
+          </label>
+        ))}
       <p className="notice">
         <Shield size={16} />
         Le partage des sept derniers jours se règle séparément. Les blocages

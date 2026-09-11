@@ -1,3 +1,4 @@
+import { cooperativeCatalog } from "./cooperative/catalog";
 import { expandedCatalog } from "./catalog-expansion";
 import { normalizeDemoTime, type LifeStats } from "./life-time";
 export type Kind = "excess" | "health";
@@ -81,6 +82,7 @@ export type GameState = {
 };
 export const catalog: CatalogItem[] = [
   ...expandedCatalog,
+  ...cooperativeCatalog,
   {
     id: "walk",
     label: "Prendre l’air",

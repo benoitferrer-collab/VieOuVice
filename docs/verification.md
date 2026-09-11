@@ -125,3 +125,11 @@ Contrôles publics en lecture seule effectués : Auth HTTP 200, inscription emai
 - Navigateur en démo : message fictif envoyé, balises HTML affichées littéralement, champ vidé après confirmation, envoi vide désactivé, historique retrouvé à la réouverture. Affichage messagerie inspecté à 320 px. Aucun message réel envoyé.
 - Accueil testé par une route temporaire sans RPC de création : pseudonyme/avatar conservés après Retour, explication des compteurs, découverte de mission puis fin du parcours. Largeur document/scroll de 320/320 px ; aucun compte créé. Route de recette retirée.
 - Connexion de vérification CLI Supabase expirée. Aucun SQL exécuté ni déploiement permanent sur le SaaS pendant cette reprise. Tests Auth/PostgREST entre deux comptes et livraison Web Push sur téléphone à effectuer après installation ; voir `docs/friend-messages.md`.
+
+## 11 septembre 2026 — défis, récapitulatif et alertes
+
+79 tests Node, lint, TypeScript et build Webpack réussis. Nouvelle installation locale isolée PostgreSQL 18 avec Auth minimal simulé : migrations 001–011 puis suites cooperative, notification_preferences, friend_messages, web_push passent ; fixtures annulées. Les tests couvrent la progression après consentement, caps, badges figés, isolation, silence traversant minuit/DST, report sans perte de tentatives, lecture/opt-out, compétitions/rappels idempotents et maintien de la chaîne des réactions. La suite historique globale encouragements reste affectée par l’échec antérieur déjà documenté ; sa remise à niveau ne fait pas partie de cette livraison.
+
+Recette CUA démo : défi sportif créé avec Sam fictif, déclaration sportive15min =>15/180 ; bière fictive=>récapitulatif quantité1 sur7/30jours ; horaires silencieux enregistrés en simulation. Rendu375px, document/scroll375/375, console sans erreur. Aucun compte créé, invitation ou notification réelle. Deux workers ont fourni une partie du SQL puis ont été interrompus faute de crédits ; intégration, corrections et revue statique finale effectuées par l’agent principal, sans revue indépendante complète.
+
+Aucune modification distante ni Git/push/déploiement. Procédure de migration et recette SaaS dans `docs/cooperative-alerts.md`.

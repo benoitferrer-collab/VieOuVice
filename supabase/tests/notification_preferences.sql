@@ -1,0 +1,64 @@
+begin;
+do $test$
+declare a uuid:=gen_random_uuid();b uuid:=gen_random_uuid(); n uuid;j uuid;e uuid;act uuid;t uuid:=gen_random_uuid();p jsonb;
+begin
+ if has_function_privilege('authenticated','public.pump_scheduled_notifications()','EXECUTE') or has_function_privilege('anon','public.get_notification_preferences()','EXECUTE') then raise exception 'Private alerts API exposed';end if;
+ if has_table_privilege('authenticated','private.notification_preferences','SELECT') then raise exception 'Preferences table exposed';end if;
+ insert into auth.users(id) values(a),(b);
+ perform set_config('request.jwt.claim.sub',a::text,true);
+ perform public.create_profile('qa_'||substr(replace(a::text,'-',''),1,14),0);
+ perform public.update_notification_settings(true,true,true);
+ perform set_config('request.jwt.claim.sub',b::text,true);
+ perform public.create_profile('qa_'||substr(replace(b::text,'-',''),1,14),1);
+ p:=public.get_notification_preferences();
+ if (p->>'reminders')::boolean then raise exception 'Reminders must default off';end if;
+ perform public.set_notification_preferences(p||'{"messages":false}');
+ if (select notify_messages from public.user_settings where user_id=b) then raise exception 'Messages not synchronized';end if;
+ if not (select notify_friends from public.user_settings where user_id=b) then raise exception 'Independent category changed';end if;
+ perform public.set_message_notifications(true);
+ if not (public.get_notification_preferences()->>'messages')::boolean then raise exception 'Legacy preference not reflected';end if;
+ perform public.set_notification_preferences(p||'{"quiet_enabled":true,"quiet_start":"22:00","quiet_end":"07:00","timezone":"Europe/Paris"}');
+ if not private.notification_quiet_at(b,'2026-01-01 21:00Z') or private.notification_quiet_at(b,'2026-01-02 06:00Z') then raise exception 'Overnight boundary incorrect';end if;
+ perform public.set_notification_preferences(p||'{"quiet_enabled":true,"quiet_start":"02:00","quiet_end":"03:00","timezone":"Europe/Paris"}');
+ if not private.notification_quiet_at(b,'2026-10-25 00:30Z') or not private.notification_quiet_at(b,'2026-10-25 01:30Z') or private.notification_quiet_at(b,'2026-03-29 01:30Z') then raise exception 'DST wall clock incorrect';end if;
+ insert into public.friendships(requester,recipient,status) values(a,b,'accepted');
+ perform public.register_push_subscription('https://fcm.googleapis.com/qa-'||b,repeat('A',87),repeat('B',22));
+ -- A 23h59 window chosen around current UTC minute guarantees quiet now.
+ perform public.set_notification_preferences(p||jsonb_build_object('quiet_enabled',true,'quiet_start',to_char(clock_timestamp() at time zone 'UTC','HH24:MI'),'quiet_end',to_char((clock_timestamp()-interval '1 minute') at time zone 'UTC','HH24:MI'),'timezone','UTC'));
+ insert into public.notifications(user_id,message,kind,actor_id,target_tab,event_key) values(b,'Test','friend_action',a,'amis','qa:'||gen_random_uuid()) returning id into n;
+ select id into j from private.push_outbox where notification_id=n;
+ if j is null then raise exception 'Quiet alert must remain queued';end if;
+ update private.push_outbox set status='leased',attempts=1,lease_token=t,lease_until=clock_timestamp()+interval '60 seconds' where id=j;
+ if private.authorize_push_job(j,t) is not null then raise exception 'Push during quiet hours';end if;
+ if not exists(select 1 from private.push_outbox where id=j and status='pending' and lease_token is null and attempts=0 and available_at>now()) then raise exception 'Quiet job not deferred';end if;
+ perform public.set_notification_preferences(p);
+ perform public.read_notification(n);
+ update private.push_outbox set status='leased',attempts=1,lease_token=t,lease_until=clock_timestamp()+interval '60 seconds' where id=j;
+ if private.authorize_push_job(j,t) is not null then raise exception 'Read alert delivered';end if;
+ if (select status from private.push_outbox where id=j) is distinct from 'cancelled' then raise exception 'Read alert not cancelled';end if;
+ begin perform public.set_notification_preferences(p||'{"timezone":"bad/zone"}');raise exception 'Invalid timezone accepted';exception when sqlstate 'P0001' then if sqlerrm='Invalid timezone accepted' then raise;end if;end;
+ -- Scheduled competition notices are idempotent, reminders opt in, and opt-out does not replay.
+ insert into private.competitions(title,description,starts_at,ends_at,metric,badge_label,badge_icon,status) values('Test event','',now()-interval '1 hour',now()+interval '1 hour','health_minutes','Test badge','leaf','published') returning id into e;
+ insert into private.competition_members(event_id,user_id) values(e,b);
+ perform private.pump_scheduled_notifications();perform private.pump_scheduled_notifications();
+ if (select count(*) from public.notifications where user_id=b and kind='competition_started') is distinct from 1::bigint then raise exception 'Competition notice repeated or missing';end if;
+ if exists(select 1 from public.notifications where user_id=b and kind='activity_reminder') then raise exception 'Reminder without opt-in';end if;
+ perform public.set_notification_preferences(p||'{"reminders":true}');
+ perform private.pump_scheduled_notifications();perform private.pump_scheduled_notifications();
+ if (select count(*) from public.notifications where user_id=b and kind='activity_reminder') is distinct from 1::bigint then raise exception 'Reminder duplicate';end if;
+ select id into n from public.notifications where user_id=b and kind='competition_started';
+ perform public.set_notification_preferences(p||'{"competitions":false}');
+ perform public.set_notification_preferences(p);
+ if private.push_notification_eligible(n) then raise exception 'Category opt-out replay';end if;
+ -- Reaction shape and eligibility chain remain compatible; timestamp predates this transaction.
+ update public.user_settings set share_history=true where user_id=b;
+ insert into public.actions(user_id,catalog_id,label,kind,quantity,minutes_impact,tariff_version,season_id,created_at,idempotency_key) values(b,'pause','Test pause','health',1,15,1,(select id from public.seasons order by starts_at desc limit 1),now()-interval '2 hours',gen_random_uuid()) returning id into act;
+ perform set_config('request.jwt.claim.sub',a::text,true);
+ perform public.set_action_reaction(act,'clap');
+ update private.action_reactions set first_reacted_at=date_trunc('hour',now())-interval '1 minute' where action_id=act;
+ perform private.flush_reaction_digests(b);
+ select id into n from public.notifications where user_id=b and kind='reaction_digest';
+ if n is null or not private.push_notification_eligible(n) then raise exception 'Reaction compatibility';end if;
+ raise notice 'Notification preferences: OK';
+end $test$;
+rollback;

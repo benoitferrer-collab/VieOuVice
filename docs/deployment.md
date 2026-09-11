@@ -41,3 +41,6 @@ Après 001–006, appliquer une seule fois `supabase/update-loss-and-actions.sql
 
 ## Accueil guidé et messages privés
 Après 001–008, tester puis appliquer une fois `supabase/update-friend-messages.sql` (009), puis publier le code via GitHub/Vercel. La base reste sur Supabase SaaS. Aucune nouvelle variable ni tâche planifiée : les alertes de messages utilisent le Web Push existant. Instructions et recette : [friend-messages.md](friend-messages.md).
+
+## Défis coopératifs et heures silencieuses
+Après 001–009, appliquer une fois `supabase/update-cooperative.sql` (010), puis `supabase/update-notification-preferences.sql` (011), puis publier le code via GitHub/Vercel. Aucune nouvelle variable ou tâche planifiée ; le worker Push existant est réutilisé. Voir [cooperative-alerts.md](cooperative-alerts.md).

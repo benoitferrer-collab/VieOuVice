@@ -133,3 +133,21 @@ test("private messages manual upgrade matches migration 009 exactly", () => {
     ),
   );
 });
+
+for (const [migration, bundle] of [
+  ["202609100010_cooperative.sql", "update-cooperative.sql"],
+  [
+    "202609100011_notification_preferences.sql",
+    "update-notification-preferences.sql",
+  ],
+]) {
+  test(`manual upgrade ${bundle} preserves migration exactly`, async () => {
+    assert.equal(
+      readFileSync(new URL(`../supabase/${bundle}`, import.meta.url), "utf8"),
+      readFileSync(
+        new URL(`../supabase/migrations/${migration}`, import.meta.url),
+        "utf8",
+      ),
+    );
+  });
+}

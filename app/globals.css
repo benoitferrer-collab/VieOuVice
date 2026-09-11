@@ -1936,3 +1936,12 @@ input[type="checkbox"] {
 .message-compose textarea { display: block; box-sizing: border-box; width: 100%; resize: vertical; min-height: 90px; padding: 12px; border: 1px solid #ffffff25; border-radius: 12px; background: #ffffff08; color: inherit; font: inherit; margin: 8px 0; }
 .message-compose textarea:focus-visible { outline: 2px solid #c7f766; }
 .message-compose textarea:disabled { opacity: .6; }
+
+/* Cooperative challenges and descriptive journal. */
+.coop-section,.consumption-recap{margin:24px 0;padding:20px;border:1px solid var(--border, #ffffff18);border-radius:20px;background:#111725}
+.coop-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.coop-heading h2{display:flex;gap:10px;align-items:center}.coop-heading h3{margin:0;font-size:1rem}
+.coop-card{padding:18px;margin-top:16px;border:1px solid #ffffff16;border-radius:16px;background:#ffffff03}.coop-card progress{width:100%;height:10px;accent-color:#d4ff7a}.coop-total{font-size:1rem}.coop-total strong{font-size:1.7rem;color:#d4ff7a}.coop-badge{display:flex;gap:8px;align-items:center;color:#d4ff7a}.coop-buttons{display:flex;gap:10px;flex-wrap:wrap}
+.coop-form{display:grid;gap:16px}.coop-form fieldset{border:0;padding:0;margin:0;min-width:0}.coop-form label select,.consumption-recap select{display:block;width:100%;margin-top:8px;padding:12px;border-radius:10px;background:#1b2133;color:inherit;border:1px solid #ffffff24}.coop-form .primary{width:100%}
+.consumption-recap dl>div{display:flex;gap:12px;justify-content:space-between;padding:12px 0;border-bottom:1px solid #ffffff14}.consumption-recap dd{margin:0;text-align:right;flex-shrink:0}.consumption-recap dd small{display:block;color:#aaaebc}.consumption-recap dt{overflow-wrap:anywhere}
+.advanced-notification-settings{margin:24px 0}.advanced-notification-settings .quiet-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.advanced-notification-settings label{min-width:0}.advanced-notification-settings input[type=time],.advanced-notification-settings input[type=text]{display:block;width:100%;padding:10px;border:1px solid #ffffff24;border-radius:10px;background:#1b2133;color:inherit}.advanced-notification-settings .timezone-field{grid-column:1/-1}
+@media(max-width:400px){.coop-section,.consumption-recap{padding:14px}.coop-card{padding:14px}.coop-heading h2{font-size:1.15rem}.coop-buttons>button{flex:1}.advanced-notification-settings .quiet-fields{grid-template-columns:1fr}}

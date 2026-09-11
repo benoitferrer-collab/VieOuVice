@@ -38,6 +38,9 @@ import { NotificationToast } from "./notification-toast";
 import { notificationTab } from "@/lib/notifications";
 import { cleanupWebPushBeforeSignOut } from "./web-push-settings";
 import { useGame } from "@/lib/use-game";
+import { CooperativeHub } from "./cooperative/hub";
+import { ConsumptionRecap } from "./cooperative/consumption-summary";
+import { useCooperative } from "@/lib/cooperative/use-cooperative";
 import { useSocialHub } from "@/lib/events/use-social-hub";
 import { Competitions } from "./competitions";
 import { AdminPanel } from "./admin-panel";
@@ -112,6 +115,7 @@ export function Game({
 }) {
   const game = useGame(configured);
   const social = useSocialHub(game.state, game.demo);
+  const cooperative = useCooperative(game.state, game.demo);
   const progression = useProgression(game.state, game.demo, social.hub);
   const [selectedFriend, setSelectedFriend] = useState<{
     owner: string;
@@ -432,6 +436,17 @@ export function Game({
                       }
                     />
                   )}
+                  <CooperativeHub
+                    state={state}
+                    hub={cooperative.hub}
+                    error={cooperative.error}
+                    demo={game.demo}
+                    rpc={cooperative.rpc}
+                    refresh={async () => {
+                      await cooperative.refresh();
+                      await progression.refresh();
+                    }}
+                  />
                   {progression.data && (
                     <Missions
                       progression={progression.data}
@@ -1101,6 +1116,7 @@ export function Game({
                         if (game.demo) {
                           game.localPatch(makeDemo());
                           social.resetDemo();
+                          cooperative.resetDemo();
                           progression.resetDemo();
                           tell("Une nouvelle démo commence.");
                         } else {
@@ -1289,6 +1305,11 @@ export function Game({
                 </button>
               ))}
             </div>
+            <ConsumptionRecap
+              key={`${game.demo}:${state.id}`}
+              rpc={cooperative.rpc}
+              demo={game.demo}
+            />
             {progression.data ? (
               <EncouragementList
                 ids={state.actions
@@ -1384,9 +1405,19 @@ export function Game({
         )}
         {panel === "settings" && (
           <SettingsSheet
+            refreshNotifications={async () => {
+              await game.refresh();
+              await progression.refresh();
+              await messaging.refresh();
+            }}
             state={state}
             demo={game.demo}
-            onClose={() => setPanel(null)}
+            onClose={() => {
+              setPanel(null);
+              void game.refresh();
+              void progression.refresh();
+              void messaging.refresh();
+            }}
             save={async (patch) => {
               if (game.demo) game.localPatch(patch);
               else

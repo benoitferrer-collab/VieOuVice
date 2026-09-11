@@ -4,6 +4,29 @@ import { Sheet } from "./sheet";
 
 const chapters = [
   {
+    title: "Les défis coopératifs entre amis",
+    paragraphs: [
+      "Dans Survie, ouvre Défis coopératifs puis Créer. Choisis trois heures de sport, 200 minutes de marche ou dix pauses, et invite un à quatre amis acceptés. Le défi dure sept jours à partir de sa création. Chaque ami retrouve l’invitation sur son accueil et choisit de participer.",
+      "En acceptant, tu contribues à un total visible par l’équipe, sans partager le détail de ton journal. Seules les bonnes actions à impact positif enregistrées après ton acceptation et avant la fin comptent. Sport : catégorie Activité sportive · 15 minutes ; marche : Prendre l’air ou Marche rapide de 30 minutes ; pauses : Une vraie pause. Maximum 60 minutes de sport ou de marche, ou une pause par personne et par jour de Paris.",
+      "L’objectif atteint avec au moins deux contributeurs donne le badge Ensemble, on avance aux membres ayant contribué. Il ne rapporte pas de minutes ou d’XP. Le résultat réussi est figé. Tu peux quitter un défi actif, mais pas le rejoindre ensuite ; ta contribution est retirée. Les blocages et suspensions coupent les participations concernées. Un seul défi créé en cours par joueur.",
+    ],
+  },
+  {
+    title: "Le récapitulatif de tes consommations",
+    paragraphs: [
+      "Ton journal contient Mes consommations déclarées : choisis les sept ou trente derniers jours pour voir les quantités enregistrées par catégorie. Pour un compte connecté, le récapitulatif utilise tout l’historique de cette période, même au-delà des cent lignes affichées dans le journal.",
+      "Bière et Cocktail au gin sont des catégories distinctes. Les anciens verres non précisés et vin ou bière restent séparés. Choisis une seule catégorie par consommation, sans double déclaration. Ce récapitulatif personnel ne comporte aucun objectif de consommation, badge ou rappel à boire.",
+    ],
+  },
+  {
+    title: "Choisir ses alertes et ses heures tranquilles",
+    paragraphs: [
+      "Dans Profil → Préférences et confidentialité → Mes notifications, règle séparément messages, amis, duels, encouragements, compétitions et rappels. Enregistre tes choix. Les rappels sont désactivés au départ ; si tu les actives, le jeu en prévoit au maximum un par jour pour les défis ou compétitions rejoints encore en cours.",
+      "Active Horaires silencieux, choisis le début, la fin et ton fuseau horaire. La cloche continue de recevoir les informations, mais les alertes téléphone en attente sont différées jusqu’à un passage de l’envoi périodique après le silence. Les changements d’heure suivent le fuseau sélectionné. Les alertes lues ou expirées ne sont pas réenvoyées.",
+      "L’autorisation du navigateur est toujours nécessaire pour le téléphone. Une alerte déjà remise au service du téléphone peut arriver après le début du silence. Les réglages de messages dans la messagerie et dans les préférences contrôlent la même option.",
+    ],
+  },
+  {
     title: "Pourquoi ce jeu existe",
     paragraphs: [
       "Excès-O-Meter transforme les petits écarts et les bonnes habitudes du quotidien en un journal ludique à partager entre amis. L’idée : regarder ses habitudes avec humour, comparer des scores et participer à des défis, sans jugement.",

@@ -1,4 +1,5 @@
 "use client";
+import { AdvancedNotificationSettings } from "./advanced-notification-settings";
 import { useState } from "react";
 import { SocialNotificationSettings } from "./social-notification-settings";
 import { WebPushSettings } from "./web-push-settings";
@@ -14,10 +15,11 @@ export function SettingsSheet({
   mutate,
   saveSocial,
   historySharing,
-  reactionDigest,
+  refreshNotifications,
 }: {
   state: GameState;
   demo: boolean;
+  refreshNotifications?: () => Promise<void>;
   saveSocial: (settings: SocialSettings) => Promise<void>;
   historySharing?: {
     enabled: boolean;
@@ -80,44 +82,19 @@ export function SettingsSheet({
         </label>
       ))}
       <SocialNotificationSettings
+        sharingOnly
         settings={state.social_settings}
         available={!!state.community_enabled}
         save={saveSocial}
       />
       <WebPushSettings demo={demo} />
       {historySharing && <HistorySharing {...historySharing} />}
-      {reactionDigest && (
-        <label className="setting-row">
-          <span>
-            <strong>Récapitulatif des encouragements</strong>
-            <span>
-              Regrouper les réactions de mes amis dans une alerte horaire. Le
-              réglage « Activité de mes amis » doit aussi être activé.
-            </span>
-          </span>
-          <input
-            type="checkbox"
-            role="switch"
-            checked={reactionDigest.enabled}
-            disabled={busy}
-            onChange={async (e) => {
-              setBusy(true);
-              setError("");
-              try {
-                await reactionDigest.save(e.target.checked);
-              } catch (caught) {
-                setError(
-                  caught instanceof Error
-                    ? caught.message
-                    : "Préférence non enregistrée.",
-                );
-              } finally {
-                setBusy(false);
-              }
-            }}
-          />
-        </label>
-      )}
+      <AdvancedNotificationSettings
+        key={`${demo}:${state.id}`}
+        demo={demo}
+        userId={state.id}
+        onSaved={refreshNotifications}
+      />
       <h3 className="settings-heading">Gérer mon cercle</h3>
       <form
         onSubmit={async (e) => {
