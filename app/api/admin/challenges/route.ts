@@ -24,12 +24,15 @@ export async function POST(request:Request) {
     if(!reservation.claimed) return reservation.batch?.suggestions
       ? Response.json(reservation.batch,{headers})
       : Response.json({error:"Cette génération est déjà en cours. Consulte les propositions enregistrées avant de relancer."},{status:409,headers});
-    const accountId=process.env.CLOUDFLARE_ACCOUNT_ID;
-    const aiToken=process.env.CLOUDFLARE_AI_TOKEN;
+    const accountId=process.env.CLOUDFLARE_ACCOUNT_ID?.trim();
+    const aiToken=process.env.CLOUDFLARE_AI_TOKEN?.trim();
     const config=accountId && /^[a-f0-9]{32}$/.test(accountId) && aiToken ? {accountId,token:aiToken} : null;
     const generated=await generateSuggestions(input.theme,config);
+    if(generated.source === "fallback") console.warn("ai_challenge_fallback",{
+      request_id:input.request_id,reason:generated.diagnostic,status:generated.provider_status,code:generated.provider_code,
+    });
     const {data:batch,error:saveError}=await db.rpc("finish_ai_challenges",{p_actor:auth.user.id,p_id:input.request_id,p_source:generated.source,p_suggestions:generated.suggestions});
     if(saveError) return Response.json({error:"Enregistrement non confirmé. Consulte l’historique avant de relancer."},{status:503,headers});
-    return Response.json(batch,{headers});
+    return Response.json({...batch,diagnostic:generated.diagnostic,provider_status:generated.provider_status,provider_code:generated.provider_code},{headers});
   } catch {return Response.json({error:"Atelier indisponible. Réessaie plus tard."},{status:503,headers});}
 }

@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Leaf, Medal, Trophy, Flame, Sparkles } from "lucide-react";
 import { browserClient } from "@/lib/supabase/browser";
-import { aiThemes, suggestionDraft, type Batch } from "@/lib/ai/challenges";
+import { aiDiagnostics, aiThemes, suggestionDraft, type Batch } from "@/lib/ai/challenges";
 import type { CompetitionDraft, HubRpc } from "@/lib/events/types";
 const icons={leaf:Leaf,medal:Medal,trophy:Trophy,flame:Flame};
 export function AIWorkshop({userId,rpc,onChoose}:{userId:string;rpc:HubRpc;onChoose:(draft:CompetitionDraft)=>void}) {
@@ -40,6 +40,7 @@ export function AIWorkshop({userId,rpc,onChoose}:{userId:string;rpc:HubRpc;onCho
     {error && <p role="alert" className="coral">{error}</p>}
     {batches.map(batch=><article key={batch.id} className="ai-batch">
       <p className="fine-print">{batch.theme} · {new Date(batch.created_at).toLocaleDateString("fr-FR")} · {batch.source==="ai"?"Propositions IA":"Modèles préparés : IA non configurée, indisponible ou réponse écartée"}</p>
+      {batch.diagnostic && <p role="status" className="notice">{aiDiagnostics[batch.diagnostic]}{batch.provider_status ? ` HTTP ${batch.provider_status}.` : ""}{batch.provider_code !== undefined ? ` Code Cloudflare : ${batch.provider_code}.` : ""}</p>}
       {batch.suggestions.map((s,i)=>{const Icon=icons[s.badge_icon];return <div key={i} className="ai-suggestion">
         <span className={`ai-badge ai-badge-${s.badge_icon}`}><Icon size={28}/></span>
         <div><strong>{s.title}</strong><p>{s.intro}</p><small>Badge : {s.badge_label}</small></div>

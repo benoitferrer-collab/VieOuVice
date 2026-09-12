@@ -23,3 +23,13 @@ test("successful response is validated and provider sees no player data",async()
  assert.equal((await generateSuggestions("pirates",{accountId:"a".repeat(32),token:"fake"},fake as typeof fetch)).source,"ai");
  assert.equal(JSON.parse(body).max_tokens,900);
 });
+
+test("fallback distinguishes configuration, provider refusal and rejected content without leaking details",async()=>{
+ assert.equal((await generateSuggestions("zen",null)).diagnostic,"configuration");
+ const config={accountId:"a".repeat(32),token:"secret-must-stay-server-side"};
+ const refused=await generateSuggestions("zen",config,(async()=>new Response("secret provider response",{status:403})) as typeof fetch);
+ assert.equal(refused.diagnostic,"access_denied");
+ assert.ok(!JSON.stringify(refused).includes(config.token));
+ const invalid=await generateSuggestions("zen",config,(async()=>Response.json({success:true,result:{response:"not json"}})) as typeof fetch);
+ assert.equal(invalid.diagnostic,"invalid_output");
+});

@@ -25,3 +25,9 @@ Les vingt derniers lots terminés sont consultables par les administrateurs depu
 Les réponses IA sont du texte validé, jamais du HTML/SVG exécuté. Les propositions sont relues par l’administrateur avant publication. En cas d’erreur fournisseur ou de sortie invalide, trois modèles préparés sont enregistrés à la place.
 
 Références : [API REST Cloudflare](https://developers.cloudflare.com/workers-ai/get-started/rest-api/), [tarification](https://developers.cloudflare.com/workers-ai/platform/pricing/).
+
+## Diagnostic d’un repli
+
+La nouvelle génération affiche maintenant la cause du repli : configuration, refus 401/403, limitation 429, requête refusée 400, ressource absente 404, erreur fournisseur, réseau/délai ou texte refusé. Le statut HTTP et le code numérique Cloudflare sont affichés lorsqu’ils sont disponibles. Les logs Vercel de `/api/admin/challenges` contiennent également `ai_challenge_fallback` avec uniquement l’identifiant de requête et ces codes, jamais le jeton ni la sortie brute.
+
+Ce diagnostic accompagne la réponse du nouvel essai ; il n’est pas enregistré dans l’historique SQL. Après rechargement, retrouver le détail dans les logs Vercel. Les anciens lots ne permettent pas de reconstituer la cause, car elle n’était pas enregistrée. Aucun SQL supplémentaire n’est nécessaire pour cette amélioration. Les espaces en début/fin des variables Cloudflare sont désormais retirés avant validation.
