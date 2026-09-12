@@ -546,3 +546,14 @@
     padding-inline: 7px;
   }
 }
+
+.ai-workshop { display:grid; gap:12px; padding:16px; border:1px solid #ffffff20; border-radius:18px; }
+.ai-workshop h3 { display:flex; align-items:center; gap:8px; }
+.ai-workshop select { display:block; width:100%; margin-top:8px; padding:10px; background:#171e30; color:white; border-radius:10px; }
+.ai-batch { border-top:1px solid #ffffff20; padding-top:12px; }
+.ai-suggestion { display:grid; grid-template-columns:48px minmax(0,1fr); gap:10px; padding:14px 0; }
+.ai-suggestion p { color:#a2abc0; font-size:13px; margin:6px 0; }
+.ai-suggestion button { grid-column:2; text-align:left; }
+.ai-badge { width:48px; height:48px; display:grid; place-items:center; border-radius:16px; background:#b7f34b18; border:1px solid #b7f34b55; color:#b7f34b; }
+.ai-badge-trophy,.ai-badge-medal { color:#ffcd74; background:#ffcd7418; border-color:#ffcd7455; }
+.ai-badge-flame { color:#ff827a; background:#ff827a18; border-color:#ff827a55; }

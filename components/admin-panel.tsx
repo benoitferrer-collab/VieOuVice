@@ -18,6 +18,7 @@ import type {
 } from "@/lib/events/types";
 import { competitionDraftSchema } from "@/lib/events/validation";
 import { competitionPhase } from "@/lib/events/rules";
+import { AIWorkshop } from "./ai-workshop";
 import { Sheet } from "./sheet";
 import "./events.css";
 
@@ -172,6 +173,7 @@ export function AdminPanel({ userId, rpc, changed, onClose }: AdminPanelProps) {
         >
           {tab === "events" && (
             <AdminEvents
+              userId={userId}
               events={dashboard.events}
               catalog={dashboard.catalog}
               busy={busy}
@@ -264,12 +266,14 @@ export function AdminPanel({ userId, rpc, changed, onClose }: AdminPanelProps) {
 }
 
 function AdminEvents({
+  userId,
   events,
   catalog,
   busy,
   mutate,
   rpc,
 }: {
+  userId: string;
   events: AdminDashboard["events"];
   catalog: AdminDashboard["catalog"];
   busy: string;
@@ -481,6 +485,9 @@ function AdminEvents({
 
   return (
     <div className="events-admin-view">
+      <AIWorkshop userId={userId} rpc={rpc} onChoose={(proposal)=>{
+        setDraft(proposal);setRequestId("");setValidationError("");setEditing(true);
+      }}/>
       <button
         type="button"
         className="primary full"

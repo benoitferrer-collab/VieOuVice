@@ -1,0 +1,31 @@
+begin;
+do $test$
+declare a uuid:=gen_random_uuid();b uuid:=gen_random_uuid();rid uuid:=gen_random_uuid();result jsonb;owner_name text:=current_user;
+begin
+ insert into auth.users(id) values(a),(b);
+ perform set_config('request.jwt.claim.sub',a::text,true);perform public.create_profile('qa_'||substr(replace(a::text,'-',''),1,14),0);
+ perform set_config('request.jwt.claim.sub',b::text,true);perform public.create_profile('qa_'||substr(replace(b::text,'-',''),1,14),0);
+ insert into private.player_access(user_id,is_admin) values(a,true) on conflict(user_id) do update set is_admin=true;
+ if has_function_privilege('authenticated','public.reserve_ai_challenges(uuid,uuid,text)','EXECUTE') or has_table_privilege('authenticated','private.ai_challenge_batches','SELECT') then raise exception 'Quota API exposed';end if;
+ execute 'set local role service_role';
+ begin perform public.reserve_ai_challenges(b,gen_random_uuid(),'espace');raise exception 'Non-admin allowed';exception when others then if sqlerrm='Non-admin allowed' then raise;end if;end;
+ result:=public.reserve_ai_challenges(a,rid,'espace');
+ if not (result->>'claimed')::boolean then raise exception 'Not claimed';end if;
+ result:=public.reserve_ai_challenges(a,rid,'espace');if (result->>'claimed')::boolean then raise exception 'Duplicate claim';end if;
+ begin perform public.reserve_ai_challenges(a,gen_random_uuid(),'espace');raise exception 'Cooldown ignored';exception when others then if sqlerrm='Cooldown ignored' then raise;end if;end;
+ result:=public.finish_ai_challenges(a,rid,'fallback','[{"title":"A"},{"title":"B"},{"title":"C"}]');
+ if jsonb_array_length(result->'suggestions')<>3 then raise exception 'Not persisted';end if;
+ result:=public.reserve_ai_challenges(a,rid,'espace');if result->'batch'->>'source'<>'fallback' then raise exception 'Cache not returned';end if;
+ execute format('set local role %I',owner_name);
+ perform set_config('request.jwt.claim.sub',b::text,true);execute 'set local role authenticated';
+ begin perform public.admin_ai_history();raise exception 'Player accessed history';exception when others then if sqlerrm='Player accessed history' then raise;end if;end;
+ execute format('set local role %I',owner_name);perform set_config('request.jwt.claim.sub',a::text,true);execute 'set local role authenticated';
+ if jsonb_array_length(public.admin_ai_history())<>1 then raise exception 'Admin history missing';end if;
+ execute format('set local role %I',owner_name);
+ insert into private.ai_challenge_batches(id,actor_id,theme) select gen_random_uuid(),a,'espace' from generate_series(1,9);
+ begin perform public.reserve_ai_challenges(a,gen_random_uuid(),'espace');raise exception 'Daily quota ignored';exception when others then if sqlerrm='Daily quota ignored' then raise;end if;end;
+ update private.player_access set suspended=true where user_id=a;
+ begin perform public.finish_ai_challenges(a,rid,'ai','[{}, {}, {}]');raise exception 'Suspended admin accepted';exception when others then if sqlerrm='Suspended admin accepted' then raise;end if;end;
+ raise notice 'AI workshop quotas, replay and permissions passed';
+end $test$;
+rollback;

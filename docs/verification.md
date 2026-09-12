@@ -137,3 +137,7 @@ Aucune modification distante ni Git/push/déploiement. Procédure de migration e
 ## 11 septembre 2026 — notifications événementielles (012)
 
 80 tests Node réussis, ESLint et TypeScript sans erreur, build de production Webpack réussi. La régression des tags de notification a échoué avant le correctif, puis passé. Migration 012 appliquée sur la base PostgreSQL locale contenant 001–011 ; tests instant_notifications, notification_preferences et web_push réussis. Faux pg_net/Vault transactionnels : aucun appel réseau. Échec d’enqueue simulé : déclaration et job durable conservés. Bundle SQL identique à la migration. Aucune modification de production, aucun envoi réel et aucun push GitHub. Déploiement et test téléphone à effectuer selon docs/instant-notifications.md.
+
+## Atelier IA (015)
+
+Migration 015 et tests SQL exécutés sur PostgreSQL temporaire : administrateur requis, historique privé, quota global de dix lots/jour UTC, délai entre appels, réservation et résultat idempotents, administrateur suspendu refusé. Tests fournisseur simulé : réponse valide, JSON refusé, contenu non autorisé, repli après HTTP 429 sans relance. Aucun appel Cloudflare réel (identifiant de compte non configuré), aucune clé écrite, aucun push GitHub ni migration distante. Le flux de publication réutilise le formulaire administrateur existant. Voir docs/ai-workshop.md.

@@ -1446,6 +1446,7 @@ export function Game({
         )}
         {panel === "admin" && social.hub?.is_admin && !game.demo && (
           <AdminPanel
+            key={state.id}
             userId={state.id}
             rpc={social.rpc}
             changed={async () => {
