@@ -33,3 +33,19 @@ test("fallback distinguishes configuration, provider refusal and rejected conten
  const invalid=await generateSuggestions("zen",config,(async()=>Response.json({success:true,result:{response:"not json"}})) as typeof fetch);
  assert.equal(invalid.diagnostic,"invalid_output");
 });
+
+test("structured Cloudflare objects and JSON strings follow the same strict schema",async()=>{
+ const rows=preparedSuggestions("espace");
+ for(const response of [{suggestions:rows},JSON.stringify({suggestions:rows})]) {
+  let requestBody="";
+  const fake=async(_input:unknown,init?:RequestInit)=>{requestBody=String(init?.body);return Response.json({success:true,result:{response}});};
+  const result=await generateSuggestions("espace",{accountId:"a".repeat(32),token:"fake"},fake as typeof fetch);
+  assert.equal(result.source,"ai");
+  assert.equal(JSON.parse(requestBody).response_format.type,"json_schema");
+ }
+});
+test("ordinary adventure words are not mistaken for fasting or alcohol",()=>{
+ const rows=preparedSuggestions("espace");
+ rows[0].title="Les jeunes explorateurs et leur engin spatial";
+ assert.equal(parseSuggestions(JSON.stringify(rows))[0].title,rows[0].title);
+});

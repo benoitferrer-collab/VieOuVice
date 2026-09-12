@@ -25,11 +25,24 @@ export function preparedSuggestions(theme:string):Suggestion[] {
     {title:`Mission ${theme} : bonnes habitudes`,intro:"Une semaine pour faire une place aux bonnes habitudes.",badge_label:"Équipe des survivants",badge_icon:"trophy"},
   ];
 }
-export function parseSuggestions(raw:string):Suggestion[] {
-  const parsed = suggestionsSchema.parse(JSON.parse(raw.replace(/^```(?:json)?\s*/i,"").replace(/\s*```$/,"")));
+export const cloudflareResponseFormat = {
+  type:"json_schema",
+  json_schema:{type:"object",additionalProperties:false,required:["suggestions"],properties:{suggestions:{
+    type:"array",minItems:3,maxItems:3,items:{type:"object",additionalProperties:false,
+      required:["title","intro","badge_label","badge_icon"],properties:{
+        title:{type:"string",minLength:3,maxLength:80},
+        intro:{type:"string",minLength:3,maxLength:180},
+        badge_label:{type:"string",minLength:3,maxLength:60},
+        badge_icon:{type:"string",enum:["trophy","medal","leaf","flame"]},
+      }},
+  }}},
+};
+export function parseSuggestions(raw:unknown):Suggestion[] {
+  const value = typeof raw === "string" ? JSON.parse(raw.trim().replace(/^```(?:json)?\s*/i,"").replace(/\s*```$/,"")) : raw;
+  const parsed = Array.isArray(value) ? suggestionsSchema.parse(value) : z.object({suggestions:suggestionsSchema}).strict().parse(value).suggestions;
   // Model output is presentation only. Never accept medical claims, numeric
   // prescriptions or consumption challenges as automatically generated copy.
-  const forbidden=/(alcool|bi[eè]re|cocktail|vodka|gin\b|cigarette|drogue|je[uû]ne|calorie|gu[eé]ri|esp[eé]rance de vie|\d|https?:|www\.)/i;
+  const forbidden=/(alcool|bi[eè]re|cocktail|vodka|\bgin\b|cigarette|drogue|jeûne|calorie|gu[eé]ri|esp[eé]rance de vie|\d|https?:|www\.)/i;
   if(parsed.some(s=>forbidden.test([s.title,s.intro,s.badge_label].join(" ")))) throw Error("Unsupported generated content");
   return parsed;
 }
@@ -42,10 +55,10 @@ export function suggestionDraft(s:Suggestion,index:number,now=new Date()):Compet
 export async function generateSuggestions(theme:string,config:{accountId:string;token:string}|null,fetcher:typeof fetch=fetch) {
   const fallback=(diagnostic:AIDiagnostic,provider_status?:number,provider_code?:number)=>({source:"fallback" as const,suggestions:preparedSuggestions(theme),diagnostic,provider_status,provider_code});
   if(config) try {
-    const response=await fetcher(`https://api.cloudflare.com/client/v4/accounts/${config.accountId}/ai/run/@cf/meta/llama-3.1-8b-instruct-fp8-fast`,{
+    const response=await fetcher(`https://api.cloudflare.com/client/v4/accounts/${config.accountId}/ai/run/@cf/meta/llama-3.1-8b-instruct-fast`,{
       method:"POST",headers:{Authorization:`Bearer ${config.token}`,"Content-Type":"application/json"},signal:AbortSignal.timeout(20000),
-      body:JSON.stringify({max_tokens:900,temperature:0.7,messages:[
-        {role:"system",content:'Écris en français trois habillages de défis ludiques : pauses, marche, bonnes habitudes, dans cet ordre. Réponds uniquement par un tableau JSON de trois objets avec title (3–80 caractères), intro (3–350), badge_label (3–60), badge_icon (trophy,medal,leaf,flame). Pas de chiffres, pas de promesse médicale, pas de récompense, pas de consigne de consommation, aucun alcool ni restriction alimentaire. Tu écris uniquement une ambiance, jamais les règles ou objectifs.'},
+      body:JSON.stringify({max_tokens:900,temperature:0.4,response_format:cloudflareResponseFormat,messages:[
+        {role:"system",content:'Écris en français trois habillages de défis ludiques : pauses, marche, bonnes habitudes, dans cet ordre. Réponds uniquement par un objet JSON contenant suggestions, un tableau de trois objets avec title (3–80 caractères), intro (une courte phrase, 3–180 caractères), badge_label (3–60), badge_icon (trophy,medal,leaf,flame). Pas de chiffres, pas de promesse médicale, pas de récompense, pas de consigne de consommation, aucun alcool ni restriction alimentaire. Tu écris uniquement une ambiance, jamais les règles ou objectifs.'},
         {role:"user",content:`Thème : ${theme}. Trois ambiances originales et accueillantes.`},
       ]}),
     });
@@ -56,7 +69,7 @@ export async function generateSuggestions(theme:string,config:{accountId:string;
       const diagnostic=response.status===401 || response.status===403 ? "access_denied" : response.status===429 ? "quota" : response.status===400 ? "request_rejected" : response.status===404 ? "model_unavailable" : "provider";
       return fallback(diagnostic,response.status,providerCode);
     }
-    if(!payload?.success || typeof payload.result?.response!=="string") return fallback("invalid_output",response.status);
+    if(!payload?.success || payload.result?.response == null) return fallback("invalid_output",response.status);
     try {return {source:"ai" as const,suggestions:parseSuggestions(payload.result.response),diagnostic:undefined,provider_status:undefined,provider_code:undefined};}
     catch {return fallback("invalid_output",response.status);}
   } catch {return fallback("network");}
