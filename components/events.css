@@ -344,7 +344,7 @@
 
 .events-admin-tabs {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 4px;
   margin: 12px 0 16px;
   padding: 4px;
@@ -557,3 +557,16 @@
 .ai-badge { width:48px; height:48px; display:grid; place-items:center; border-radius:16px; background:#b7f34b18; border:1px solid #b7f34b55; color:#b7f34b; }
 .ai-badge-trophy,.ai-badge-medal { color:#ffcd74; background:#ffcd7418; border-color:#ffcd7455; }
 .ai-badge-flame { color:#ff827a; background:#ff827a18; border-color:#ff827a55; }
+
+.admin-delete-confirmation {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--coral, #ff8073);
+  border-radius: 12px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.admin-delete-confirmation label { display: grid; gap: 8px; }
+.admin-delete-confirmation input { width: 100%; min-width: 0; }
+.admin-delete-confirmation .events-admin-actions { flex-wrap: wrap; }

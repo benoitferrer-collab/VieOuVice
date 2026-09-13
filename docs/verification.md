@@ -145,3 +145,13 @@ Migration 015 et tests SQL exécutés sur PostgreSQL temporaire : administrateur
 ## 13 septembre 2026 — reprise du correctif zen
 
 95 tests Node réussis et ESLint sans erreur. La régression de la réponse réelle Cloudflare passe : une introduction numérique est remplacée sans perdre les titres/badges IA valides. Les erreurs de validation sont identifiées par catégories et chemins de champs, sans texte brut. Un appel réel avant correctif avait confirmé HTTP 200 et la cause précise ; le second appel après correctif avait été bloqué par le contrôle automatique pour manque de crédits. Cette reprise vérifie le correctif localement, sans nouvel appel fournisseur, publication, push GitHub ni modification Supabase.
+
+## 13 septembre 2026 — suppressions et emojis (016–017)
+
+- 103 tests Node passent (`node --import tsx --test tests/*.test.ts`) ; lint et compilation Webpack vérifiés.
+- Base PostgreSQL locale isolée : migrations 016 et 017 installées. Tests transactionnels `admin_deletion`, `emojis`, `admin_competitions`, `progression`, `cooperative`, `friend_messages`, `messaging_improvements`, `ai_workshop`, `notification_preferences`, `web_push` passent ; toutes les fixtures sont annulées.
+- Suppression : droits, confirmation, expiration du ticket, révocation des droits après préparation, rollback d’un échec Auth simulé, journaux immuables, dépendances, préservation des autres comptes et rejet du JWT d’un compte effacé.
+- Emojis : recettes strictes, JSON structuré, génération simulée sans réseau, publication/retrait, copie conservée dans les messages, reprises idempotentes, quotas communs avec le texte, restrictions d’amitié et anonymisation de l’auteur supprimé.
+- Navigateur local `localhost:3002`, mode démo explicite : sélection, envoi et rendu du sticker vérifiés, avec réactions et formulaire toujours utilisables. Onglet et serveur temporaires fermés ensuite.
+- Aucun compte réel supprimé, aucune publication ou mutation Supabase distante, aucun appel Cloudflare réel. Le parcours Supabase Auth complet devra être essayé avec un compte de test après installation, car le test local émule sa phase SQL.
+- Correction d’une ambiguïté préexistante `i` dans la fixture SQL progression, sans changement de la progression du jeu.

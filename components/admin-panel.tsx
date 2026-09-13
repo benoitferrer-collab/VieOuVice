@@ -8,6 +8,8 @@ import {
   Search,
   ShieldCheck,
   Users,
+  Sparkles,
+  Handshake,
 } from "lucide-react";
 import type {
   AdminDashboard,
@@ -18,11 +20,16 @@ import type {
 } from "@/lib/events/types";
 import { competitionDraftSchema } from "@/lib/events/validation";
 import { competitionPhase } from "@/lib/events/rules";
+import { AdminDeleteConfirmation } from "./admin-delete-confirmation";
+import { AdminCooperative } from "./admin-cooperative";
+import { EmojiWorkshop } from "./emojis/emoji-workshop";
+import { deleteAccount } from "@/lib/admin/delete-account-client";
 import { AIWorkshop } from "./ai-workshop";
 import { Sheet } from "./sheet";
 import "./events.css";
 
-type AdminTab = "events" | "users" | "catalog" | "audit";
+type AdminTab =
+  "events" | "users" | "catalog" | "audit" | "cooperative" | "emojis";
 
 const emptyDraft: CompetitionDraft = {
   id: null,
@@ -110,13 +117,22 @@ export function AdminPanel({ userId, rpc, changed, onClose }: AdminPanelProps) {
     setBusy(key);
     setError("");
     setNotice("");
+    let applied = false;
     try {
       await action();
+      applied = true;
       await loadDashboard();
       await changed();
       setNotice(message);
       return true;
     } catch (caught) {
+      if (applied) {
+        setNotice(message);
+        setError(
+          "L’action est confirmée, mais l’actualisation a échoué. Rouvre ce menu pour recharger les données.",
+        );
+        return true;
+      }
       setError(
         errorMessage(caught, "La modification n’a pas été enregistrée."),
       );
@@ -139,7 +155,9 @@ export function AdminPanel({ userId, rpc, changed, onClose }: AdminPanelProps) {
         {(
           [
             ["events", "Événements", CalendarDays],
+            ["cooperative", "Coopération", Handshake],
             ["users", "Joueurs", Users],
+            ["emojis", "Emojis IA", Sparkles],
             ["catalog", "Catalogue", ListChecks],
             ["audit", "Journal", FileClock],
           ] as const
@@ -152,6 +170,7 @@ export function AdminPanel({ userId, rpc, changed, onClose }: AdminPanelProps) {
             aria-selected={tab === id}
             className={tab === id ? "selected" : ""}
             key={id}
+            disabled={!!busy}
             onClick={() => setTab(id)}
           >
             <Icon size={16} aria-hidden="true" />
@@ -226,6 +245,10 @@ export function AdminPanel({ userId, rpc, changed, onClose }: AdminPanelProps) {
               rpc={rpc}
             />
           )}
+          {tab === "cooperative" && (
+            <AdminCooperative rpc={rpc} busy={busy} mutate={mutate} />
+          )}
+          {tab === "emojis" && <EmojiWorkshop userId={userId} rpc={rpc} />}
           {tab === "audit" && <AdminAudit dashboard={dashboard} />}
         </div>
       ) : (
@@ -485,9 +508,16 @@ function AdminEvents({
 
   return (
     <div className="events-admin-view">
-      <AIWorkshop userId={userId} rpc={rpc} onChoose={(proposal)=>{
-        setDraft(proposal);setRequestId("");setValidationError("");setEditing(true);
-      }}/>
+      <AIWorkshop
+        userId={userId}
+        rpc={rpc}
+        onChoose={(proposal) => {
+          setDraft(proposal);
+          setRequestId("");
+          setValidationError("");
+          setEditing(true);
+        }}
+      />
       <button
         type="button"
         className="primary full"
@@ -580,6 +610,23 @@ function AdminEvents({
                   </button>
                 )}
               </div>
+              <AdminDeleteConfirmation
+                name={event.title}
+                description="Les inscriptions, classements et badges de cette compétition seront effacés. Les actions et XP déjà acquis restent aux joueurs."
+                disabled={!!busy}
+                onConfirm={(confirmation) =>
+                  mutate(
+                    `event-delete-${event.id}`,
+                    () =>
+                      rpc("admin_delete_challenge", {
+                        p_kind: "competition",
+                        p_id: event.id,
+                        p_confirmation: confirmation,
+                      }),
+                    "Compétition supprimée.",
+                  )
+                }
+              />
             </article>
           );
         })}
@@ -645,6 +692,7 @@ function AdminUsers({
           <AdminUserRow
             key={user.id}
             user={user}
+            actorId={userId}
             self={user.id === userId}
             busy={busy}
             mutate={mutate}
@@ -668,12 +716,14 @@ function AdminUsers({
 }
 
 function AdminUserRow({
+  actorId,
   user,
   self,
   busy,
   mutate,
   rpc,
 }: {
+  actorId: string;
   user: AdminUser;
   self: boolean;
   busy: string;
@@ -757,6 +807,20 @@ function AdminUserRow({
       >
         {busy === `user-${user.id}` ? "Enregistrement…" : "Enregistrer"}
       </button>
+      {!self && (
+        <AdminDeleteConfirmation
+          name={user.nickname}
+          description="Son accès, son profil, ses actions, messages, scores et récompenses seront effacés, ainsi que les missions coopératives qu’il a créées et leurs badges. Ses catégories partagées resteront anonymisées."
+          disabled={!!busy}
+          onConfirm={(confirmation) =>
+            mutate(
+              `user-delete-${user.id}`,
+              () => deleteAccount(actorId, user.id, confirmation),
+              "Compte et données du joueur supprimés définitivement.",
+            )
+          }
+        />
+      )}
     </article>
   );
 }

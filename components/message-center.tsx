@@ -1,5 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ComposedEmoji } from "@/components/emojis/composed-emoji";
+import type { CatalogueEmoji } from "@/lib/emojis/recipes";
 import { ArrowLeft, Send } from "lucide-react";
 import type { Friend } from "@/lib/game";
 import type { MessageRpc } from "@/lib/messages/use-messages";
@@ -16,7 +18,7 @@ import {
 
 type Props = {
   selectedFriendId: string;
-  onSelectFriend: (id:string)=>void;
+  onSelectFriend: (id: string) => void;
   drafts: Map<string, MessageDraft>;
   userId: string;
   friends: Friend[];
@@ -28,10 +30,17 @@ type Props = {
 export function MessageCenter(props: Props) {
   const friendId = props.selectedFriendId;
   const setFriendId = props.onSelectFriend;
-  const accepted = props.friends.filter((f) => f.status === "accepted").sort((a,b) => {
-    const recent = (id:string) => props.inbox?.conversations.find(c=>c.friend_id === id)?.last_message_at ?? "";
-    return recent(b.id).localeCompare(recent(a.id)) || a.nickname.localeCompare(b.nickname);
-  });
+  const accepted = props.friends
+    .filter((f) => f.status === "accepted")
+    .sort((a, b) => {
+      const recent = (id: string) =>
+        props.inbox?.conversations.find((c) => c.friend_id === id)
+          ?.last_message_at ?? "";
+      return (
+        recent(b.id).localeCompare(recent(a.id)) ||
+        a.nickname.localeCompare(b.nickname)
+      );
+    });
   const friend = accepted.find((f) => f.id === friendId);
   return (
     <div className="message-center">
@@ -55,7 +64,9 @@ export function MessageCenter(props: Props) {
           </p>
           {accepted.length ? (
             accepted.map((f) => {
-              const summary = props.inbox?.conversations.find(c=>c.friend_id === f.id);
+              const summary = props.inbox?.conversations.find(
+                (c) => c.friend_id === f.id,
+              );
               const unread =
                 props.inbox?.conversations.find((c) => c.friend_id === f.id)
                   ?.unread_count ?? 0;
@@ -65,9 +76,28 @@ export function MessageCenter(props: Props) {
                   className="message-contact"
                   onClick={() => setFriendId(f.id)}
                 >
-                  <span className="message-contact-copy"><strong>{f.nickname}</strong>
-                    <span className="message-preview">{summary?.last_message ? `${summary.last_message.sender_id === props.userId ? "Toi : " : ""}${summary.last_message.body}` : summary?.last_message_at ? "Ouvrir la conversation" : "Commence la conversation"}</span>
-                    {summary?.last_message_at && <time dateTime={summary.last_message_at}>{new Date(summary.last_message_at).toLocaleString("fr-FR",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</time>}
+                  <span className="message-contact-copy">
+                    <strong>{f.nickname}</strong>
+                    <span className="message-preview">
+                      {summary?.last_message
+                        ? `${summary.last_message.sender_id === props.userId ? "Toi : " : ""}${summary.last_message.body}`
+                        : summary?.last_message_at
+                          ? "Ouvrir la conversation"
+                          : "Commence la conversation"}
+                    </span>
+                    {summary?.last_message_at && (
+                      <time dateTime={summary.last_message_at}>
+                        {new Date(summary.last_message_at).toLocaleString(
+                          "fr-FR",
+                          {
+                            day: "numeric",
+                            month: "short",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          },
+                        )}
+                      </time>
+                    )}
                   </span>
                   <span>
                     {unread
@@ -156,10 +186,26 @@ function Conversation({
   const [ready, setReady] = useState(false);
   const draftId = `${demo}:${userId}:${friend.id}`;
   const [body, setBody] = useState(() => drafts.get(draftId)?.body ?? "");
+  const [emojis, setEmojis] = useState<CatalogueEmoji[]>([]);
+  const [emojiId, setEmojiId] = useState<string | undefined>(undefined);
+  const [catalogError, setCatalogError] = useState("");
+  useEffect(() => {
+    let active = true;
+    rpc<CatalogueEmoji[]>("get_emoji_catalog")
+      .then((rows) => {
+        if (active) setEmojis(rows);
+      })
+      .catch(() => {
+        if (active) setCatalogError("Catalogue d’emojis indisponible.");
+      });
+    return () => {
+      active = false;
+    };
+  }, [rpc]);
   const [busy, setBusy] = useState(false);
   const [paging, setPaging] = useState(false);
   const [error, setError] = useState("");
-  const [pending, setPending] = useState<{ body: string; key: string } | null>(
+  const [pending, setPending] = useState<MessageDraft | null>(
     () => drafts.get(draftId) ?? null,
   );
   const alive = useRef(true);
@@ -257,7 +303,13 @@ function Conversation({
     if (busy) return;
     let intent = pending;
     try {
-      intent ??= { body: messageBody(body), key: crypto.randomUUID() };
+      intent ??= emojiId
+        ? {
+            body: `Emoji : ${emojis.find((e) => e.id === emojiId)?.label ?? "emoji"}`,
+            key: crypto.randomUUID(),
+            emojiId,
+          }
+        : { body: messageBody(body), key: crypto.randomUUID() };
     } catch (e) {
       setError(e instanceof Error ? e.message : "Message invalide.");
       return;
@@ -267,15 +319,21 @@ function Conversation({
     setBusy(true);
     setError("");
     try {
-      const sent = await rpc<Message>("send_friend_message", {
-        p_friend: friend.id,
-        p_body: intent.body,
-        p_key: intent.key,
-      });
+      const sent = await rpc<Message>(
+        intent.emojiId ? "send_friend_emoji" : "send_friend_message",
+        {
+          p_friend: friend.id,
+          ...(intent.emojiId
+            ? { p_emoji: intent.emojiId }
+            : { p_body: intent.body }),
+          p_key: intent.key,
+        },
+      );
       drafts.delete(draftId);
       if (!alive.current) return;
       setMessages((old) => mergeMessages(old, [sent]));
       setBody("");
+      setEmojiId(undefined);
       setPending(null);
       setReady(true);
       await refresh();
@@ -337,7 +395,11 @@ function Conversation({
             <span className="message-author">
               {m.sender_id === userId ? "Toi" : friend.nickname}
             </span>
-            <p>{m.body}</p>
+            {m.emoji_id && m.emoji_snapshot ? (
+              <ComposedEmoji recipe={m.emoji_snapshot} label={m.body} />
+            ) : (
+              <p>{m.body}</p>
+            )}
             <time dateTime={m.created_at}>
               {new Date(m.created_at).toLocaleString("fr-FR", {
                 day: "numeric",
@@ -346,8 +408,15 @@ function Conversation({
                 minute: "2-digit",
               })}
             </time>
-            <MessageReactionBar message={m} userId={userId} rpc={rpc}
-              onChange={(updated) => { if (alive.current) setMessages(old=>mergeMessages(old,[updated])); }} />
+            <MessageReactionBar
+              message={m}
+              userId={userId}
+              rpc={rpc}
+              onChange={(updated) => {
+                if (alive.current)
+                  setMessages((old) => mergeMessages(old, [updated]));
+              }}
+            />
           </li>
         ))}
       </ol>
@@ -358,13 +427,52 @@ function Conversation({
           void send();
         }}
       >
+        <details className="message-emoji-picker">
+          <summary>Emojis composés {emojiId ? "· sélectionné" : ""}</summary>
+          <fieldset disabled={busy || !!pending || !ready}>
+            <legend className="sr-only">Envoyer un emoji composé</legend>
+            <div className="message-reactions">
+              {emojis.map((e) => (
+                <button
+                  key={e.id}
+                  type="button"
+                  aria-label={e.label}
+                  aria-pressed={emojiId === e.id}
+                  onClick={() =>
+                    setEmojiId(emojiId === e.id ? undefined : e.id)
+                  }
+                >
+                  <ComposedEmoji recipe={e.recipe} label={e.label} size={44} />
+                </button>
+              ))}
+            </div>
+            {emojiId && (
+              <p>
+                Emoji sélectionné. Appuie sur Envoyer.{" "}
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={() => setEmojiId(undefined)}
+                >
+                  Annuler
+                </button>
+              </p>
+            )}
+            {!emojis.length && !catalogError && (
+              <p className="fine-print">
+                Les emojis publiés par l’administration apparaîtront ici.
+              </p>
+            )}
+            {catalogError && <p className="fine-print">{catalogError}</p>}
+          </fieldset>
+        </details>
         <label htmlFor="private-message-body">Ton message</label>
         <textarea
           id="private-message-body"
           rows={3}
           maxLength={2000}
           value={body}
-          disabled={busy || !!pending || !ready}
+          disabled={busy || !!pending || !ready || !!emojiId}
           onChange={(e) => setBody(e.target.value)}
           placeholder="Écris à ton ami…"
         />
@@ -383,7 +491,11 @@ function Conversation({
         </p>
         <button
           className="primary full"
-          disabled={busy || (!ready && !pending) || (!body.trim() && !pending)}
+          disabled={
+            busy ||
+            (!ready && !pending) ||
+            (!body.trim() && !pending && !emojiId)
+          }
         >
           {busy ? "Envoi…" : pending ? "Réessayer cet envoi" : "Envoyer"}
           <Send size={16} />
@@ -406,21 +518,68 @@ function Conversation({
   );
 }
 
-function MessageReactionBar({message,userId,rpc,onChange}:{message:Message;userId:string;rpc:MessageRpc;onChange:(message:Message)=>void}) {
-  const [busy,setBusy]=useState(false);
-  const [error,setError]=useState("");
-  async function react(reaction:MessageReaction) {
-    if(busy) return;
-    setBusy(true);setError("");
+function MessageReactionBar({
+  message,
+  userId,
+  rpc,
+  onChange,
+}: {
+  message: Message;
+  userId: string;
+  rpc: MessageRpc;
+  onChange: (message: Message) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  async function react(reaction: MessageReaction) {
+    if (busy) return;
+    setBusy(true);
+    setError("");
     try {
-      const own=message.reactions?.find(r=>r.user_id===userId)?.reaction;
-      onChange(await rpc<Message>("set_message_reaction",{p_message_id:message.id,p_reaction:own===reaction?null:reaction}));
-    } catch(e) {setError(e instanceof Error ? e.message : "Réaction non enregistrée.");}
-    finally {setBusy(false);}
+      const own = message.reactions?.find(
+        (r) => r.user_id === userId,
+      )?.reaction;
+      onChange(
+        await rpc<Message>("set_message_reaction", {
+          p_message_id: message.id,
+          p_reaction: own === reaction ? null : reaction,
+        }),
+      );
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Réaction non enregistrée.");
+    } finally {
+      setBusy(false);
+    }
   }
-  return <><div className="message-reactions" aria-label="Réactions au message">
-    {messageReactions.map(r=><button key={r.id} type="button" disabled={busy}
-      aria-label={r.label} aria-pressed={message.reactions?.some(v=>v.user_id===userId && v.reaction===r.id) ?? false}
-      onClick={()=>void react(r.id)}>{r.emoji}<span>{message.reactions?.filter(v=>v.reaction===r.id).length || ""}</span></button>)}
-  </div>{error && <p className="coral" role="alert">{error}</p>}</>;
+  return (
+    <>
+      <div className="message-reactions" aria-label="Réactions au message">
+        {messageReactions.map((r) => (
+          <button
+            key={r.id}
+            type="button"
+            disabled={busy}
+            aria-label={r.label}
+            aria-pressed={
+              message.reactions?.some(
+                (v) => v.user_id === userId && v.reaction === r.id,
+              ) ?? false
+            }
+            onClick={() => void react(r.id)}
+          >
+            {r.emoji}
+            <span>
+              {message.reactions?.filter((v) => v.reaction === r.id).length ||
+                ""}
+            </span>
+          </button>
+        ))}
+      </div>
+      {error && (
+        <p className="coral" role="alert">
+          {error}
+        </p>
+      )}
+    </>
+  );
 }

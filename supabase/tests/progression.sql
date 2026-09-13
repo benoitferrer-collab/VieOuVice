@@ -32,7 +32,7 @@ begin
  -- Old selections are settled using that week's history, regardless of current-week choices.
  insert into private.weekly_mission_choices(user_id,week_start,code) values(a,old_w,'pause_days'),(a,old_w,'healthy_days'),(a,old_w,'healthy_variety');
  insert into public.actions(user_id,catalog_id,label,kind,quantity,minutes_impact,tariff_version,season_id,created_at,idempotency_key)
- select a,'pause','Fixture pause','health',1,15,1,s,old_start+make_interval(days=>i),gen_random_uuid() from generate_series(0,2) i;
+ select a,'pause','Fixture pause','health',1,15,1,s,old_start+make_interval(days=>series.day),gen_random_uuid() from generate_series(0,2) as series(day);
  insert into public.actions(user_id,catalog_id,label,kind,quantity,minutes_impact,tariff_version,season_id,created_at,idempotency_key) values
  (a,'walk','Fixture walk','health',1,25,1,s,old_start+interval '1 hour',gen_random_uuid()),
  (a,'sleep','Fixture sleep','health',1,10,1,s,old_start+interval '2 hours',gen_random_uuid());
