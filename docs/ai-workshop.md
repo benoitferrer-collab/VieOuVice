@@ -35,3 +35,11 @@ Ce diagnostic accompagne la réponse du nouvel essai ; il n’est pas enregistr�
 ## Format structuré des réponses
 
 Le modèle `@cf/meta/llama-3.1-8b-instruct-fast`, explicitement listé dans la documentation du [mode JSON Cloudflare](https://developers.cloudflare.com/workers-ai/features/json-mode/), reçoit désormais un schéma : trois suggestions et quatre champs obligatoires par suggestion. Le parseur accepte l’objet structuré renvoyé par Cloudflare et sa version sérialisée, ainsi que les anciens tableaux. Les champs, longueurs et règles de contenu restent validés localement. Les mots « jeunes » et « engin » ne sont plus confondus avec « jeûne » et « gin ». Les anciens lots de secours restent inchangés ; tester une nouvelle génération après déploiement. Aucun SQL ni changement de variable nécessaire.
+
+## Correction du lot « zen » — 13 septembre 2026
+
+Un appel réel du 12 septembre a reproduit le rejet : Cloudflare renvoyait une structure valide, mais la première introduction contenait « une pause de 10 minutes ». Le filtre interdisant les chiffres rejetait alors les trois propositions.
+
+Le traitement remplace désormais uniquement les introductions contenant des chiffres par les textes préparés correspondants, puis valide à nouveau l’ensemble. Les titres et badges valides restent ceux de l’IA. Le nouvel essai affiche les champs ajustés ; les objectifs et les récompenses restent déterminés par le jeu. Les autres erreurs de schéma ou de contenu continuent de déclencher le repli et indiquent désormais leur catégorie et les champs concernés, sans exposer la sortie brute.
+
+Le test de régression rejoue l’introduction réellement reçue et vérifie la conservation du titre « Pause de Calme », le remplacement de l’introduction et l’absence de « 10 minutes » dans les propositions finales. Aucun changement SQL ou de variables. Déployer puis générer un nouveau lot : les anciens lots ne sont pas recalculés.

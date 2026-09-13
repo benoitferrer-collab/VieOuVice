@@ -16,8 +16,18 @@ export const aiDiagnostics = {
   network:"L’appel Cloudflare a échoué ou dépassé son délai. Réessaie plus tard.",
   invalid_output:"Cloudflare a répondu, mais son texte ne respecte pas le format ou les règles des défis. Les modèles préparés ont été utilisés.",
 } as const;
+export type ValidationDetail = {category:"json"|"schema"|"content"|"envelope";fields:string[]};
+class ContentValidationError extends Error {
+  constructor(public fields:string[]) {super("Unsupported generated content");}
+}
+function validationDetail(error:unknown):ValidationDetail {
+  if(error instanceof SyntaxError)return {category:"json",fields:[]};
+  if(error instanceof ContentValidationError)return {category:"content",fields:error.fields};
+  if(error instanceof z.ZodError)return {category:"schema",fields:error.issues.slice(0,5).map(issue=>issue.path.filter(part=>typeof part === "number" || ["suggestions","title","intro","badge_label","badge_icon"].includes(String(part))).join(".")+":"+issue.code)};
+  return {category:"envelope",fields:[]};
+}
 export type AIDiagnostic = keyof typeof aiDiagnostics;
-export type Batch = {id:string;theme:string;created_at:string;source:"ai"|"fallback";suggestions:Suggestion[];diagnostic?:AIDiagnostic;provider_status?:number;provider_code?:number};
+export type Batch = {id:string;theme:string;created_at:string;source:"ai"|"fallback";suggestions:Suggestion[];diagnostic?:AIDiagnostic;provider_status?:number;provider_code?:number;validation_detail?:ValidationDetail;adjusted_fields?:string[]};
 export function preparedSuggestions(theme:string):Suggestion[] {
   return [
     {title:`Mission ${theme} : petites pauses`,intro:"Une aventure collective, chacun à son rythme.",badge_label:"Gardien du calme",badge_icon:"leaf"},
@@ -43,8 +53,23 @@ export function parseSuggestions(raw:unknown):Suggestion[] {
   // Model output is presentation only. Never accept medical claims, numeric
   // prescriptions or consumption challenges as automatically generated copy.
   const forbidden=/(alcool|bi[eè]re|cocktail|vodka|\bgin\b|cigarette|drogue|jeûne|calorie|gu[eé]ri|esp[eé]rance de vie|\d|https?:|www\.)/i;
-  if(parsed.some(s=>forbidden.test([s.title,s.intro,s.badge_label].join(" ")))) throw Error("Unsupported generated content");
+  const rejected=parsed.flatMap((s,i)=>(["title","intro","badge_label"] as const).filter(key=>forbidden.test(s[key])).map(key=>`suggestions.${i}.${key}`));
+  if(rejected.length)throw new ContentValidationError(rejected);
   return parsed;
+}
+// A numeric instruction is never used as an objective. Replace only that
+// introduction with a reviewed sentence; keep strict validation on everything else.
+export function repairNumericIntroductions(raw:unknown,theme:string) {
+  const value=typeof raw === "string" ? JSON.parse(raw.trim().replace(/^```(?:json)?\s*/i,"").replace(/\s*```$/,"")) : raw;
+  const rows=Array.isArray(value) ? suggestionsSchema.parse(value) : z.object({suggestions:suggestionsSchema}).strict().parse(value).suggestions;
+  const adjusted_fields:string[]=[];
+  const templates=preparedSuggestions(theme);
+  const repaired=rows.map((row,index)=>{
+    if(!/\d/.test(row.intro))return row;
+    adjusted_fields.push(`suggestions.${index}.intro`);
+    return {...row,intro:templates[index].intro};
+  });
+  return {suggestions:parseSuggestions(repaired),adjusted_fields};
 }
 export function suggestionDraft(s:Suggestion,index:number,now=new Date()):CompetitionDraft {
   const starts=new Date(now.getTime()+86400000);
@@ -53,7 +78,7 @@ export function suggestionDraft(s:Suggestion,index:number,now=new Date()):Compet
   return {id:null,title:s.title,description:`${s.intro}\n\n${category === "pause" ? "Déclare tes pauses habituelles" : category === "walk" ? "Déclare tes marches habituelles" : "Déclare tes bonnes habitudes"}, à ton rythme, pendant la semaine. Le classement utilise les points de jeu des actions éligibles et leurs plafonds habituels. Aucune activité supplémentaire n’est obligatoire.`,starts_at:starts.toISOString(),ends_at:ends.toISOString(),metric:category?"category_minutes":"health_minutes",catalog_id:category,badge_label:s.badge_label,badge_icon:s.badge_icon};
 }
 export async function generateSuggestions(theme:string,config:{accountId:string;token:string}|null,fetcher:typeof fetch=fetch) {
-  const fallback=(diagnostic:AIDiagnostic,provider_status?:number,provider_code?:number)=>({source:"fallback" as const,suggestions:preparedSuggestions(theme),diagnostic,provider_status,provider_code});
+  const fallback=(diagnostic:AIDiagnostic,provider_status?:number,provider_code?:number,validation_detail?:ValidationDetail)=>({source:"fallback" as const,suggestions:preparedSuggestions(theme),diagnostic,provider_status,provider_code,validation_detail,adjusted_fields:undefined});
   if(config) try {
     const response=await fetcher(`https://api.cloudflare.com/client/v4/accounts/${config.accountId}/ai/run/@cf/meta/llama-3.1-8b-instruct-fast`,{
       method:"POST",headers:{Authorization:`Bearer ${config.token}`,"Content-Type":"application/json"},signal:AbortSignal.timeout(20000),
@@ -69,9 +94,9 @@ export async function generateSuggestions(theme:string,config:{accountId:string;
       const diagnostic=response.status===401 || response.status===403 ? "access_denied" : response.status===429 ? "quota" : response.status===400 ? "request_rejected" : response.status===404 ? "model_unavailable" : "provider";
       return fallback(diagnostic,response.status,providerCode);
     }
-    if(!payload?.success || payload.result?.response == null) return fallback("invalid_output",response.status);
-    try {return {source:"ai" as const,suggestions:parseSuggestions(payload.result.response),diagnostic:undefined,provider_status:undefined,provider_code:undefined};}
-    catch {return fallback("invalid_output",response.status);}
+    if(!payload?.success || payload.result?.response == null) return fallback("invalid_output",response.status,undefined,{category:"envelope",fields:[]});
+    try {const validated=repairNumericIntroductions(payload.result.response,theme);return {source:"ai" as const,...validated,diagnostic:undefined,provider_status:undefined,provider_code:undefined,validation_detail:undefined};}
+    catch(error) {return fallback("invalid_output",response.status,undefined,validationDetail(error));}
   } catch {return fallback("network");}
   return fallback("configuration");
 }

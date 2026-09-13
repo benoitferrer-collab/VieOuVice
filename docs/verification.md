@@ -141,3 +141,7 @@ Aucune modification distante ni Git/push/déploiement. Procédure de migration e
 ## Atelier IA (015)
 
 Migration 015 et tests SQL exécutés sur PostgreSQL temporaire : administrateur requis, historique privé, quota global de dix lots/jour UTC, délai entre appels, réservation et résultat idempotents, administrateur suspendu refusé. Tests fournisseur simulé : réponse valide, JSON refusé, contenu non autorisé, repli après HTTP 429 sans relance. Aucun appel Cloudflare réel (identifiant de compte non configuré), aucune clé écrite, aucun push GitHub ni migration distante. Le flux de publication réutilise le formulaire administrateur existant. Voir docs/ai-workshop.md.
+
+## 13 septembre 2026 — reprise du correctif zen
+
+95 tests Node réussis et ESLint sans erreur. La régression de la réponse réelle Cloudflare passe : une introduction numérique est remplacée sans perdre les titres/badges IA valides. Les erreurs de validation sont identifiées par catégories et chemins de champs, sans texte brut. Un appel réel avant correctif avait confirmé HTTP 200 et la cause précise ; le second appel après correctif avait été bloqué par le contrôle automatique pour manque de crédits. Cette reprise vérifie le correctif localement, sans nouvel appel fournisseur, publication, push GitHub ni modification Supabase.

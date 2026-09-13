@@ -41,6 +41,8 @@ export function AIWorkshop({userId,rpc,onChoose}:{userId:string;rpc:HubRpc;onCho
     {batches.map(batch=><article key={batch.id} className="ai-batch">
       <p className="fine-print">{batch.theme} · {new Date(batch.created_at).toLocaleDateString("fr-FR")} · {batch.source==="ai"?"Propositions IA":"Modèles préparés : IA non configurée, indisponible ou réponse écartée"}</p>
       {batch.diagnostic && <p role="status" className="notice">{aiDiagnostics[batch.diagnostic]}{batch.provider_status ? ` HTTP ${batch.provider_status}.` : ""}{batch.provider_code !== undefined ? ` Code Cloudflare : ${batch.provider_code}.` : ""}</p>}
+      {!!batch.adjusted_fields?.length && <p className="fine-print">Une introduction contenant un objectif chiffré a été remplacée par un texte préparé. Les titres et badges IA sont conservés.</p>}
+      {batch.validation_detail && <p className="fine-print">Diagnostic de validation : {batch.validation_detail.category}{batch.validation_detail.fields.length ? ` · ${batch.validation_detail.fields.join(", ")}` : ""}</p>}
       {batch.suggestions.map((s,i)=>{const Icon=icons[s.badge_icon];return <div key={i} className="ai-suggestion">
         <span className={`ai-badge ai-badge-${s.badge_icon}`}><Icon size={28}/></span>
         <div><strong>{s.title}</strong><p>{s.intro}</p><small>Badge : {s.badge_label}</small></div>

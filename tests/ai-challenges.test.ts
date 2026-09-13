@@ -49,3 +49,29 @@ test("ordinary adventure words are not mistaken for fasting or alcohol",()=>{
  rows[0].title="Les jeunes explorateurs et leur engin spatial";
  assert.equal(parseSuggestions(JSON.stringify(rows))[0].title,rows[0].title);
 });
+
+test("validation reports only safe field paths and categories",async()=>{
+ const config={accountId:"a".repeat(32),token:"fake"};
+ const rows=preparedSuggestions("zen");
+ const cases:[unknown,string][]=[
+  ["broken JSON","json"],
+  [{suggestions:[{...rows[0],badge_icon:"secret-invalid-icon"},...rows.slice(1)]},"schema"],
+  [{suggestions:[{...rows[0],title:"Boire des cocktails"},...rows.slice(1)]},"content"],
+ ];
+ for(const [response,reason] of cases){
+  const result=await generateSuggestions("zen",config,(async()=>Response.json({success:true,result:{response}})) as typeof fetch);
+  assert.equal(result.validation_detail?.category,reason);
+  assert.ok(!JSON.stringify(result.validation_detail).includes("secret-invalid-icon"));
+ }
+});
+
+
+test("real zen response keeps AI titles while replacing a numeric introduction",async()=>{
+ const rows=preparedSuggestions("zen");
+ rows[0]={title:"Pause de Calme",intro:"Trouvez un coin tranquille et profitez d'une pause de 10 minutes pour vous ressourcer.",badge_label:"Pause Zen",badge_icon:"leaf"};
+ const result=await generateSuggestions("zen",{accountId:"a".repeat(32),token:"fake"},(async()=>Response.json({success:true,result:{response:{suggestions:rows}}})) as typeof fetch);
+ assert.equal(result.source,"ai");assert.equal(result.suggestions[0].title,"Pause de Calme");
+ assert.equal(result.suggestions[0].intro,preparedSuggestions("zen")[0].intro);
+ assert.deepEqual(result.adjusted_fields,["suggestions.0.intro"]);
+ assert.ok(!JSON.stringify(result.suggestions).includes("10 minutes"));
+});
