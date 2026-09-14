@@ -7,6 +7,7 @@ import {
   type EmojiGeneration,
   type CatalogueEmoji,
 } from "@/lib/emojis/recipes";
+import { AdminRow, AdminCollection } from "../admin-layout";
 import { ComposedEmoji } from "./composed-emoji";
 
 export function EmojiWorkshop({
@@ -19,6 +20,7 @@ export function EmojiWorkshop({
   const [theme, setTheme] = useState<(typeof emojiThemes)[number]>("joie");
   const [history, setHistory] = useState<EmojiGeneration[]>([]);
   const [catalog, setCatalog] = useState<CatalogueEmoji[]>([]);
+  const [view, setView] = useState<"history" | "catalog">("history");
   const [busy, setBusy] = useState(false);
   const [ready, setReady] = useState(false);
   const [status, setStatus] = useState("");
@@ -106,6 +108,7 @@ export function EmojiWorkshop({
       throw Error(result.error ?? "Génération indisponible.");
     }
     intent.current = null;
+    if (alive.current) setView("history");
     if (alive.current)
       setStatus(
         result.diagnostic ?? "Composition enregistrée. Choisis de la publier.",
@@ -153,63 +156,98 @@ export function EmojiWorkshop({
         Actualiser
       </button>
       <p role="status">{status}</p>
-      <div className="events-admin-list">
-        {history.map((e) => (
-          <article key={e.id} className="events-admin-card">
-            {e.recipe ? (
-              <>
-                <ComposedEmoji recipe={e.recipe} label={`Emoji ${e.theme}`} />
-                <p>
-                  {e.theme} ·{" "}
-                  {e.source === "ai"
-                    ? "Composition IA"
-                    : "Composition préparée (sans IA)"}
-                </p>
+      <div className="admin-studio-tabs">
+        <button
+          aria-pressed={view === "history"}
+          className={view === "history" ? "selected" : ""}
+          onClick={() => setView("history")}
+        >
+          Compositions ({history.length})
+        </button>
+        <button
+          aria-pressed={view === "catalog"}
+          className={view === "catalog" ? "selected" : ""}
+          onClick={() => setView("catalog")}
+        >
+          Publiés ({catalog.length})
+        </button>
+      </div>
+      {view === "history" && (
+        <AdminCollection label="compositions" disabled={busy}>
+          {history.map((e) => (
+            <AdminRow
+              key={e.id}
+              title={`Emoji ${e.theme}`}
+              meta={
+                catalog.some((c) => c.id === e.id) ? "Publié" : "À examiner"
+              }
+              leading={
+                e.recipe ? (
+                  <ComposedEmoji recipe={e.recipe} label={e.theme} size={36} />
+                ) : undefined
+              }
+            >
+              {e.recipe ? (
+                <>
+                  <ComposedEmoji recipe={e.recipe} label={`Emoji ${e.theme}`} />
+                  <p>
+                    {e.theme} ·{" "}
+                    {e.source === "ai"
+                      ? "Composition IA"
+                      : "Composition préparée (sans IA)"}
+                  </p>
+                  <button
+                    className="secondary"
+                    disabled={busy || catalog.some((c) => c.id === e.id)}
+                    onClick={() =>
+                      void act(async () => {
+                        await rpc("admin_publish_emoji", { p_id: e.id });
+                        if (alive.current)
+                          setStatus("Emoji publié dans la messagerie.");
+                      })
+                    }
+                  >
+                    {catalog.some((c) => c.id === e.id)
+                      ? "Publié"
+                      : "Publier dans la messagerie"}
+                  </button>
+                </>
+              ) : (
+                <p>Génération en cours ou interrompue · {e.theme}</p>
+              )}
+            </AdminRow>
+          ))}
+        </AdminCollection>
+      )}
+      {view === "catalog" && (
+        <>
+          <h4>Catalogue partagé</h4>
+          {ready && !catalog.length && <p>Aucun emoji publié.</p>}
+          <AdminCollection label="emojis publiés" disabled={busy}>
+            {catalog.map((e) => (
+              <div className="events-subheading" key={e.id}>
+                <ComposedEmoji recipe={e.recipe} label={e.label} size={48} />
+                <span>{e.label}</span>
                 <button
-                  className="secondary"
-                  disabled={busy || catalog.some((c) => c.id === e.id)}
+                  className="text-button"
+                  disabled={busy}
                   onClick={() =>
                     void act(async () => {
-                      await rpc("admin_publish_emoji", { p_id: e.id });
+                      await rpc("admin_archive_emoji", { p_id: e.id });
                       if (alive.current)
-                        setStatus("Emoji publié dans la messagerie.");
+                        setStatus(
+                          "Retiré du catalogue. Les messages déjà envoyés restent lisibles.",
+                        );
                     })
                   }
                 >
-                  {catalog.some((c) => c.id === e.id)
-                    ? "Publié"
-                    : "Publier dans la messagerie"}
+                  Retirer
                 </button>
-              </>
-            ) : (
-              <p>Génération en cours ou interrompue · {e.theme}</p>
-            )}
-          </article>
-        ))}
-      </div>
-      <h4>Catalogue partagé</h4>
-      {ready && !catalog.length && <p>Aucun emoji publié.</p>}
-      {catalog.map((e) => (
-        <div className="events-subheading" key={e.id}>
-          <ComposedEmoji recipe={e.recipe} label={e.label} size={48} />
-          <span>{e.label}</span>
-          <button
-            className="text-button"
-            disabled={busy}
-            onClick={() =>
-              void act(async () => {
-                await rpc("admin_archive_emoji", { p_id: e.id });
-                if (alive.current)
-                  setStatus(
-                    "Retiré du catalogue. Les messages déjà envoyés restent lisibles.",
-                  );
-              })
-            }
-          >
-            Retirer
-          </button>
-        </div>
-      ))}
+              </div>
+            ))}
+          </AdminCollection>
+        </>
+      )}
     </section>
   );
 }

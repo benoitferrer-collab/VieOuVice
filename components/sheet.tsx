@@ -5,8 +5,10 @@ export function Sheet({
   title,
   children,
   onClose,
+  className = "",
 }: {
   title: string;
+  className?: string;
   children: React.ReactNode;
   onClose: () => void;
 }) {
@@ -26,7 +28,7 @@ export function Sheet({
   return (
     <dialog
       ref={ref}
-      className="sheet"
+      className={`sheet ${className}`}
       aria-labelledby="sheet-title"
       onCancel={(e) => {
         e.preventDefault();

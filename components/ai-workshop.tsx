@@ -9,6 +9,7 @@ import {
   type Batch,
 } from "@/lib/ai/challenges";
 import type { CompetitionDraft, HubRpc } from "@/lib/events/types";
+import { AdminRow, AdminCollection } from "./admin-layout";
 import { AdminDeleteConfirmation } from "./admin-delete-confirmation";
 const icons = { leaf: Leaf, medal: Medal, trophy: Trophy, flame: Flame };
 export function AIWorkshop({
@@ -158,77 +159,83 @@ export function AIWorkshop({
           {error}
         </p>
       )}
-      {batches.map((batch) => (
-        <article key={batch.id} className="ai-batch">
-          <p className="fine-print">
-            {batch.theme} ·{" "}
-            {new Date(batch.created_at).toLocaleDateString("fr-FR")} ·{" "}
-            {batch.source === "ai"
-              ? "Propositions IA"
-              : "Modèles préparés : IA non configurée, indisponible ou réponse écartée"}
-          </p>
-          {batch.diagnostic && (
-            <p role="status" className="notice">
-              {aiDiagnostics[batch.diagnostic]}
-              {batch.provider_status ? ` HTTP ${batch.provider_status}.` : ""}
-              {batch.provider_code !== undefined
-                ? ` Code Cloudflare : ${batch.provider_code}.`
-                : ""}
-            </p>
-          )}
-          {!!batch.adjusted_fields?.length && (
+      <AdminCollection label="lots IA" disabled={busy} size={4}>
+        {batches.map((batch) => (
+          <AdminRow
+            key={batch.id}
+            title={`Lot ${batch.theme}`}
+            meta={`${new Date(batch.created_at).toLocaleDateString("fr-FR")} · ${batch.suggestions.filter(Boolean).length} propositions`}
+          >
             <p className="fine-print">
-              Une introduction contenant un objectif chiffré a été remplacée par
-              un texte préparé. Les titres et badges IA sont conservés.
+              {batch.theme} ·{" "}
+              {new Date(batch.created_at).toLocaleDateString("fr-FR")} ·{" "}
+              {batch.source === "ai"
+                ? "Propositions IA"
+                : "Modèles préparés : IA non configurée, indisponible ou réponse écartée"}
             </p>
-          )}
-          {batch.validation_detail && (
-            <p className="fine-print">
-              Diagnostic de validation : {batch.validation_detail.category}
-              {batch.validation_detail.fields.length
-                ? ` · ${batch.validation_detail.fields.join(", ")}`
-                : ""}
-            </p>
-          )}
-          {batch.suggestions.map((s, i) => {
-            if (!s) return null;
-            const Icon = icons[s.badge_icon];
-            return (
-              <div key={i} className="ai-suggestion">
-                <span className={`ai-badge ai-badge-${s.badge_icon}`}>
-                  <Icon size={28} />
-                </span>
-                <div>
-                  <strong>{s.title}</strong>
-                  <p>{s.intro}</p>
-                  <small>Badge : {s.badge_label}</small>
+            {batch.diagnostic && (
+              <p role="status" className="notice">
+                {aiDiagnostics[batch.diagnostic]}
+                {batch.provider_status ? ` HTTP ${batch.provider_status}.` : ""}
+                {batch.provider_code !== undefined
+                  ? ` Code Cloudflare : ${batch.provider_code}.`
+                  : ""}
+              </p>
+            )}
+            {!!batch.adjusted_fields?.length && (
+              <p className="fine-print">
+                Une introduction contenant un objectif chiffré a été remplacée
+                par un texte préparé. Les titres et badges IA sont conservés.
+              </p>
+            )}
+            {batch.validation_detail && (
+              <p className="fine-print">
+                Diagnostic de validation : {batch.validation_detail.category}
+                {batch.validation_detail.fields.length
+                  ? ` · ${batch.validation_detail.fields.join(", ")}`
+                  : ""}
+              </p>
+            )}
+            {batch.suggestions.map((s, i) => {
+              if (!s) return null;
+              const Icon = icons[s.badge_icon];
+              return (
+                <div key={i} className="ai-suggestion">
+                  <span className={`ai-badge ai-badge-${s.badge_icon}`}>
+                    <Icon size={28} />
+                  </span>
+                  <div>
+                    <strong>{s.title}</strong>
+                    <p>{s.intro}</p>
+                    <small>Badge : {s.badge_label}</small>
+                  </div>
+                  <button
+                    className="text-button"
+                    disabled={busy}
+                    onClick={() => onChoose(suggestionDraft(s, i))}
+                  >
+                    Modifier et préparer
+                  </button>
+                  <AdminDeleteConfirmation
+                    name={s.title}
+                    description="Cette proposition sera retirée de l’atelier. Les compétitions déjà créées sont conservées."
+                    disabled={busy}
+                    onConfirm={(confirmation) =>
+                      remove(batch.id, i, confirmation)
+                    }
+                  />
                 </div>
-                <button
-                  className="text-button"
-                  disabled={busy}
-                  onClick={() => onChoose(suggestionDraft(s, i))}
-                >
-                  Modifier et préparer
-                </button>
-                <AdminDeleteConfirmation
-                  name={s.title}
-                  description="Cette proposition sera retirée de l’atelier. Les compétitions déjà créées sont conservées."
-                  disabled={busy}
-                  onConfirm={(confirmation) =>
-                    remove(batch.id, i, confirmation)
-                  }
-                />
-              </div>
-            );
-          })}
-          <AdminDeleteConfirmation
-            name={`Lot ${batch.theme} · ${batch.id}`}
-            description="Toutes les propositions restantes de ce lot seront retirées. Les compétitions déjà créées sont conservées et le quota quotidien reste utilisé."
-            disabled={busy}
-            onConfirm={(confirmation) => remove(batch.id, null, confirmation)}
-          />
-        </article>
-      ))}
+              );
+            })}
+            <AdminDeleteConfirmation
+              name={`Lot ${batch.theme} · ${batch.id}`}
+              description="Toutes les propositions restantes de ce lot seront retirées. Les compétitions déjà créées sont conservées et le quota quotidien reste utilisé."
+              disabled={busy}
+              onConfirm={(confirmation) => remove(batch.id, null, confirmation)}
+            />
+          </AdminRow>
+        ))}
+      </AdminCollection>
     </section>
   );
 }

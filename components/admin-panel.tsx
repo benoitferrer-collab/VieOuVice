@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   CalendarDays,
   FileClock,
@@ -25,6 +25,7 @@ import { AdminCooperative } from "./admin-cooperative";
 import { EmojiWorkshop } from "./emojis/emoji-workshop";
 import { deleteAccount } from "@/lib/admin/delete-account-client";
 import { AdminSeasonIdentity } from "./admin-season-identity";
+import { AdminRow, AdminCollection } from "./admin-layout";
 import { AIWorkshop } from "./ai-workshop";
 import { Sheet } from "./sheet";
 import "./events.css";
@@ -67,6 +68,14 @@ function errorMessage(caught: unknown, fallback: string) {
 export function AdminPanel({ userId, rpc, changed, onClose }: AdminPanelProps) {
   const [dashboard, setDashboard] = useState<AdminDashboard | null>(null);
   const [tab, setTab] = useState<AdminTab>("events");
+  const panelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    panelRef.current?.closest("dialog")?.scrollTo({ top: 0 });
+  }, [tab]);
+  const [proposal, setProposal] = useState<CompetitionDraft | null>(null);
+  const [studio, setStudio] = useState<"challenges" | "seasons" | "emojis">(
+    "challenges",
+  );
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
@@ -144,10 +153,11 @@ export function AdminPanel({ userId, rpc, changed, onClose }: AdminPanelProps) {
   }
 
   return (
-    <Sheet title="Administration" onClose={() => !busy && onClose()}>
-      <p className="events-admin-intro">
-        Les autorisations sont vérifiées par le serveur à chaque action.
-      </p>
+    <Sheet
+      className="admin-sheet"
+      title="Administration"
+      onClose={() => !busy && onClose()}
+    >
       <div
         className="events-admin-tabs"
         role="tablist"
@@ -158,7 +168,7 @@ export function AdminPanel({ userId, rpc, changed, onClose }: AdminPanelProps) {
             ["events", "Événements", CalendarDays],
             ["cooperative", "Coopération", Handshake],
             ["users", "Joueurs", Users],
-            ["emojis", "Emojis IA", Sparkles],
+            ["emojis", "Studio IA", Sparkles],
             ["catalog", "Catalogue", ListChecks],
             ["audit", "Journal", FileClock],
           ] as const
@@ -172,7 +182,12 @@ export function AdminPanel({ userId, rpc, changed, onClose }: AdminPanelProps) {
             className={tab === id ? "selected" : ""}
             key={id}
             disabled={!!busy}
-            onClick={() => setTab(id)}
+            onClick={() => {
+              setProposal(null);
+              setTab(id);
+              setError("");
+              setNotice("");
+            }}
           >
             <Icon size={16} aria-hidden="true" />
             {label}
@@ -187,13 +202,14 @@ export function AdminPanel({ userId, rpc, changed, onClose }: AdminPanelProps) {
         </div>
       ) : dashboard ? (
         <div
+          ref={panelRef}
           role="tabpanel"
           id={`events-admin-panel-${tab}`}
           aria-labelledby={`events-admin-tab-${tab}`}
         >
           {tab === "events" && (
             <AdminEvents
-              userId={userId}
+              initialDraft={proposal}
               events={dashboard.events}
               catalog={dashboard.catalog}
               busy={busy}
@@ -249,7 +265,42 @@ export function AdminPanel({ userId, rpc, changed, onClose }: AdminPanelProps) {
           {tab === "cooperative" && (
             <AdminCooperative rpc={rpc} busy={busy} mutate={mutate} />
           )}
-          {tab === "emojis" && <EmojiWorkshop userId={userId} rpc={rpc} />}
+          {tab === "emojis" && (
+            <div className="events-admin-view">
+              <div className="admin-studio-tabs" aria-label="Outils IA">
+                {(
+                  [
+                    ["challenges", "Défis"],
+                    ["seasons", "Saisons"],
+                    ["emojis", "Emojis"],
+                  ] as const
+                ).map(([id, label]) => (
+                  <button
+                    key={id}
+                    className={studio === id ? "selected" : ""}
+                    aria-pressed={studio === id}
+                    onClick={() => setStudio(id)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {studio === "challenges" && (
+                <AIWorkshop
+                  userId={userId}
+                  rpc={rpc}
+                  onChoose={(draft) => {
+                    setProposal(draft);
+                    setTab("events");
+                  }}
+                />
+              )}
+              {studio === "seasons" && <AdminSeasonIdentity rpc={rpc} />}{" "}
+              {studio === "emojis" && (
+                <EmojiWorkshop userId={userId} rpc={rpc} />
+              )}
+            </div>
+          )}
           {tab === "audit" && <AdminAudit dashboard={dashboard} />}
         </div>
       ) : (
@@ -290,14 +341,14 @@ export function AdminPanel({ userId, rpc, changed, onClose }: AdminPanelProps) {
 }
 
 function AdminEvents({
-  userId,
+  initialDraft,
   events,
   catalog,
   busy,
   mutate,
   rpc,
 }: {
-  userId: string;
+  initialDraft: CompetitionDraft | null;
   events: AdminDashboard["events"];
   catalog: AdminDashboard["catalog"];
   busy: string;
@@ -308,10 +359,16 @@ function AdminEvents({
   ) => Promise<boolean>;
   rpc: AdminPanelProps["rpc"];
 }) {
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState<CompetitionDraft>(emptyDraft);
+  const [editing, setEditing] = useState(!!initialDraft);
+  const [draft, setDraft] = useState<CompetitionDraft>(
+    initialDraft ?? emptyDraft,
+  );
   const [validationError, setValidationError] = useState("");
   const [requestId, setRequestId] = useState("");
+  const [filter, setFilter] = useState("");
+  const filtered = events.filter((e) =>
+    e.title.toLocaleLowerCase("fr").includes(filter.toLocaleLowerCase("fr")),
+  );
 
   function update(patch: Partial<CompetitionDraft>) {
     setDraft((current) => ({ ...current, ...patch }));
@@ -509,30 +566,34 @@ function AdminEvents({
 
   return (
     <div className="events-admin-view">
-      <AdminSeasonIdentity rpc={rpc} />
-      <AIWorkshop
-        userId={userId}
-        rpc={rpc}
-        onChoose={(proposal) => {
-          setDraft(proposal);
-          setRequestId("");
-          setValidationError("");
-          setEditing(true);
-        }}
-      />
-      <button
-        type="button"
-        className="primary full"
-        disabled={!!busy}
-        onClick={() => edit()}
-      >
-        Créer un événement
-      </button>
-      <div className="events-admin-list">
-        {events.map((event) => {
+      <div className="admin-event-toolbar">
+        <button
+          type="button"
+          className="primary"
+          disabled={!!busy}
+          onClick={() => edit()}
+        >
+          Nouvel événement
+        </button>
+        <label className="admin-filter">
+          Rechercher un événement
+          <input
+            type="search"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder="Nom de l’événement…"
+          />
+        </label>
+      </div>
+      <AdminCollection key={filter} label="événements" disabled={!!busy}>
+        {filtered.map((event) => {
           const phase = competitionPhase(event);
           return (
-            <article className="events-admin-card" key={event.id}>
+            <AdminRow
+              key={event.id}
+              title={event.title}
+              meta={`${{ draft: "Brouillon", cancelled: "Annulé", completed: "Terminé", upcoming: "À venir", active: "En cours", ended: "À clôturer" }[phase]} · ${event.participant_count} inscrits`}
+            >
               <div className="events-subheading">
                 <div>
                   <span className={`events-phase events-phase-${phase}`}>
@@ -629,11 +690,13 @@ function AdminEvents({
                   )
                 }
               />
-            </article>
+            </AdminRow>
           );
         })}
-        {!events.length && <p className="events-empty">Aucun événement.</p>}
-      </div>
+      </AdminCollection>
+      {!filtered.length && (
+        <p className="events-empty">Aucun événement trouvé.</p>
+      )}
     </div>
   );
 }
@@ -689,7 +752,7 @@ function AdminUsers({
           {busy === "search" ? "Recherche…" : "Rechercher"}
         </button>
       </form>
-      <div className="events-admin-list">
+      <AdminCollection key={search} label="joueurs chargés" disabled={!!busy}>
         {users.map((user) => (
           <AdminUserRow
             key={user.id}
@@ -701,8 +764,8 @@ function AdminUsers({
             rpc={rpc}
           />
         ))}
-        {!users.length && <p className="events-empty">Aucun joueur trouvé.</p>}
-      </div>
+      </AdminCollection>
+      {!users.length && <p className="events-empty">Aucun joueur trouvé.</p>}
       {nextOffset !== null && (
         <button
           type="button"
@@ -710,7 +773,7 @@ function AdminUsers({
           disabled={!!busy}
           onClick={() => void onMore()}
         >
-          {busy === "users-more" ? "Chargement…" : "Voir la suite"}
+          {busy === "users-more" ? "Chargement…" : "Charger d’autres joueurs"}
         </button>
       )}
     </div>
@@ -741,7 +804,10 @@ function AdminUserRow({
   const [reason, setReason] = useState("");
   const changed = isAdmin !== user.is_admin || suspended !== user.suspended;
   return (
-    <article className="events-admin-card">
+    <AdminRow
+      title={user.nickname}
+      meta={`${user.is_admin ? "Administrateur" : "Joueur"}${user.suspended ? " · Suspendu" : ""}${self ? " · Ton compte" : ""}`}
+    >
       <div className="events-subheading">
         <div>
           <h3>{user.nickname}</h3>
@@ -823,7 +889,7 @@ function AdminUserRow({
           }
         />
       )}
-    </article>
+    </AdminRow>
   );
 }
 
@@ -843,77 +909,103 @@ function AdminCatalog({
   rpc: AdminPanelProps["rpc"];
 }) {
   const [reasons, setReasons] = useState<Record<string, string>>({});
+  const [query, setQuery] = useState("");
+  const filtered = catalog.filter((c) =>
+    c.label.toLocaleLowerCase("fr").includes(query.toLocaleLowerCase("fr")),
+  );
   return (
-    <div className="events-admin-list">
-      {catalog.map((item) => (
-        <article className="events-admin-card" key={item.id}>
-          <div className="events-subheading">
-            <div>
-              <h3>{item.label}</h3>
-              <p>
-                {item.kind === "health" ? "Bonne habitude" : "Petit écart"} ·{" "}
-                {item.coefficient > 0 ? "+" : ""}
-                {item.coefficient} min
-              </p>
-            </div>
-            <span className={item.active ? "events-active" : "events-inactive"}>
-              {item.active ? "Actif" : "Inactif"}
-            </span>
-          </div>
-          <label>
-            Motif
-            <input
-              value={reasons[item.id] ?? ""}
-              maxLength={250}
-              disabled={!!busy}
-              onChange={(e) =>
-                setReasons((current) => ({
-                  ...current,
-                  [item.id]: e.target.value,
-                }))
-              }
-              placeholder={
-                item.active
-                  ? "Pourquoi le désactiver ?"
-                  : "Pourquoi le réactiver ?"
-              }
-            />
-          </label>
-          <button
-            type="button"
-            aria-label={`${item.active ? "Désactiver" : "Réactiver"} ${item.label}`}
-            className={item.active ? "events-danger full" : "secondary full"}
-            disabled={!!busy || !(reasons[item.id] ?? "").trim()}
-            onClick={() =>
-              void mutate(
-                `catalog-${item.id}`,
-                () =>
-                  rpc("admin_set_catalog_active", {
-                    p_catalog_id: item.id,
-                    p_active: !item.active,
-                    p_reason: reasons[item.id].trim(),
-                  }),
-                item.active ? "Élément désactivé." : "Élément réactivé.",
-              )
-            }
+    <div className="events-admin-view">
+      <label className="admin-filter">
+        Rechercher une action
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Nom de l’action…"
+        />
+      </label>
+      <AdminCollection key={query} label="actions" disabled={!!busy}>
+        {filtered.map((item) => (
+          <AdminRow
+            key={item.id}
+            title={item.label}
+            meta={`${item.active ? "Actif" : "Inactif"} · ${item.coefficient > 0 ? "+" : ""}${item.coefficient} min`}
           >
-            {busy === `catalog-${item.id}`
-              ? "Enregistrement…"
-              : item.active
-                ? "Désactiver"
-                : "Réactiver"}
-          </button>
-        </article>
-      ))}
+            <div className="events-subheading">
+              <div>
+                <h3>{item.label}</h3>
+                <p>
+                  {item.kind === "health" ? "Bonne habitude" : "Petit écart"} ·{" "}
+                  {item.coefficient > 0 ? "+" : ""}
+                  {item.coefficient} min
+                </p>
+              </div>
+              <span
+                className={item.active ? "events-active" : "events-inactive"}
+              >
+                {item.active ? "Actif" : "Inactif"}
+              </span>
+            </div>
+            <label>
+              Motif
+              <input
+                value={reasons[item.id] ?? ""}
+                maxLength={250}
+                disabled={!!busy}
+                onChange={(e) =>
+                  setReasons((current) => ({
+                    ...current,
+                    [item.id]: e.target.value,
+                  }))
+                }
+                placeholder={
+                  item.active
+                    ? "Pourquoi le désactiver ?"
+                    : "Pourquoi le réactiver ?"
+                }
+              />
+            </label>
+            <button
+              type="button"
+              aria-label={`${item.active ? "Désactiver" : "Réactiver"} ${item.label}`}
+              className={item.active ? "events-danger full" : "secondary full"}
+              disabled={!!busy || !(reasons[item.id] ?? "").trim()}
+              onClick={() =>
+                void mutate(
+                  `catalog-${item.id}`,
+                  () =>
+                    rpc("admin_set_catalog_active", {
+                      p_catalog_id: item.id,
+                      p_active: !item.active,
+                      p_reason: reasons[item.id].trim(),
+                    }),
+                  item.active ? "Élément désactivé." : "Élément réactivé.",
+                )
+              }
+            >
+              {busy === `catalog-${item.id}`
+                ? "Enregistrement…"
+                : item.active
+                  ? "Désactiver"
+                  : "Réactiver"}
+            </button>
+          </AdminRow>
+        ))}
+      </AdminCollection>
+      {!filtered.length && <p>Aucune action trouvée.</p>}
     </div>
   );
 }
 
 function AdminAudit({ dashboard }: { dashboard: AdminDashboard }) {
   return dashboard.audit.length ? (
-    <div className="events-audit-list">
+    <AdminCollection label="actions récentes">
       {dashboard.audit.map((entry) => (
-        <article key={entry.id}>
+        <AdminRow
+          key={entry.id}
+          title={entry.action}
+          meta={adminDate.format(new Date(entry.created_at))}
+        >
           <div className="events-subheading">
             <strong>{entry.action}</strong>
             <time dateTime={entry.created_at}>
@@ -923,9 +1015,9 @@ function AdminAudit({ dashboard }: { dashboard: AdminDashboard }) {
           <p>Cible : {entry.target_id}</p>
           <p>{entry.reason || "Aucun motif renseigné."}</p>
           <small>Par {entry.actor_id}</small>
-        </article>
+        </AdminRow>
       ))}
-    </div>
+    </AdminCollection>
   ) : (
     <p className="events-empty">Aucune action administrative récente.</p>
   );

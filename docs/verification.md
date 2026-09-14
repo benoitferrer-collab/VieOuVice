@@ -164,3 +164,10 @@ Migration 015 et tests SQL exécutés sur PostgreSQL temporaire : administrateur
 - Relecture indépendante du worker et des contrats SQL : aucun défaut matériel signalé.
 - Navigateur sur fixture locale fictive : cinq emblèmes visibles, confirmation du titre et disposition du formulaire vérifiées. La page temporaire a été retirée avant compilation finale. La suppression effective et ses reprises ont été vérifiées par SQL local et tests API simulés.
 - Aucun appel Cloudflare réel, suppression réelle, push GitHub ou déploiement Vercel effectué. Installation et vérification sur la production restent à l’utilisateur.
+
+## 14 septembre 2026 — administration compacte
+
+- Navigation persistante, fenêtre élargie sur ordinateur, cinq lignes par page et fiches repliables (une ouverte à la fois). Recherche locale des événements et du catalogue ; recherche serveur des joueurs conservée.
+- Studio IA sépare Défis, Saisons et Emojis. Lots IA paginés par quatre ; compositions et emojis publiés séparés. Le choix d'une proposition ouvre le formulaire Événements avec ses données et sa catégorie d'origine.
+- Vérification navigateur sur administration entièrement fictive (24 événements/joueurs, neuf lots) : pagination, navigation Studio IA → formulaire, ouverture exclusive des fiches, rendu ordinateur et 390×844. Aucun débordement horizontal (largeurs client et contenu : 373px). Contrôles métier conservés.
+- Fixture et aperçu temporaires retirés ; viewport réinitialisé. 109 tests existants, lint et compilation Webpack finale passent. Aucune migration SQL ni variable ajoutée ; aucune publication réalisée.

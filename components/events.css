@@ -571,3 +571,47 @@
 .admin-delete-confirmation input { width: 100%; min-width: 0; }
 .admin-delete-confirmation .events-admin-actions { flex-wrap: wrap; }
 .ai-suggestion > .admin-delete-confirmation { grid-column: 1 / -1; }
+
+/* Compact administration: navigation stays visible, records expand on demand. */
+.admin-sheet { max-width: 860px; max-height: 94dvh; }
+.admin-sheet .sheet-inner > .section-heading { position: sticky; top: 0; z-index: 4; margin: 0; min-height: 56px; padding: 10px 0; background: #11182a; }
+.admin-sheet .events-admin-intro { color: var(--muted); font-size: 12px; margin: 0 0 10px; }
+.admin-sheet .events-admin-tabs { position: sticky; top: 56px; z-index: 3; grid-template-columns: repeat(6,minmax(0,1fr)); margin: 0 0 18px; background: #1a2335; box-shadow: 0 8px 12px #11182a; }
+.admin-sheet .events-admin-tabs button { min-height: 52px; font-size: 11px; }
+.admin-sheet .events-admin-view { display: grid; gap: 12px; }
+.admin-sheet .events-admin-view > .primary { margin: 0; }
+.admin-studio-tabs { display: flex; gap: 6px; padding: 4px; border-radius: 12px; background: #ffffff08; }
+.admin-studio-tabs button { flex: 1; padding: 10px; border-radius: 8px; color: var(--muted); font-size: 13px; }
+.admin-studio-tabs .selected { background: #b7f34b18; color: var(--lime); }
+.admin-list-meta { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 11px; margin: 0 0 8px; }
+.admin-row { border: 1px solid #ffffff14; border-radius: 12px; background: #ffffff03; min-width: 0; }
+.admin-row > summary { list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 13px 14px; cursor: pointer; min-height: 65px; }
+.admin-row > summary::-webkit-details-marker { display: none; }
+.admin-row > summary > span { display: grid; gap: 4px; min-width: 0; }
+.admin-row > summary strong { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.admin-row > summary small { font-size: 11px; color: var(--muted); overflow-wrap: anywhere; }
+.admin-row > summary > svg { flex-shrink: 0; transition: transform .15s; color: var(--muted); }
+.admin-row[open] > summary { border-bottom: 1px solid #ffffff12; }
+.admin-row[open] > summary > svg:last-child { transform: rotate(180deg); }
+.admin-row-body { display: grid; gap: 12px; padding: 14px; min-width: 0; overflow-wrap: anywhere; }
+.admin-row-body > label, .admin-filter { display: grid; gap: 7px; font-size: 12px; color: var(--muted); }
+.admin-row-body input,.admin-filter input { min-width: 0; width: 100%; }
+.admin-pagination { display: flex; justify-content: space-between; gap: 10px; margin-top: 12px; }
+.admin-pagination button { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; }
+.admin-sheet .events-error, .admin-sheet .events-notice { position: sticky; bottom: 0; z-index: 4; padding: 12px; background: #182236; border: 1px solid currentColor; border-radius: 10px; }
+@media (min-width: 700px) { .admin-sheet { inset: 4vh 16px auto; max-height: 92dvh; border: 1px solid #ffffff18; border-radius: 22px; } .admin-sheet .sheet-inner { padding: 8px 26px 26px; } .admin-sheet .sheet-handle { display: none; } .admin-sheet .season-identity-grid { grid-template-columns: repeat(5,minmax(0,1fr)); } }
+@media (max-width: 580px) { .admin-sheet .events-admin-tabs { grid-template-columns: repeat(3,minmax(0,1fr)); } .admin-sheet .events-admin-tabs button { min-height: 43px; font-size: 10px; display: flex; justify-content: center; gap: 5px; } .admin-sheet .ai-workshop { padding: 12px; } }
+.admin-row > summary > span { flex: 1; }
+.admin-row > summary > svg:first-child { margin: 0; }
+.admin-sheet .ai-workshop > .muted, .admin-sheet .ai-workshop > .fine-print { margin: 0; line-height: 1.5; }
+.admin-sheet .ai-workshop .fine-print { text-align: left; }
+.admin-sheet .admin-filter { margin: 0; }
+.admin-event-toolbar { display: flex; gap: 14px; align-items: end; margin-bottom: 4px; }
+.admin-event-toolbar > .primary { order: 2; flex-shrink: 0; font-size: 12px; }
+.admin-event-toolbar .admin-filter { flex: 1; min-width: 0; }
+.admin-sheet .admin-row > summary { min-height: 58px; padding: 10px 12px; }
+.admin-sheet .admin-collection .events-admin-list { gap: 7px; }
+.admin-sheet .admin-pagination button { min-height: 38px; padding: 8px 12px; }
+@media(max-width:580px) { .admin-event-toolbar { flex-direction: column; align-items: stretch; gap: 9px; } .admin-event-toolbar > .primary { padding: 10px; min-height: 40px; } }
+.admin-sheet .sheet-inner > .section-heading { height: 56px; padding: 6px 0; }
+.admin-sheet .sheet-inner > .section-heading .icon-button { width: 44px; height: 44px; min-width: 44px; min-height: 44px; }

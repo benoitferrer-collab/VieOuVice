@@ -13,7 +13,7 @@ Aucune nouvelle variable : le serveur réutilise `SUPABASE_SECRET_KEY`, `NEXT_PU
 - **Joueurs** : « Supprimer définitivement », recopier le pseudo puis confirmer. Son propre compte administrateur est protégé ; les droits sont revérifiés au moment de la suppression.
 - **Événements** : suppression d’une compétition, y compris terminée, avec confirmation du titre. Inscriptions, résultats et badges associés sont supprimés ; les actions et XP acquis restent aux joueurs.
 - **Coopération** : mêmes contrôles pour les missions coopératives. La suppression retire la mission et son badge à toute l’équipe.
-- **Emojis IA** : choisir une ambiance, composer, puis publier. Tous les joueurs retrouvent les emojis publiés dans Messages → conversation → Emojis composés. Sélectionner un emoji, puis Envoyer. « Retirer » enlève l’emoji du catalogue sans effacer les stickers déjà envoyés.
+- **Studio IA → Emojis** : choisir une ambiance, composer, puis publier. Tous les joueurs retrouvent les emojis publiés dans Messages → conversation → Emojis composés. Sélectionner un emoji, puis Envoyer. « Retirer » enlève l’emoji du catalogue sans effacer les stickers déjà envoyés.
 
 ## Effacement d’un compte
 

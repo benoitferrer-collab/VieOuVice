@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { HubRpc } from "@/lib/events/types";
+import { AdminRow, AdminCollection } from "./admin-layout";
 import { AdminDeleteConfirmation } from "./admin-delete-confirmation";
 
 type CoopPage = {
@@ -59,59 +60,67 @@ export function AdminCooperative({
         La suppression retire la mission pour toute l’équipe, ses inscriptions
         et son badge collectif.
       </p>
-      {page.challenges.map((challenge) => (
-        <article className="events-admin-card" key={challenge.id}>
-          <h3>{challenge.title}</h3>
-          <p>
-            Par {challenge.creator_name} · {challenge.participant_count}{" "}
-            participants ·{" "}
-            {{ active: "En cours", completed: "Terminée", expired: "Expirée" }[
-              challenge.status
-            ] ?? challenge.status}
-          </p>
-          <p>Fin : {new Date(challenge.ends_at).toLocaleString("fr-FR")}</p>
-          <AdminDeleteConfirmation
-            name={challenge.title}
-            description="Les inscriptions et badges collectifs de cette mission seront effacés. Les actions déclarées par les joueurs restent dans leur historique."
-            disabled={!!busy || loading}
-            onConfirm={async (confirmation) => {
-              const done = await mutate(
-                `coop-delete-${challenge.id}`,
-                () =>
-                  rpc("admin_delete_challenge", {
-                    p_kind: "cooperative",
-                    p_id: challenge.id,
-                    p_confirmation: confirmation,
-                  }),
-                "Mission coopérative supprimée.",
-              );
-              if (done) {
-                setLoading(true);
-                try {
-                  setPage(
-                    await rpc<CoopPage>("admin_list_cooperative_challenges", {
-                      p_offset: 0,
+      <AdminCollection label="missions chargées" disabled={!!busy || loading}>
+        {page.challenges.map((challenge) => (
+          <AdminRow
+            key={challenge.id}
+            title={challenge.title}
+            meta={`Par ${challenge.creator_name} · ${challenge.participant_count} participants`}
+          >
+            <h3>{challenge.title}</h3>
+            <p>
+              Par {challenge.creator_name} · {challenge.participant_count}{" "}
+              participants ·{" "}
+              {{
+                active: "En cours",
+                completed: "Terminée",
+                expired: "Expirée",
+              }[challenge.status] ?? challenge.status}
+            </p>
+            <p>Fin : {new Date(challenge.ends_at).toLocaleString("fr-FR")}</p>
+            <AdminDeleteConfirmation
+              name={challenge.title}
+              description="Les inscriptions et badges collectifs de cette mission seront effacés. Les actions déclarées par les joueurs restent dans leur historique."
+              disabled={!!busy || loading}
+              onConfirm={async (confirmation) => {
+                const done = await mutate(
+                  `coop-delete-${challenge.id}`,
+                  () =>
+                    rpc("admin_delete_challenge", {
+                      p_kind: "cooperative",
+                      p_id: challenge.id,
+                      p_confirmation: confirmation,
                     }),
-                  );
-                } catch {
-                  setPage((old) => ({
-                    ...old,
-                    challenges: old.challenges.filter(
-                      (c) => c.id !== challenge.id,
-                    ),
-                  }));
-                  setError(
-                    "Mission supprimée. Rouvre ce menu pour actualiser la liste.",
-                  );
-                } finally {
-                  setLoading(false);
+                  "Mission coopérative supprimée.",
+                );
+                if (done) {
+                  setLoading(true);
+                  try {
+                    setPage(
+                      await rpc<CoopPage>("admin_list_cooperative_challenges", {
+                        p_offset: 0,
+                      }),
+                    );
+                  } catch {
+                    setPage((old) => ({
+                      ...old,
+                      challenges: old.challenges.filter(
+                        (c) => c.id !== challenge.id,
+                      ),
+                    }));
+                    setError(
+                      "Mission supprimée. Rouvre ce menu pour actualiser la liste.",
+                    );
+                  } finally {
+                    setLoading(false);
+                  }
                 }
-              }
-              return done;
-            }}
-          />
-        </article>
-      ))}
+                return done;
+              }}
+            />
+          </AdminRow>
+        ))}
+      </AdminCollection>
       {loading && <p role="status">Chargement des missions…</p>}
       {!loading && !error && !page.challenges.length && (
         <p>Aucune mission coopérative.</p>
