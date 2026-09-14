@@ -34,6 +34,7 @@ import {
   LockKeyhole,
   RotateCcw,
 } from "lucide-react";
+import { SeasonEmblem } from "./season-emblem";
 import { NotificationToast } from "./notification-toast";
 import { notificationTab } from "@/lib/notifications";
 import { cleanupWebPushBeforeSignOut } from "./web-push-settings";
@@ -121,14 +122,17 @@ export function Game({
     owner: string;
     friend: Friend;
   } | null>(null);
-  const [messageFriend,setMessageFriend] = useState("");
+  const [messageFriend, setMessageFriend] = useState("");
   const [tab, setTab] = useState<Tab>("survie");
   useEffect(() => {
     const requested = new URLSearchParams(window.location.search).get("tab");
     if (requested) {
       window.setTimeout(() => {
         setTab(notificationTab(requested));
-        if(requested === "messages") setMessageFriend(new URLSearchParams(window.location.search).get("friend") ?? "");
+        if (requested === "messages")
+          setMessageFriend(
+            new URLSearchParams(window.location.search).get("friend") ?? "",
+          );
       }, 0);
     }
   }, []);
@@ -136,11 +140,7 @@ export function Game({
   const [toast, setToast] = useState("");
   const [journalKind, setJournalKind] = useState<"all" | Kind>("all");
   const [lossRanking, setLossRanking] = useState<LossRanking>("gross");
-  const messaging = useMessages(
-    game.state,
-    game.demo,
-    true,
-  );
+  const messaging = useMessages(game.state, game.demo, true);
   function tell(message: string) {
     setToast(message);
     window.setTimeout(() => setToast(""), 5000);
@@ -317,10 +317,10 @@ export function Game({
                     : tab === "nemesis"
                       ? "TON DUEL DE LA SEMAINE"
                       : tab === "messages"
-                      ? "Messages"
-                      : tab === "amis"
-                        ? "LE CERCLE DES VIVANTS"
-                        : "CARTE DE MORTEL"}
+                        ? "Messages"
+                        : tab === "amis"
+                          ? "LE CERCLE DES VIVANTS"
+                          : "CARTE DE MORTEL"}
               </p>
               <h1>
                 {tab === "survie" ? (
@@ -590,12 +590,28 @@ export function Game({
               {tab === "ligue" && (
                 <>
                   <div className="league-hero">
-                    <div className="league-emblem">
-                      <Shield size={66} strokeWidth={1} />
-                      <Trophy size={27} />
-                    </div>
-                    <span className="eyebrow amber">SAISON EN COURS</span>
-                    <h2>{state.league_name || "Ta première ligue"}</h2>
+                    {state.season_identity ? (
+                      <SeasonEmblem
+                        emblem={state.season_identity.emblem}
+                        label={`Emblème ${state.season_identity.league_name}`}
+                      />
+                    ) : (
+                      <div className="league-emblem">
+                        <Shield size={66} strokeWidth={1} />
+                        <Trophy size={27} />
+                      </div>
+                    )}
+                    <span className="eyebrow amber">
+                      {state.season_identity?.season_name || "SAISON EN COURS"}
+                    </span>
+                    <h2>
+                      {state.season_identity?.league_name ||
+                        state.league_name ||
+                        "Ta première ligue"}
+                    </h2>
+                    {state.season_identity && (
+                      <p className="fine-print">{state.league_name}</p>
+                    )}
                     <p className="muted">
                       {state.league_size ?? state.players.length} mortels. Une
                       semaine pour se dépasser.
@@ -910,14 +926,40 @@ export function Game({
                 </>
               )}
               {tab === "messages" && (
-                <section className="messages-page" aria-label="Messagerie privée">
-                  <div className="section-heading"><h2>Tes conversations</h2></div>
+                <section
+                  className="messages-page"
+                  aria-label="Messagerie privée"
+                >
+                  <div className="section-heading">
+                    <h2>Tes conversations</h2>
+                  </div>
                   {messaging.error ? (
-                    <div role="status"><p className="coral">{messaging.error}</p><button className="secondary" onClick={() => void messaging.refresh()}>Réessayer</button></div>
-                  ) : !messaging.inbox ? <p role="status" className="muted">Chargement des conversations…</p> : (
-                    <MessageCenter key={`${game.demo}:${state.id}:${messageFriend}`} selectedFriendId={messageFriend} onSelectFriend={setMessageFriend} userId={state.id}
-                      drafts={messaging.drafts} friends={state.friends} demo={game.demo}
-                      inbox={messaging.inbox} rpc={messaging.rpc} refresh={messaging.refresh} />
+                    <div role="status">
+                      <p className="coral">{messaging.error}</p>
+                      <button
+                        className="secondary"
+                        onClick={() => void messaging.refresh()}
+                      >
+                        Réessayer
+                      </button>
+                    </div>
+                  ) : !messaging.inbox ? (
+                    <p role="status" className="muted">
+                      Chargement des conversations…
+                    </p>
+                  ) : (
+                    <MessageCenter
+                      key={`${game.demo}:${state.id}:${messageFriend}`}
+                      selectedFriendId={messageFriend}
+                      onSelectFriend={setMessageFriend}
+                      userId={state.id}
+                      drafts={messaging.drafts}
+                      friends={state.friends}
+                      demo={game.demo}
+                      inbox={messaging.inbox}
+                      rpc={messaging.rpc}
+                      refresh={messaging.refresh}
+                    />
                   )}
                 </section>
               )}
@@ -1137,26 +1179,28 @@ export function Game({
             <span>ON JOUE AVEC LES MINUTES. PAS AVEC LA SANTÉ.</span>
           </footer>
         </main>
-        {tab !== "messages" && <div className="floating-actions">
-          <button
-            className="fab excess-fab"
-            onClick={() => setPanel("excess")}
-            aria-label="Déclarer un excès"
-          >
-            <Flame size={21} />
-            <span>Petit écart</span>
-            <Plus size={17} />
-          </button>
-          <button
-            className="fab health-fab"
-            onClick={() => setPanel("health")}
-            aria-label="Ajouter une action saine"
-          >
-            <Leaf size={21} />
-            <span>Bonne habitude</span>
-            <Plus size={17} />
-          </button>
-        </div>}
+        {tab !== "messages" && (
+          <div className="floating-actions">
+            <button
+              className="fab excess-fab"
+              onClick={() => setPanel("excess")}
+              aria-label="Déclarer un excès"
+            >
+              <Flame size={21} />
+              <span>Petit écart</span>
+              <Plus size={17} />
+            </button>
+            <button
+              className="fab health-fab"
+              onClick={() => setPanel("health")}
+              aria-label="Ajouter une action saine"
+            >
+              <Leaf size={21} />
+              <span>Bonne habitude</span>
+              <Plus size={17} />
+            </button>
+          </div>
+        )}
         <nav className="bottom-nav" aria-label="Navigation principale">
           {tabs.map((t) => (
             <button
@@ -1174,8 +1218,13 @@ export function Game({
               <t.icon size={21} strokeWidth={tab === t.id ? 2.3 : 1.7} />
               <span>{t.label}</span>
               {t.id === "messages" && !!messaging.inbox?.unread_count && (
-                <b className="nav-unread" aria-label={`${messaging.inbox.unread_count} messages non lus`}>
-                  {messaging.inbox.unread_count > 99 ? "99+" : messaging.inbox.unread_count}
+                <b
+                  className="nav-unread"
+                  aria-label={`${messaging.inbox.unread_count} messages non lus`}
+                >
+                  {messaging.inbox.unread_count > 99
+                    ? "99+"
+                    : messaging.inbox.unread_count}
                 </b>
               )}
               {tab === t.id && <i />}
@@ -1188,8 +1237,17 @@ export function Game({
             notice={game.liveNotice}
             onOpen={() => {
               setPanel(null);
-              setTab(notificationTab(game.liveNotice?.target_tab, game.liveNotice?.kind));
-              setMessageFriend(game.liveNotice?.kind === "friend_message" ? game.liveNotice.actor_id ?? "" : "");
+              setTab(
+                notificationTab(
+                  game.liveNotice?.target_tab,
+                  game.liveNotice?.kind,
+                ),
+              );
+              setMessageFriend(
+                game.liveNotice?.kind === "friend_message"
+                  ? (game.liveNotice.actor_id ?? "")
+                  : "",
+              );
               void game
                 .readNotice(game.liveNotice!.id)
                 .catch((e) => tell(String(e)));
@@ -1341,7 +1399,9 @@ export function Game({
                   onClick={() => {
                     setPanel(n.kind === "reaction_digest" ? "journal" : null);
                     setTab(notificationTab(n.target_tab, n.kind));
-                    setMessageFriend(n.kind === "friend_message" ? n.actor_id ?? "" : "");
+                    setMessageFriend(
+                      n.kind === "friend_message" ? (n.actor_id ?? "") : "",
+                    );
                     void game.readNotice(n.id).catch((e) => tell(String(e)));
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}

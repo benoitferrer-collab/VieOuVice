@@ -1,3 +1,7 @@
+import {
+  preparedSeasonIdentity,
+  type PlayerSeasonIdentity,
+} from "./ai/season-identity";
 import { cooperativeCatalog } from "./cooperative/catalog";
 import { expandedCatalog } from "./catalog-expansion";
 import { normalizeDemoTime, type LifeStats } from "./life-time";
@@ -76,6 +80,7 @@ export type GameState = {
   soft: boolean;
   trophies: string[];
   season_end: string;
+  season_identity?: PlayerSeasonIdentity | null;
   league_name: string;
   community_enabled?: boolean;
   social_settings?: SocialSettings;
@@ -203,6 +208,7 @@ export const signed = (n: number) =>
   (n > 0 ? "+" : "") + new Intl.NumberFormat("fr-FR").format(n);
 export function makeDemo(): GameState {
   const now = new Date();
+  const identity = preparedSeasonIdentity(now.toISOString());
   const time = (h: number) =>
     new Date(now.getTime() - h * 3600000).toISOString();
   return normalizeDemoTime({
@@ -223,6 +229,16 @@ export function makeDemo(): GameState {
     trophies: ["first-step"],
     season_end: new Date(now.getTime() + 4 * 86400000).toISOString(),
     league_name: "Ligue des Survivants",
+    season_identity: {
+      season_name: identity.season_name,
+      league_name: identity.divisions[0].name,
+      emblem: {
+        icon: identity.divisions[0].icon,
+        color: identity.divisions[0].color,
+        shape: identity.divisions[0].shape,
+      },
+      source: "fallback",
+    },
     catalog,
     actions: [
       {

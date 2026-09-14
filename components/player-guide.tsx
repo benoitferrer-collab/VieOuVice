@@ -40,7 +40,7 @@ const chapters = [
       "Le jeu fonctionne sur le Web : ouvre son adresse dans ton navigateur, sur ordinateur ou téléphone. Aucun téléchargement depuis un store n’est nécessaire.",
       "Pour découvrir les écrans, choisis « Explorer la démo sans compte ». Ses joueurs et résultats sont fictifs et enregistrés dans ce navigateur ; cette simulation est indépendante de ta vraie partie.",
       "Pour jouer avec tes amis, crée un compte par email, confirme ton adresse si demandé, puis suis les trois étapes de bienvenue : ton pseudonyme et ton avatar, les compteurs fictifs, puis la découverte de ta première mission. Ton profil est créé à la dernière confirmation ; aucune mission n’est choisie automatiquement. Reviens avec le même compte pour retrouver ta partie sur un autre appareil. Une connexion Internet est nécessaire pour enregistrer tes vraies déclarations.",
-      "Tu disposes de cinq onglets : Survie pour ton tableau de bord, Ligue pour les classements, Némésis pour le duel, Amis pour ton cercle, et Profil pour ton journal, ton avatar et tes préférences.",
+      "Tu disposes de six onglets : Survie pour ton tableau de bord, Ligue pour les classements, Némésis pour le duel, Amis pour ton cercle, Messages pour tes conversations, et Profil pour ton journal, ton avatar et tes préférences.",
     ],
   },
   {
@@ -76,6 +76,7 @@ const chapters = [
     title: "La ligue et ses deux classements",
     paragraphs: [
       "Une saison dure du lundi à 00:00 au lundi suivant, heure de Paris. La ligue regroupe jusqu’à 30 joueurs. À chaque nouvelle saison, le score hebdomadaire repart de zéro ; ton capital, ton historique et tes compteurs cumulés restent conservés.",
+      "Chaque saison reçoit automatiquement un nom et des emblèmes de ligue composés par l’IA. Les cinq divisions partagent une même ambiance. Si l’IA est indisponible, un thème préparé prend le relais. Cet habillage ne change pas les règles du classement.",
       "« Excès cumulés » est le classement officiel : le plus grand total de minutes fictives perdues dans la semaine occupe la première place. Ce n’est pas le nombre de déclarations qui compte, mais leur valeur cumulée. Les bonnes habitudes ne diminuent pas ce score.",
       "« Bilan net » compare les pertes moins les récupérations de la semaine, du bilan le plus perdu au plus récupéré. C’est une autre lecture entre joueurs visibles ; elle ne décide pas des promotions ou relégations.",
       "Il existe cinq divisions. À la clôture, une part des premiers monte et une part des derniers descend, dans les limites des divisions : une place pour six membres, arrondie à l’entier inférieur. Par exemple, 30 membres donnent cinq montées et cinq descentes ; moins de six membres n’en donnent aucune.",

@@ -27,7 +27,7 @@ function validationDetail(error:unknown):ValidationDetail {
   return {category:"envelope",fields:[]};
 }
 export type AIDiagnostic = keyof typeof aiDiagnostics;
-export type Batch = {id:string;theme:string;created_at:string;source:"ai"|"fallback";suggestions:Suggestion[];diagnostic?:AIDiagnostic;provider_status?:number;provider_code?:number;validation_detail?:ValidationDetail;adjusted_fields?:string[]};
+export type Batch = {id:string;theme:string;created_at:string;source:"ai"|"fallback";suggestions:(Suggestion|null)[];deleted_at?:string|null;diagnostic?:AIDiagnostic;provider_status?:number;provider_code?:number;validation_detail?:ValidationDetail;adjusted_fields?:string[]};
 export function preparedSuggestions(theme:string):Suggestion[] {
   return [
     {title:`Mission ${theme} : petites pauses`,intro:"Une aventure collective, chacun à son rythme.",badge_label:"Gardien du calme",badge_icon:"leaf"},

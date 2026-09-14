@@ -155,3 +155,12 @@ Migration 015 et tests SQL exécutés sur PostgreSQL temporaire : administrateur
 - Navigateur local `localhost:3002`, mode démo explicite : sélection, envoi et rendu du sticker vérifiés, avec réactions et formulaire toujours utilisables. Onglet et serveur temporaires fermés ensuite.
 - Aucun compte réel supprimé, aucune publication ou mutation Supabase distante, aucun appel Cloudflare réel. Le parcours Supabase Auth complet devra être essayé avec un compte de test après installation, car le test local émule sa phase SQL.
 - Correction d’une ambiguïté préexistante `i` dans la fixture SQL progression, sans changement de la progression du jeu.
+
+## 14 septembre 2026 — propositions IA et identités de saisons (018–019)
+
+- 109 tests Node passent, lint et compilation Webpack finale réussis (aucune route de fixture dans le build final).
+- Tests SQL locaux `ai_proposal_deletion`, `ai_workshop` et `season_identity` passent : redaction des propositions, confirmations, quota conservé, reprise sans résurrection, droits, unicité de réservation, expiration, résultat de secours et stabilité du classement.
+- Génération Cloudflare simulée : JSON structuré, réponse invalide/quota → secours sans retry. Rendu des emblèmes de toutes les recettes préparées vérifié.
+- Relecture indépendante du worker et des contrats SQL : aucun défaut matériel signalé.
+- Navigateur sur fixture locale fictive : cinq emblèmes visibles, confirmation du titre et disposition du formulaire vérifiées. La page temporaire a été retirée avant compilation finale. La suppression effective et ses reprises ont été vérifiées par SQL local et tests API simulés.
+- Aucun appel Cloudflare réel, suppression réelle, push GitHub ou déploiement Vercel effectué. Installation et vérification sur la production restent à l’utilisateur.

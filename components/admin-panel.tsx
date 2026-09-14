@@ -24,6 +24,7 @@ import { AdminDeleteConfirmation } from "./admin-delete-confirmation";
 import { AdminCooperative } from "./admin-cooperative";
 import { EmojiWorkshop } from "./emojis/emoji-workshop";
 import { deleteAccount } from "@/lib/admin/delete-account-client";
+import { AdminSeasonIdentity } from "./admin-season-identity";
 import { AIWorkshop } from "./ai-workshop";
 import { Sheet } from "./sheet";
 import "./events.css";
@@ -508,6 +509,7 @@ function AdminEvents({
 
   return (
     <div className="events-admin-view">
+      <AdminSeasonIdentity rpc={rpc} />
       <AIWorkshop
         userId={userId}
         rpc={rpc}
