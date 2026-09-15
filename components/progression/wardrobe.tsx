@@ -47,6 +47,7 @@ export function Wardrobe({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [celebration, setCelebration] = useState(0);
   useEffect(() => {
     let active = true;
     void rpc<typeof incoming>("get_progression")
@@ -163,6 +164,7 @@ export function Wardrobe({
     setNotice("");
     try {
       await rpc("equip_cosmetic", { p_slot: slot, p_item_id: selectedId });
+      if (selectedId !== null) setCelebration((value) => value + 1);
       setProgression({
         ...progression,
         equipped: { ...progression.equipped, [slot]: selectedId },
@@ -242,7 +244,13 @@ export function Wardrobe({
             <Eye size={14} aria-hidden="true" />
             Aperçu
           </span>
-          <Reaper variant={variant} large cosmetics={preview} />
+          <Reaper
+            variant={variant}
+            large
+            cosmetics={preview}
+            celebration={celebration}
+          />
+          <small>Touche ton avatar pour le faire réagir.</small>
           <strong>{previewTitle?.label ?? "À ta façon"}</strong>
           <span>
             Niveau {progression.level} · {progression.xp} XP

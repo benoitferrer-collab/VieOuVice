@@ -93,3 +93,16 @@ test("paint servers stay unique while historical cosmetics remain available", ()
     assert.match(paired, new RegExp(`url\\(#${id}\\)`));
   }
 });
+
+test("large avatars expose keyboard interaction and four distinct personalities", () => {
+  for (let variant = 0; variant < 4; variant++) {
+    const html = renderToStaticMarkup(
+      createElement(Reaper, { variant, large: true }),
+    );
+    assert.match(html, /role="button"/);
+    assert.match(html, /tabindex="0"/);
+    assert.match(html, new RegExp(`avatar-personality-${variant}`));
+  }
+  const small = renderToStaticMarkup(createElement(Reaper, { large: false }));
+  assert.doesNotMatch(small, /role="button"|tabindex/);
+});

@@ -180,3 +180,7 @@ Migration 015 et tests SQL exécutés sur PostgreSQL temporaire : administrateur
 - Browser QA with synthetic local fixture: 300 → 200 Éclats after Satellites lumineux; then equipment succeeds. Mobile 390×844: Portail cosmique purchase 300 → 150, equipment persists across close/reopen. Dialog client/scroll width both373px; document client/scroll both390px. Calm preference exercised, CSS/SSR checks cover animation gating. Fixture removed before production build.
 - Independent review: two client snapshot/recovery issues corrected. Uncertain failures preserve any successfully refreshed wallet; failed recovery blocks purchases. The open dialogue retains its confirmed state, and each new opening refreshes before actions.
 - No production data, GitHub push, deployment or production SQL execution.
+
+## Avatar personalities
+
+Four large-avatar idle patterns, blinking/gaze, touch and keyboard reactions, separate equipment celebration with sparks. Small avatars remain static; calm and reduced-motion rules cover every new layer. Local production browser confirmed click -> hop and Enter -> facial reaction, screenshot checked. 119 Node tests and webpack production build passed; lint passed. No SQL or configuration change.
