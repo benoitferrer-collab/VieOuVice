@@ -435,3 +435,79 @@
     gap: 4px;
   }
 }
+
+/* Éclats : a compact shop built into the existing wardrobe. */
+.shop-wallet {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid #c4acff40;
+  border-radius: 16px;
+  background: linear-gradient(120deg, #c4acff1a, #b7f34b09);
+  margin: 14px 0;
+}
+.shop-wallet div {
+  display: grid;
+  gap: 4px;
+}
+.shop-wallet span,
+.shop-wallet small {
+  color: var(--muted);
+  font-size: 11px;
+}
+.shop-wallet strong {
+  font-size: 24px;
+  color: #dfceff;
+}
+.shop-wallet svg {
+  color: #c4acff;
+}
+.shop-wallet small {
+  flex-basis: 100%;
+  line-height: 1.5;
+}
+.shop-views {
+  grid-template-columns: 1fr 1fr;
+}
+.shop-sheet .wardrobe-preview {
+  padding: 10px;
+  gap: 3px;
+}
+.shop-sheet .wardrobe-preview .reaper-large {
+  height: 150px;
+  width: 150px;
+}
+.shop-sheet .wardrobe-inventory {
+  max-height: 300px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2px;
+}
+.shop-sheet .wardrobe-item {
+  min-width: 0;
+}
+.shop-animated-label {
+  color: #c4acff;
+  font-size: 10px;
+}
+.shop-purchase {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #c4acff40;
+  background: #c4acff0a;
+}
+.shop-purchase strong {
+  font-size: 13px;
+}
+.shop-purchase p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 8px 0;
+}
+.shop-purchase button {
+  margin-top: 8px;
+}

@@ -48,7 +48,7 @@ begin
  failed:=false;begin perform public.equip_cosmetic('title','aurora');exception when others then failed:=true;end;if not failed then raise exception 'Wrong-slot cosmetic';end if;
  perform public.equip_cosmetic('background',null);
  if public.get_progression()->'equipped'->'background'<>'null'::jsonb then raise exception 'Unequip failed';end if;
- if jsonb_array_length(x->'inventory')<>9 or jsonb_array_length(x->'missions')<>5 then raise exception 'Contract cardinality';end if;
+ if jsonb_array_length(x->'inventory')<>18 or jsonb_array_length(x->'missions')<>5 then raise exception 'Contract cardinality';end if;
  -- The earlier use of pause defeats new_habit, even when evaluated in a later historical week.
  insert into private.weekly_mission_choices(user_id,week_start,code) values(a,'2025-03-31','new_habit');
  insert into public.actions(user_id,catalog_id,label,kind,quantity,minutes_impact,tariff_version,season_id,created_at,idempotency_key) values

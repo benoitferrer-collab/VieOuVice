@@ -20,6 +20,7 @@ import type {
 } from "./types";
 export type DemoProgression = {
   version: 1;
+  purchased?: string[];
   choices: Record<string, MissionCode[]>;
   awards: { week: string; code: MissionCode }[];
   equipped: EquippedLook;
@@ -89,6 +90,7 @@ export function demoProgression(
     week_start: week.start,
     week_end: week.end,
     xp,
+    wallet: demoWallet(state),
     level: levelForXp(xp),
     week_xp: state.awards.filter((a) => a.week === week.start).length * 50,
     missions: MISSION_DEFINITIONS.map((m) => {
@@ -113,7 +115,11 @@ export function demoProgression(
     inventory: COSMETICS.map((item) => ({
       id: item.id,
       slot: item.slot,
-      unlocked: cosmeticUnlocked(item, xp, competitionBadges),
+      unlocked:
+        item.price === undefined
+          ? cosmeticUnlocked(item, xp, competitionBadges)
+          : !!state.purchased?.includes(item.id),
+      ...(item.price === undefined ? {} : { price: item.price }),
     })),
     equipped: state.equipped,
     badges: badgesFor(state, competitionBadges),
@@ -167,6 +173,20 @@ export function progressionRpc(
     next = settleProgression(next, user, events, now);
     return { next, data: null };
   }
+  if (name === "buy_cosmetic") {
+    const item = COSMETICS.find(
+      (c) => c.id === payload.p_item_id && c.price !== undefined,
+    );
+    if (!item || item.price === undefined)
+      throw Error("Objet indisponible à l’achat.");
+    const owned = (next.purchased ||= []);
+    if (!owned.includes(item.id)) {
+      if (demoWallet(next).balance < item.price)
+        throw Error("Éclats insuffisants.");
+      owned.push(item.id);
+    }
+    return { next, data: demoWallet(next) };
+  }
   if (name === "equip_cosmetic") {
     const slot = payload.p_slot as CosmeticSlot;
     if (!["accessory", "title", "background"].includes(slot))
@@ -175,7 +195,12 @@ export function progressionRpc(
       const item = COSMETICS.find(
         (c) => c.id === payload.p_item_id && c.slot === slot,
       );
-      if (!item || !cosmeticUnlocked(item, next.awards.length * 50, badges))
+      if (
+        !item ||
+        !(item.price === undefined
+          ? cosmeticUnlocked(item, next.awards.length * 50, badges)
+          : next.purchased?.includes(item.id))
+      )
         throw Error("Cette récompense est encore verrouillée.");
     }
     next.equipped[slot] = payload.p_item_id as string | null;
@@ -250,4 +275,13 @@ export function progressionRpc(
     return { next, data };
   }
   throw Error("Opération de progression inconnue.");
+}
+
+function demoWallet(state: DemoProgression) {
+  const earned = state.awards.length * 25;
+  const spent = [...new Set(state.purchased || [])].reduce(
+    (total, id) => total + (COSMETICS.find((c) => c.id === id)?.price || 0),
+    0,
+  );
+  return { balance: earned - spent, earned, spent };
 }

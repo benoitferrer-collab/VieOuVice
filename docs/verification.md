@@ -171,3 +171,12 @@ Migration 015 et tests SQL exécutés sur PostgreSQL temporaire : administrateur
 - Studio IA sépare Défis, Saisons et Emojis. Lots IA paginés par quatre ; compositions et emojis publiés séparés. Le choix d'une proposition ouvre le formulaire Événements avec ses données et sa catégorie d'origine.
 - Vérification navigateur sur administration entièrement fictive (24 événements/joueurs, neuf lots) : pagination, navigation Studio IA → formulaire, ouverture exclusive des fiches, rendu ordinateur et 390×844. Aucun débordement horizontal (largeurs client et contenu : 373px). Contrôles métier conservés.
 - Fixture et aperçu temporaires retirés ; viewport réinitialisé. 109 tests existants, lint et compilation Webpack finale passent. Aucune migration SQL ni variable ajoutée ; aucune publication réalisée.
+
+## 2026-09-15 — Éclats et boutique
+
+- Node suite: 118/118 passed; lint passed.
+- SQL 020 and standalone update bundle compared identical. New SQL tests cover historical/new credits, unique purchases, insufficient balance, transaction rollback on possession insert failure, immutable ledger, ownership/equipment, export, suspension and account purge.
+- Local PostgreSQL worker verified concurrent same/different purchases wait on the shared transaction lock. Existing admin deletion, preferences, coops and messages regressions pass. Updated progression inventory count to 18; progression regression passed on the root rerun.
+- Browser QA with synthetic local fixture: 300 → 200 Éclats after Satellites lumineux; then equipment succeeds. Mobile 390×844: Portail cosmique purchase 300 → 150, equipment persists across close/reopen. Dialog client/scroll width both373px; document client/scroll both390px. Calm preference exercised, CSS/SSR checks cover animation gating. Fixture removed before production build.
+- Independent review: two client snapshot/recovery issues corrected. Uncertain failures preserve any successfully refreshed wallet; failed recovery blocks purchases. The open dialogue retains its confirmed state, and each new opening refreshes before actions.
+- No production data, GitHub push, deployment or production SQL execution.

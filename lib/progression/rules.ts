@@ -97,6 +97,7 @@ export function cosmeticUnlocked(
   badges: CompetitionBadge[],
 ) {
   return (
+    item.price === undefined &&
     xp >= item.xpRequired &&
     (!item.badgeRequirement ||
       (item.badgeRequirement === "any"

@@ -1,0 +1,56 @@
+@keyframes shop-avatar-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes shop-avatar-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shop-avatar-twinkle {
+  0%,
+  100% {
+    opacity: 0.48;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.shop-avatar--floating {
+  animation: shop-avatar-float 5s ease-in-out infinite;
+}
+
+.shop-avatar__satellites.shop-avatar--animated,
+.shop-avatar__portal.shop-avatar--animated {
+  animation: shop-avatar-orbit 12s linear infinite;
+  transform-box: view-box;
+  transform-origin: 120px 120px;
+}
+
+.shop-avatar__portal.shop-avatar--animated {
+  animation-duration: 20s;
+}
+
+.shop-avatar__fireflies.shop-avatar--animated {
+  animation: shop-avatar-twinkle 2.8s ease-in-out infinite;
+}
+
+.calm .shop-avatar--floating,
+.calm .shop-avatar--animated {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shop-avatar--floating,
+  .shop-avatar--animated {
+    animation: none !important;
+  }
+}

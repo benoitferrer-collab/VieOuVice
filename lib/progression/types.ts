@@ -41,9 +41,13 @@ export type CosmeticDefinition = {
   label: string;
   description: string;
   xpRequired: number;
+  price?: number;
+  animated?: boolean;
   badgeRequirement?: "any" | "winner";
 };
+export type Wallet = { balance: number; earned: number; spent: number };
 export type ProgressionState = {
+  wallet?: Wallet;
   available: true;
   week_start: string;
   week_end: string;
@@ -51,7 +55,12 @@ export type ProgressionState = {
   level: number;
   week_xp: number;
   missions: Mission[];
-  inventory: { id: string; slot: CosmeticSlot; unlocked: boolean }[];
+  inventory: {
+    id: string;
+    slot: CosmeticSlot;
+    unlocked: boolean;
+    price?: number;
+  }[];
   equipped: EquippedLook;
   badges: PublicBadge[];
   notify_reactions: boolean;

@@ -979,6 +979,9 @@ export function Game({
                         )?.label || "Ta légende commence ici"}{" "}
                         · Niveau {progression.data.level} ·{" "}
                         {progression.data.xp} XP
+                        {progression.data.wallet && (
+                          <> · {progression.data.wallet.balance} Éclats</>
+                        )}
                       </p>
                     )}
                     <span className={"pill " + status.className}>

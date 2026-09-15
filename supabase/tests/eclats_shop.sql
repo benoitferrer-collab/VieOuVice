@@ -1,0 +1,61 @@
+-- Owner-only synthetic regression; all fixtures roll back.
+begin;
+create function pg_temp.shop_fails(command text) returns void language plpgsql as $$declare failed boolean:=false;begin
+ begin execute command;exception when others then failed:=true;end;
+ if not failed then raise exception 'Expected failure: %',command;end if;
+end$$;
+do $test$
+declare a uuid:=gen_random_uuid();b uuid:=gen_random_uuid();u uuid;r jsonb;w date:=date '2026-01-05';nick text;owner_name text:=current_user;
+begin
+ foreach u in array array[a,b] loop
+ insert into auth.users(id) values(u);perform set_config('request.jwt.claim.sub',u::text,true);
+ perform public.create_profile('shop_'||substr(replace(u::text,'-',''),1,14),0);
+ end loop;
+ insert into private.player_access(user_id,is_admin) values(a,true);
+ insert into private.weekly_mission_choices(user_id,week_start,code) select b,w+d*7,c from generate_series(0,1)d cross join unnest(array['pause_days','healthy_days','new_habit'])c;
+ insert into private.xp_awards(user_id,week_start,code) select user_id,week_start,code from private.weekly_mission_choices where user_id=b;
+ r:=public.get_progression();
+ if r->'wallet' is distinct from jsonb_build_object('balance',150,'earned',150,'spent',0) then raise exception 'Historical credits: %',r->'wallet';end if;
+ if jsonb_array_length(r->'inventory')<>18 then raise exception 'Inventory incomplete';end if;
+ if public.get_progression()->'wallet'<>r->'wallet' then raise exception 'Duplicate credits';end if;
+ perform pg_temp.shop_fails('select public.equip_cosmetic(''background'',''cosmic_portal'')');
+ execute 'set local role authenticated';
+ r:=public.buy_cosmetic('cosmic_portal');
+ if r is distinct from jsonb_build_object('balance',0,'earned',150,'spent',150) then raise exception 'Wrong debit %',r;end if;
+ if public.buy_cosmetic('cosmic_portal')<>r then raise exception 'Repeat charged';end if;
+ perform public.equip_cosmetic('background','cosmic_portal');
+ perform public.equip_cosmetic('title','pas_apres_pas');
+ perform pg_temp.shop_fails('select public.buy_cosmetic(''cosmic_traveler'')');
+ perform pg_temp.shop_fails('select public.buy_cosmetic(''unknown'')');
+ perform pg_temp.shop_fails('select public.equip_cosmetic(''accessory'',''cosmic_portal'')');
+ if public.get_progression()->>'xp'<>'300' then raise exception 'XP spent';end if;
+ if public.get_player_looks(array[b])->0->'equipped'->>'background'<>'cosmic_portal' then raise exception 'Look missing';end if;
+ r:=public.export_my_data();
+ if r->'wallet'->>'spent' is distinct from '150' or jsonb_array_length(r->'eclats_ledger')<>7 or jsonb_array_length(r->'cosmetic_possessions')<>1 then raise exception 'Export incomplete';end if;
+ execute format('set local role %I',owner_name);
+ insert into private.weekly_mission_choices values(b,w+14,'new_habit',clock_timestamp());
+ insert into private.xp_awards(user_id,week_start,code) values(b,w+14,'new_habit');
+ if public.get_progression()->'wallet'->>'balance'<>'25' then raise exception 'New XP not credited';end if;
+ execute 'create function pg_temp.reject_shop_possession() returns trigger language plpgsql as $fn$begin raise exception ''Synthetic possession failure'';end$fn$';
+ execute 'create trigger synthetic_possession_failure before insert on private.cosmetic_possessions for each row execute function pg_temp.reject_shop_possession()';
+ perform pg_temp.shop_fails('select public.buy_cosmetic(''cosmic_traveler'')');
+ if public.get_progression()->'wallet'->>'balance' is distinct from '25' then raise exception 'Failed purchase retained debit';end if;
+ execute 'drop trigger synthetic_possession_failure on private.cosmetic_possessions';
+ perform public.buy_cosmetic('cosmic_traveler');
+ perform pg_temp.shop_fails(format('update private.eclats_ledger set amount=1 where user_id=%L',b));
+ perform pg_temp.shop_fails(format('delete from private.eclats_ledger where user_id=%L',b));
+ perform pg_temp.shop_fails(format('delete from private.cosmetic_possessions where user_id=%L',b));
+ if has_table_privilege('authenticated','private.eclats_ledger','INSERT') or has_table_privilege('authenticated','private.cosmetic_possessions','SELECT') or has_function_privilege('anon','public.buy_cosmetic(text)','EXECUTE') or has_function_privilege('authenticated','private.sync_eclats(uuid)','EXECUTE') then raise exception 'Unsafe ACL';end if;
+ insert into private.player_access(user_id,suspended) values(b,true);
+ perform pg_temp.shop_fails('select public.buy_cosmetic(''cosmic_portal'')');
+ perform pg_temp.shop_fails('select public.get_progression()');
+ perform set_config('request.jwt.claim.sub','',true);
+ perform pg_temp.shop_fails('select public.buy_cosmetic(''cosmic_portal'')');
+ perform set_config('request.jwt.claim.sub',a::text,true);
+ select nickname into nick from public.users where id=b;
+ perform public.prepare_admin_account_deletion(a,b,nick);
+ delete from auth.users where id=b;
+ if exists(select 1 from private.eclats_ledger where user_id=b) or exists(select 1 from private.cosmetic_possessions where user_id=b) then raise exception 'Purge incomplete';end if;
+ raise notice 'Eclats: historical/new credits, purchases, equip, ACL, export, purge passed';
+end $test$;
+rollback;

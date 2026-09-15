@@ -1,5 +1,9 @@
 import { useId } from "react";
 import type { EquippedLook } from "@/lib/progression/types";
+import {
+  ShopAvatarAccessory,
+  ShopAvatarBackground,
+} from "@/components/progression/shop-avatar";
 export function Reaper({
   variant = 0,
   large = false,
@@ -13,7 +17,7 @@ export function Reaper({
   const color = ["#b7f34b", "#c4acff", "#ffca6a", "#ff8e99"][variant % 4];
   return (
     <svg
-      className={large ? "reaper-large" : "reaper-small"}
+      className={large ? "reaper-large shop-avatar--floating" : "reaper-small"}
       viewBox="0 0 240 240"
       role="img"
       aria-label={
@@ -80,6 +84,7 @@ export function Reaper({
           ))}
         </g>
       )}
+      <ShopAvatarBackground id={cosmetics?.background} large={large} />
       {large && (
         <>
           <ellipse cx="122" cy="218" rx="61" ry="9" fill="#000" opacity=".25" />
@@ -233,6 +238,7 @@ export function Reaper({
           />
         </g>
       )}
+      <ShopAvatarAccessory id={cosmetics?.accessory} large={large} />
       {variant === 2 && (
         <ellipse
           cx="115"
