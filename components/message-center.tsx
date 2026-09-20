@@ -2,7 +2,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ComposedEmoji } from "@/components/emojis/composed-emoji";
 import type { CatalogueEmoji } from "@/lib/emojis/recipes";
-import { ArrowLeft, Send } from "lucide-react";
+import { Reaper } from "./avatar";
+import { ArrowLeft, Send, Search, ChevronRight } from "lucide-react";
 import type { Friend } from "@/lib/game";
 import type { MessageRpc } from "@/lib/messages/use-messages";
 import {
@@ -28,6 +29,7 @@ type Props = {
   refresh: () => Promise<void>;
 };
 export function MessageCenter(props: Props) {
+  const [search, setSearch] = useState("");
   const friendId = props.selectedFriendId;
   const setFriendId = props.onSelectFriend;
   const accepted = props.friends
@@ -41,6 +43,14 @@ export function MessageCenter(props: Props) {
         a.nickname.localeCompare(b.nickname)
       );
     });
+  const normalize = (value: string) =>
+    value
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLocaleLowerCase("fr");
+  const visibleFriends = accepted.filter((f) =>
+    normalize(f.nickname).includes(normalize(search.trim())),
+  );
   const friend = accepted.find((f) => f.id === friendId);
   return (
     <div className="message-center">
@@ -58,12 +68,26 @@ export function MessageCenter(props: Props) {
         />
       ) : (
         <>
-          <p className="muted">
-            Écris à un ami de ton cercle. Les échanges ne rapportent ni minutes
-            ni XP.
+          <label className="v2-message-search">
+            <Search size={19} />
+            <input
+              type="search"
+              aria-label="Rechercher un ami"
+              placeholder="Rechercher un ami"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </label>
+          <p className="v2-inbox-label">
+            TON CERCLE · {accepted.length} AMI{accepted.length > 1 ? "S" : ""}
           </p>
+          {accepted.length > 0 && visibleFriends.length === 0 && (
+            <p className="empty-copy" role="status">
+              Aucun ami ne correspond à cette recherche.
+            </p>
+          )}
           {accepted.length ? (
-            accepted.map((f) => {
+            visibleFriends.map((f) => {
               const summary = props.inbox?.conversations.find(
                 (c) => c.friend_id === f.id,
               );
@@ -73,9 +97,12 @@ export function MessageCenter(props: Props) {
               return (
                 <button
                   key={f.id}
-                  className="message-contact"
+                  className={`message-contact${unread ? " has-unread" : ""}`}
                   onClick={() => setFriendId(f.id)}
                 >
+                  <span className="v2-contact-avatar">
+                    <Reaper variant={f.avatar} />
+                  </span>
                   <span className="message-contact-copy">
                     <strong>{f.nickname}</strong>
                     <span className="message-preview">
@@ -99,10 +126,19 @@ export function MessageCenter(props: Props) {
                       </time>
                     )}
                   </span>
-                  <span>
-                    {unread
-                      ? `${unread} non lu${unread > 1 ? "s" : ""}`
-                      : "Ouvrir la conversation"}
+                  <span
+                    className={unread ? "v2-unread" : "v2-open-conversation"}
+                  >
+                    {unread ? (
+                      <b aria-label={`${unread} messages non lus`}>
+                        {unread > 99 ? "99+" : unread}
+                      </b>
+                    ) : (
+                      <ChevronRight
+                        size={18}
+                        aria-label="Ouvrir la conversation"
+                      />
+                    )}
                   </span>
                 </button>
               );
@@ -113,17 +149,20 @@ export function MessageCenter(props: Props) {
               discuter.
             </p>
           )}
-          <MessagePreference
-            inbox={props.inbox}
-            rpc={props.rpc}
-            refresh={props.refresh}
-          />
-          <p className="fine-print">
-            Tes messages sont accessibles à vous deux dans le jeu tant que vous
-            êtes amis. Un blocage coupe l’accès et les échanges. Ils restent
-            conservés dans les données du compte et son export ; ce service ne
-            propose pas de chiffrement de bout en bout.
-          </p>
+          <details className="v2-message-settings">
+            <summary>Préférences et confidentialité</summary>
+            <MessagePreference
+              inbox={props.inbox}
+              rpc={props.rpc}
+              refresh={props.refresh}
+            />
+            <p className="fine-print">
+              Tes messages sont accessibles à vous deux dans le jeu tant que
+              vous êtes amis. Un blocage coupe l’accès et les échanges. Ils
+              restent conservés dans les données du compte et son export ; ce
+              service ne propose pas de chiffrement de bout en bout.
+            </p>
+          </details>
         </>
       )}
     </div>
@@ -362,7 +401,15 @@ function Conversation({
         <ArrowLeft size={16} />
         Toutes les conversations
       </button>
-      <h3>{friend.nickname}</h3>
+      <div className="v2-conversation-header">
+        <span className="v2-contact-avatar">
+          <Reaper variant={friend.avatar} />
+        </span>
+        <div>
+          <h3>{friend.nickname}</h3>
+          <span>Dans ton cercle d’amis</span>
+        </div>
+      </div>
       <p className="fine-print">
         Messages privés · actualisation toutes les 10 secondes lorsque le jeu
         est visible.

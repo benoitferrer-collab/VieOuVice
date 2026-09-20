@@ -1,5 +1,7 @@
 "use client";
 
+import "./design-v2.css";
+import { HomeOverview } from "./home-overview";
 import { Arena } from "./arena/arena";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -17,6 +19,8 @@ import {
   Download,
   Flame,
   Heart,
+  House,
+  Gem,
   Leaf,
   LogOut,
   Medal,
@@ -74,7 +78,6 @@ import { Sheet } from "./sheet";
 import { AuthForm } from "./auth-form";
 import { ActionList } from "./action-list";
 import { Leaderboard } from "./leaderboard";
-import { LifeTimeSummary } from "./life-time-summary";
 import {
   formatLifeDuration,
   rankByLoss,
@@ -87,7 +90,7 @@ import { FriendSheet } from "./friend-sheet";
 import { DonationSheet } from "./donation-sheet";
 
 const tabs = [
-  { id: "survie", label: "Survie", icon: Heart },
+  { id: "survie", label: "Accueil", icon: House },
   { id: "ligue", label: "Ligue", icon: Trophy },
   { id: "nemesis", label: "Némésis", icon: Swords },
   { id: "amis", label: "Amis", icon: Users },
@@ -212,7 +215,7 @@ export function Game({
         ) + 1
       : rank;
   const subtitle = {
-    survie: "Un jour de plus. Bien joué.",
+    survie: "Ton avatar. Tes amis. Ton aventure.",
     ligue: "La survie est un sport collectif.",
     nemesis: "Un peu de rivalité, beaucoup de jeu.",
     amis: "On survit mieux à plusieurs.",
@@ -221,30 +224,46 @@ export function Game({
   };
   return (
     <MotionConfig reducedMotion={state.calm ? "always" : "user"}>
-      <div className={"game-shell" + (state.calm ? " calm" : "")}>
+      <div
+        className={"game-shell design-v2" + (state.calm ? " calm" : "")}
+        data-tab={tab}
+      >
         <header className="topbar">
-          <Link href="/" className="brand" aria-label="Excès-O-Meter, accueil">
-            <span className="brand-icon">
-              <Skull size={20} />
-            </span>
-            EXCÈS<span className="brand-dot">·</span>O
-            <span className="brand-dot">·</span>METER
+          <Link href="/" className="brand" aria-label="VieGame, accueil">
+            Vie<span>Game</span>
           </Link>
-          <button
-            className="icon-button notification-button"
-            aria-label="Notifications"
-            onClick={() => setPanel("notifications")}
-          >
-            <Bell size={20} />
-            {state.notifications.some((n) => !n.read_at) && (
-              <span className="notification-count">
-                {Math.min(
-                  99,
-                  state.notifications.filter((n) => !n.read_at).length,
-                )}
+          <div className="v2-top-actions">
+            <button
+              className="v2-wallet"
+              onClick={() => setPanel("wardrobe")}
+              disabled={!progression.data}
+              aria-label="Ouvrir la boutique et mes Éclats"
+            >
+              <Gem size={18} />
+              <span>
+                {progression.data?.wallet
+                  ? new Intl.NumberFormat("fr-FR").format(
+                      progression.data.wallet.balance,
+                    )
+                  : "—"}
               </span>
-            )}
-          </button>
+            </button>
+            <button
+              className="icon-button notification-button"
+              aria-label="Notifications"
+              onClick={() => setPanel("notifications")}
+            >
+              <Bell size={20} />
+              {state.notifications.some((n) => !n.read_at) && (
+                <span className="notification-count">
+                  {Math.min(
+                    99,
+                    state.notifications.filter((n) => !n.read_at).length,
+                  )}
+                </span>
+              )}
+            </button>
+          </div>
         </header>
         {game.demo && (
           <div className="demo-strip">
@@ -335,7 +354,7 @@ export function Game({
               <h1>
                 {tab === "survie" ? (
                   <>
-                    Salut, <span>survivant.</span>
+                    Salut, <span>{state.nickname}.</span>
                   </>
                 ) : (
                   tabs.find((t) => t.id === tab)?.label
@@ -365,113 +384,68 @@ export function Game({
             >
               {tab === "survie" && (
                 <>
-                  <section className="survival-card">
-                    <div className="survival-card-top">
-                      <span className="pill">
-                        <span className="status-dot" />
-                        ENCORE DANS LA PARTIE
-                      </span>
-                      <button
-                        className="icon-button compact"
-                        aria-label="Règles du compteur"
-                        onClick={() => setPanel("rules")}
-                      >
-                        <CircleHelp size={18} />
-                      </button>
-                    </div>
-                    <div className="avatar-stage">
-                      <span className="orbit orbit-one" />
-                      <span className="orbit orbit-two" />
-                      <span className="stage-spark spark-one">✦</span>
-                      <span className="stage-spark spark-two">+</span>
-                      <Reaper
-                        cosmetics={progression.data?.equipped}
-                        variant={
-                          state.balance <= 0
-                            ? 3
-                            : state.balance <= 250
-                              ? 1
-                              : state.balance >= 2000
-                                ? 2
-                                : state.avatar
-                        }
-                        large
-                      />
-                      <span className="avatar-status">
-                        <Shield size={12} />
-                        {status.name}
-                      </span>
-                    </div>
-                    {state.loss_scoring && state.life_stats ? (
-                      <>
-                        <LifeTimeSummary stats={state.life_stats} />
-                        <p className="life-capital-note">
-                          Capital du jeu : {signed(state.balance)} min, bonus et
-                          dons inclus.
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <p className="survival-caption">TON CAPITAL VIE</p>
-                        <div className={"balance " + status.className}>
-                          {new Intl.NumberFormat("fr-FR").format(state.balance)}
-                          <span>min de vie</span>
-                        </div>
-                        <p className="reaper-quote">
-                          {state.soft
-                            ? "Ton aventure continue."
-                            : status.message}
-                        </p>
-                        <div className="survival-track">
-                          <span
-                            style={{ width: gaugePercent(state.balance) + "%" }}
-                          />
-                        </div>
-                        <div className="scale">
-                          <span>
-                            <Skull size={12} />0
-                          </span>
-                          <span>
-                            2 000 <Sparkles size={12} />
-                          </span>
-                        </div>
-                      </>
-                    )}
-                    <div className="card-disclaimer">
-                      <Shield size={12} />
-                      Fictif à 100 %. Vivant pour de vrai.
-                    </div>
-                  </section>
-                  {social.hub && (
-                    <Competitions
-                      events={social.hub.events}
-                      demo={game.demo}
-                      rpc={social.rpc}
-                      changed={social.refresh}
-                      appearanceRpc={
-                        progression.data ? progression.rpc : undefined
-                      }
-                    />
-                  )}
-                  <CooperativeHub
+                  <HomeOverview
                     state={state}
-                    hub={cooperative.hub}
-                    error={cooperative.error}
-                    demo={game.demo}
-                    rpc={cooperative.rpc}
-                    refresh={async () => {
-                      await cooperative.refresh();
-                      await progression.refresh();
+                    progression={progression.data}
+                    onDeclare={setPanel}
+                    onArena={() => {
+                      setTab("nemesis");
+                      window.scrollTo({ top: 0, behavior: "instant" });
                     }}
+                    onLeague={() => {
+                      setTab("ligue");
+                      window.scrollTo({ top: 0, behavior: "instant" });
+                    }}
+                    onWardrobe={() => setPanel("wardrobe")}
                   />
-                  {progression.data && (
-                    <Missions
-                      progression={progression.data}
-                      rpc={progression.rpc}
-                      changed={progression.refresh}
+                  <details className="v2-home-section">
+                    <summary>
+                      <Trophy size={18} /> Événements et compétitions{" "}
+                      <ChevronRight size={16} />
+                    </summary>
+                    {social.hub && (
+                      <Competitions
+                        events={social.hub.events}
+                        demo={game.demo}
+                        rpc={social.rpc}
+                        changed={social.refresh}
+                        appearanceRpc={
+                          progression.data ? progression.rpc : undefined
+                        }
+                      />
+                    )}
+                  </details>
+                  <details className="v2-home-section">
+                    <summary>
+                      <Users size={18} /> Défis coopératifs{" "}
+                      <ChevronRight size={16} />
+                    </summary>
+                    <CooperativeHub
+                      state={state}
+                      hub={cooperative.hub}
+                      error={cooperative.error}
                       demo={game.demo}
+                      rpc={cooperative.rpc}
+                      refresh={async () => {
+                        await cooperative.refresh();
+                        await progression.refresh();
+                      }}
                     />
-                  )}
+                  </details>
+                  <details className="v2-home-section">
+                    <summary>
+                      <Target size={18} /> Mes missions de la semaine{" "}
+                      <ChevronRight size={16} />
+                    </summary>
+                    {progression.data && (
+                      <Missions
+                        progression={progression.data}
+                        rpc={progression.rpc}
+                        changed={progression.refresh}
+                        demo={game.demo}
+                      />
+                    )}
+                  </details>
                   <section className="today-section">
                     <div className="section-heading">
                       <h2>Aujourd’hui</h2>
@@ -1197,7 +1171,7 @@ export function Game({
             <span>ON JOUE AVEC LES MINUTES. PAS AVEC LA SANTÉ.</span>
           </footer>
         </main>
-        {tab !== "messages" && tab !== "nemesis" && (
+        {tab !== "survie" && tab !== "messages" && tab !== "nemesis" && (
           <div className="floating-actions">
             <button
               className="fab excess-fab"
@@ -1220,7 +1194,7 @@ export function Game({
           </div>
         )}
         <nav className="bottom-nav" aria-label="Navigation principale">
-          {tabs.map((t) => (
+          {[tabs[0], tabs[3], tabs[2], tabs[4], tabs[5]].map((t) => (
             <button
               key={t.id}
               className={tab === t.id ? "active" : ""}

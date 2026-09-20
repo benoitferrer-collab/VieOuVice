@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 export const metadata: Metadata = {
-  title: "Excès-O-Meter — La Faucheuse attendra.",
+  title: "VieGame — Ton avatar. Tes amis. Ton arène.",
   description:
     "Ton jeu de survie entre petits écarts et bonnes habitudes. Un score de jeu, jamais un bilan de santé.",
   icons: { icon: "/icon.svg" },

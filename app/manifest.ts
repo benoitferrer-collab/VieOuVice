@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Excès-O-Meter",
-    short_name: "Excès",
+    name: "VieGame",
+    short_name: "VieGame",
     description: "La Faucheuse attendra.",
     start_url: "/",
     display: "standalone",

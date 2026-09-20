@@ -193,3 +193,12 @@ Four large-avatar idle patterns, blinking/gaze, touch and keyboard reactions, se
 - Liens de notifications testés côté application et service worker ; préférences et éligibilité testées en SQL local. Aucun push réel envoyé : la livraison sur deux téléphones reste à vérifier après installation selon `docs/nemesis-arena.md`.
 - Une vérification PostgreSQL supplémentaire a été refusée par le contrôle automatique faute de crédits, après les tests SQL précédents. Elle n’a pas été exécutée. La revue finale a été effectuée par l’agent principal ; pas de revue indépendante complète.
 - Aucun push GitHub, déploiement Vercel ou changement Supabase distant effectué.
+
+## 20 septembre 2026 — interface VieGame V2
+
+- Accueil extrait dans HomeOverview : niveau/XP et Éclats réels, compteurs cumulés symétriques, détail des unités conservé, accès direct Ligue/arène, événements/missions/coopératif repliables. Navigation à cinq entrées, identifiants des onglets et liens push conservés.
+- Décor original optimisé WebP (111 184 octets), scène de combat avec plans séparés, boutons contrastés ; palettes des avatars modernisées sans retirer accessoires, réactions clavier/tactiles ou mode calme.
+- Messages : portraits, recherche locale insensible à la casse/aux accents, indicateurs non lus et préférences regroupées. Aucun indicateur de présence fictif.
+- Vérifications : 126 tests Node passent ; lint sans avertissement et build Webpack réussis. Le lanceur npm test ne pouvait pas créer son socket dans le sandbox ; la même suite a été exécutée avec node --import tsx --test tests/*.test.ts.
+- Navigateur : accueil, recherche Sam, ouverture/envoi fictif et duel simulé. Frappe lourde contre garde : adversaire 100 → 88 PV, riposte 100 → 74 PV, énergie 2 → 0. Vérifications mobiles 360/390 pixels : largeur du contenu égale à celle de la fenêtre. Palette finale et scène compacte inspectées ; viewport réinitialisé.
+- Aucun changement de données SaaS, aucune migration, variable ou dépendance ajoutée. Aucun push ni déploiement. Les avatars restent des SVG interactifs personnalisables ; ce ne sont pas des modèles 3D issus de la maquette.

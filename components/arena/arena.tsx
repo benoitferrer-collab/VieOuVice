@@ -448,6 +448,7 @@ function Duel({
               return (
                 <button
                   key={move}
+                  className={`arena-action-${move}`}
                   disabled={
                     !myTurn ||
                     busy ||

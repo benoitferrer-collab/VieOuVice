@@ -22,6 +22,12 @@ export function Reaper({
   const [reaction, setReaction] = useState(0);
   const personality = ((Math.trunc(variant) % 4) + 4) % 4;
   const react = () => setReaction((value) => value + 1);
+  const robe = [
+    ["#8274c8", "#453773", "#211d40"],
+    ["#ad6caa", "#643865", "#2e1e3d"],
+    ["#998365", "#5b4862", "#2b253a"],
+    ["#638ca1", "#354b71", "#1b2948"],
+  ][personality];
   const color = ["#b7f34b", "#c4acff", "#ffca6a", "#ff8e99"][variant % 4];
   return (
     <svg
@@ -61,9 +67,9 @@ export function Reaper({
           <stop offset="1" stopColor="#e9ae47" stopOpacity="0" />
         </radialGradient>
         <linearGradient id={id + "robe"} x1="0" y1="0" x2="1" y2="1">
-          <stop stopColor="#445047" />
-          <stop offset=".5" stopColor="#28332c" />
-          <stop offset="1" stopColor="#171e21" />
+          <stop stopColor={robe[0]} />
+          <stop offset=".5" stopColor={robe[1]} />
+          <stop offset="1" stopColor={robe[2]} />
         </linearGradient>
         <linearGradient id={id + "face"} x1="0" y1="0" x2="0" y2="1">
           <stop stopColor="#f7f5d9" />
@@ -157,13 +163,13 @@ export function Reaper({
             <path
               d="M78 112C62 137 55 187 62 210l18-6 14 10 20-8 18 11 15-9 17 3c0-45-9-76-24-97z"
               fill={"url(#" + id + "robe)"}
-              stroke="#53604b"
+              stroke={robe[0]}
               strokeWidth="2"
             />
             <path
               d="M75 135c-14 6-25 24-18 32 10 8 26-9 34-18M145 131c14-1 23 8 25 23"
               fill="none"
-              stroke="#354332"
+              stroke={robe[1]}
               strokeWidth="22"
               strokeLinecap="round"
             />
@@ -176,7 +182,7 @@ export function Reaper({
             <path
               d="M67 99c-2-45 17-75 46-77 35-3 63 31 62 81-9 29-99 29-108-4Z"
               fill={"url(#" + id + "robe)"}
-              stroke="#56624d"
+              stroke={robe[0]}
               strokeWidth="2"
             />
             <path
@@ -204,7 +210,7 @@ export function Reaper({
             <path
               d="M91 132c11 10 32 10 43 0M91 159l-6 39m40-44 7 46"
               fill="none"
-              stroke="#617250"
+              stroke={robe[0]}
               strokeWidth="2"
               opacity=".7"
             />
