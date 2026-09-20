@@ -615,3 +615,7 @@
 @media(max-width:580px) { .admin-event-toolbar { flex-direction: column; align-items: stretch; gap: 9px; } .admin-event-toolbar > .primary { padding: 10px; min-height: 40px; } }
 .admin-sheet .sheet-inner > .section-heading { height: 56px; padding: 6px 0; }
 .admin-sheet .sheet-inner > .section-heading .icon-button { width: 44px; height: 44px; min-width: 44px; min-height: 44px; }
+
+.arena-weekly-rival { margin:24px 0;border:1px solid var(--line);border-radius:16px;overflow:hidden; }
+.arena-weekly-rival > summary { padding:16px;cursor:pointer;color:var(--muted);font-size:13px; }
+.arena-weekly-rival .rival-hero { margin:0;border:0; }

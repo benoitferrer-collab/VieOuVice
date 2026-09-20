@@ -10,6 +10,7 @@ type Delivery = {
   auth: string;
   target_tab: string;
   friend_id?: string;
+  arena_duel_id?: string;
 };
 export async function dispatchPush(
   config: NonNullable<ReturnType<typeof pushServerConfig>>,
@@ -49,7 +50,14 @@ export async function dispatchPush(
             endpoint: delivery.endpoint,
             keys: { p256dh: delivery.p256dh, auth: delivery.auth },
           },
-          JSON.stringify(pushPayload(delivery.target_tab, job.id, delivery.friend_id)),
+          JSON.stringify(
+            pushPayload(
+              delivery.target_tab,
+              job.id,
+              delivery.friend_id,
+              delivery.arena_duel_id,
+            ),
+          ),
           {
             TTL: 300,
             urgency: "high",
@@ -86,7 +94,10 @@ export async function dispatchPush(
   // future retries are excluded by the server-side wake-up RPC.
   if (processed > 0) {
     const continuation = await db.rpc("request_push_dispatch");
-    if (continuation.error && !["PGRST202", "42883"].includes(continuation.error.code))
+    if (
+      continuation.error &&
+      !["PGRST202", "42883"].includes(continuation.error.code)
+    )
       throw new Error("Push continuation unavailable");
   }
   return { processed, sent };

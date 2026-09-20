@@ -184,3 +184,12 @@ Migration 015 et tests SQL exécutés sur PostgreSQL temporaire : administrateur
 ## Avatar personalities
 
 Four large-avatar idle patterns, blinking/gaze, touch and keyboard reactions, separate equipment celebration with sparks. Small avatars remain static; calm and reduced-motion rules cover every new layer. Local production browser confirmed click -> hop and Enter -> facial reaction, screenshot checked. 119 Node tests and webpack production build passed; lint passed. No SQL or configuration change.
+
+## 20 septembre 2026 — arène Némésis (021)
+
+- Vérification finale : 126 tests Node passent, lint et build de production Webpack réussissent. Le bundle `update-nemesis-arena.sql` est identique à la migration 021.
+- Lors de l’intégration, installation locale isolée des migrations 001–021 et tests SQL arène réussis : accès des participants, amitié/blocage/suspension, reprises idempotentes, énergie/protection, expiration, récompense unique et plafond journalier, export et suppression de compte. Régressions boutique, suppression administrateur, préférences et progression réussies. Deux appels concurrents du même coup produisent une seule action.
+- Recette navigateur en simulation : invitation, acceptation automatique fictive, attaque forte contre protection, riposte, alternance des tours et abandon sans récompense. Rendu de la scène vérifié. Les boutons flottants de déclaration sont masqués dans Némésis ; le duel terminé affiche « Combat clos ».
+- Liens de notifications testés côté application et service worker ; préférences et éligibilité testées en SQL local. Aucun push réel envoyé : la livraison sur deux téléphones reste à vérifier après installation selon `docs/nemesis-arena.md`.
+- Une vérification PostgreSQL supplémentaire a été refusée par le contrôle automatique faute de crédits, après les tests SQL précédents. Elle n’a pas été exécutée. La revue finale a été effectuée par l’agent principal ; pas de revue indépendante complète.
+- Aucun push GitHub, déploiement Vercel ou changement Supabase distant effectué.

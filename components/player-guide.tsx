@@ -84,7 +84,18 @@ const chapters = [
     ],
   },
   {
-    title: "Némésis : le duel de la semaine",
+    title: "Némésis : l’arène entre amis",
+    paragraphs: [
+      "Dans Némésis, invite un ami de ton cercle. Il accepte ou refuse ; une invitation expire après 24 heures. Trois invitations ou combats ouverts au maximum par joueur, un seul par paire d’amis. La revanche envoie une nouvelle invitation.",
+      "Chaque combattant commence avec 100 PV et 2 points d’énergie (maximum 4). Ces compteurs sont indépendants des minutes de vie, des déclarations et des XP. Les skins n’accordent aucun avantage. L’ami invité joue en premier, puis chacun dispose de 24 heures pour agir.",
+      "Attaque rapide : 12 dégâts et +1 énergie. Attaque puissante : 24 dégâts pour 2 énergies. Protection : +2 énergies et réduction de moitié du prochain coup reçu. Compétence spéciale : 3 énergies, avec un effet propre au personnage. L’arène affiche les valeurs avant de jouer.",
+      "Une notification dans le jeu et, si autorisée, sur ton téléphone, t’avertit quand c’est ton tour. Elle ouvre le bon combat. Les horaires silencieux et la préférence Duels s’appliquent. À l’ouverture, un bref résumé animé montre la dernière action adverse ; tu peux le passer.",
+      "Le combat se termine à 0 PV ou après 40 actions (le plus grand nombre de PV gagne, égalité possible). Tu peux abandonner. Un délai dépassé donne la victoire à l’adversaire. Les abandons et délais dépassés ne donnent pas d’Éclats. Une victoire jouée avec au moins trois actions de chaque côté rapporte 10 Éclats, jusqu’à 30 par jour, heure de Paris.",
+      "L’historique conserve les combats récents. Un blocage, une amitié retirée ou une suspension annule le combat. La démonstration utilise un adversaire simulé et ses récompenses restent fictives.",
+    ],
+  },
+  {
+    title: "La rivalité de la semaine",
     paragraphs: [
       "Le duel est facultatif et désactivé au départ. Pour participer, ouvre Profil → Préférences et confidentialité, puis active « Participer aux duels ». L’appariement se fait à la prochaine saison, selon les joueurs disponibles ; activer l’option ne crée pas immédiatement un adversaire.",
       "L’onglet Némésis affiche ton adversaire, vos scores et l’écart qui vous sépare. Le duel utilise les pertes brutes de la semaine, comme le classement officiel de ligue. Les récupérations et les dons ne changent pas ce score.",

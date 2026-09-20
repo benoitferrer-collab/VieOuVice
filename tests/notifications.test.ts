@@ -40,3 +40,15 @@ test("message alerts open the dedicated inbox even for old friend targets", () =
   assert.equal(notificationTab("messages"), "messages");
   assert.equal(notificationTab("amis", "friend_action"), "amis");
 });
+
+test("arena notices preserve the authorized duel reference", () => {
+  const id = "12345678-1234-4123-8123-123456789abc";
+  const event = socialNotice({
+    ...notice,
+    kind: "arena_turn",
+    target_tab: "nemesis",
+    arena_duel_id: id,
+  });
+  assert.equal(event?.arena_duel_id, id);
+  assert.equal(notificationTab("amis", "arena_turn"), "nemesis");
+});

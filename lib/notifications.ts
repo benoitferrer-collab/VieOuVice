@@ -1,7 +1,12 @@
 import { z } from "zod";
 import type { Notice } from "./game";
 const tabs = ["survie", "ligue", "nemesis", "amis", "messages"] as const;
-export function notificationTab(value: unknown, kind?: string): (typeof tabs)[number] {
+export function notificationTab(
+  value: unknown,
+  kind?: string,
+): (typeof tabs)[number] {
+  if (["arena_invite", "arena_turn", "arena_finished"].includes(kind || ""))
+    return "nemesis";
   if (kind === "friend_message") return "messages";
   return tabs.includes(value as (typeof tabs)[number])
     ? (value as (typeof tabs)[number])
@@ -13,6 +18,9 @@ const noticeSchema = z.object({
   created_at: z.string(),
   read_at: z.string().nullable(),
   kind: z.enum([
+    "arena_invite",
+    "arena_turn",
+    "arena_finished",
     "friend_action",
     "duel_started",
     "duel_lead",
@@ -24,6 +32,7 @@ const noticeSchema = z.object({
     "competition_finished",
     "activity_reminder",
   ]),
+  arena_duel_id: z.string().uuid().nullable().optional(),
   actor_id: z.string().nullable().optional(),
   target_tab: z.enum(tabs).optional(),
 });

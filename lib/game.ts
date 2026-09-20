@@ -50,6 +50,7 @@ export type SocialSettings = {
   notify_duels: boolean;
 };
 export type Notice = {
+  arena_duel_id?: string | null;
   id: string;
   message: string;
   created_at: string;

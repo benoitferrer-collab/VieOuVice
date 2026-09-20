@@ -1,4 +1,6 @@
 "use client";
+
+import { Arena } from "./arena/arena";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
@@ -122,6 +124,7 @@ export function Game({
     owner: string;
     friend: Friend;
   } | null>(null);
+  const [arenaDuel, setArenaDuel] = useState<string | null>(null);
   const [messageFriend, setMessageFriend] = useState("");
   const [tab, setTab] = useState<Tab>("survie");
   useEffect(() => {
@@ -129,6 +132,13 @@ export function Game({
     if (requested) {
       window.setTimeout(() => {
         setTab(notificationTab(requested));
+        const duel = new URLSearchParams(window.location.search).get("duel");
+        if (
+          requested === "nemesis" &&
+          duel &&
+          /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(duel)
+        )
+          setArenaDuel(duel);
         if (requested === "messages")
           setMessageFriend(
             new URLSearchParams(window.location.search).get("friend") ?? "",
@@ -315,7 +325,7 @@ export function Game({
                   : tab === "ligue"
                     ? "LE CLASSEMENT"
                     : tab === "nemesis"
-                      ? "TON DUEL DE LA SEMAINE"
+                      ? "ENTRE DANS L’ARÈNE"
                       : tab === "messages"
                         ? "Messages"
                         : tab === "amis"
@@ -708,98 +718,103 @@ export function Game({
               )}
               {tab === "nemesis" && (
                 <>
-                  <section className="rival-hero">
-                    <span className="eyebrow lavender">
-                      RENDEZ-VOUS AVEC TON RIVAL
-                    </span>
-                    <h2>
-                      Deux mortels.
-                      <br />
-                      Une longueur d’avance.
-                    </h2>
-                    {state.nemesis ? (
-                      <>
-                        <div className="large-duel">
-                          <div>
-                            <Reaper variant={state.avatar} />
-                            <strong>Toi</strong>
-                            <b className="lime">
-                              {state.loss_scoring
-                                ? formatLifeDuration(state.weekly_score)
-                                : signed(state.weekly_score)}
-                            </b>
+                  <Arena
+                    key={`${game.demo ? "demo" : "user"}:${state.id}`}
+                    game={state}
+                    demo={game.demo}
+                    active={tab === "nemesis"}
+                    selectedId={arenaDuel}
+                    onSelect={setArenaDuel}
+                    looks={progression.looks}
+                    onReward={() => void progression.refresh()}
+                  />
+                  <details className="arena-weekly-rival">
+                    <summary>Rivalité de la semaine</summary>
+                    <section className="rival-hero">
+                      <span className="eyebrow lavender">
+                        RENDEZ-VOUS AVEC TON RIVAL
+                      </span>
+                      <h2>
+                        Deux mortels.
+                        <br />
+                        Une longueur d’avance.
+                      </h2>
+                      {state.nemesis ? (
+                        <>
+                          <div className="large-duel">
+                            <div>
+                              <Reaper variant={state.avatar} />
+                              <strong>Toi</strong>
+                              <b className="lime">
+                                {state.loss_scoring
+                                  ? formatLifeDuration(state.weekly_score)
+                                  : signed(state.weekly_score)}
+                              </b>
+                            </div>
+                            <Swords className="lavender" size={30} />
+                            <div>
+                              <Reaper variant={state.nemesis.avatar} />
+                              <strong>{state.nemesis.nickname}</strong>
+                              <b className="lavender">
+                                {state.loss_scoring
+                                  ? formatLifeDuration(
+                                      state.nemesis.weekly_score,
+                                    )
+                                  : signed(state.nemesis.weekly_score)}
+                              </b>
+                            </div>
                           </div>
-                          <Swords className="lavender" size={30} />
-                          <div>
-                            <Reaper variant={state.nemesis.avatar} />
-                            <strong>{state.nemesis.nickname}</strong>
-                            <b className="lavender">
-                              {state.loss_scoring
-                                ? formatLifeDuration(state.nemesis.weekly_score)
-                                : signed(state.nemesis.weekly_score)}
-                            </b>
+                          <div className="duel-progress">
+                            <span
+                              style={{
+                                width:
+                                  Math.max(
+                                    5,
+                                    Math.min(
+                                      95,
+                                      50 +
+                                        (state.weekly_score -
+                                          state.nemesis.weekly_score) /
+                                          10,
+                                    ),
+                                  ) + "%",
+                              }}
+                            />
                           </div>
+                          <p className="muted">
+                            {state.loss_scoring
+                              ? "Le plus grand total de minutes fictives perdues par les excès cette semaine remporte le duel."
+                              : "Le score de la semaine décide du duel."}
+                          </p>
+                        </>
+                      ) : (
+                        <div className="empty-state">
+                          <Swords size={44} />
+                          <h3>Aucun rival pour le moment.</h3>
+                          <p>
+                            Active les duels dans tes préférences. Un partenaire
+                            consentant te sera proposé à la prochaine saison.
+                          </p>
                         </div>
-                        <div className="duel-progress">
-                          <span
-                            style={{
-                              width:
-                                Math.max(
-                                  5,
-                                  Math.min(
-                                    95,
-                                    50 +
-                                      (state.weekly_score -
-                                        state.nemesis.weekly_score) /
-                                        10,
-                                  ),
-                                ) + "%",
-                            }}
-                          />
-                        </div>
-                        <p className="muted">
-                          {state.loss_scoring
-                            ? "Le plus grand total de minutes fictives perdues par les excès cette semaine remporte le duel."
-                            : "Le score de la semaine décide du duel."}
-                        </p>
-                      </>
-                    ) : (
-                      <div className="empty-state">
-                        <Swords size={44} />
-                        <h3>Aucun rival pour le moment.</h3>
+                      )}
+                    </section>
+                    <section className="info-panel">
+                      <Shield size={24} className="lime" />
+                      <div>
+                        <h3>La compétition, à ton rythme.</h3>
                         <p>
-                          Active les duels dans tes préférences. Un partenaire
-                          consentant te sera proposé à la prochaine saison.
+                          Les duels sont facultatifs. Tes déclarations restent
+                          privées, même pour ton Némésis.
                         </p>
+                        <button
+                          className="text-button"
+                          onClick={() => setPanel("settings")}
+                        >
+                          Mes préférences <ArrowRight size={16} />
+                        </button>
                       </div>
-                    )}
-                  </section>
-                  <section className="info-panel">
-                    <Shield size={24} className="lime" />
-                    <div>
-                      <h3>La compétition, à ton rythme.</h3>
-                      <p>
-                        Les duels sont facultatifs. Tes déclarations restent
-                        privées, même pour ton Némésis.
-                      </p>
-                      <button
-                        className="text-button"
-                        onClick={() => setPanel("settings")}
-                      >
-                        Mes préférences <ArrowRight size={16} />
-                      </button>
-                    </div>
-                  </section>
-                  <section className="locked-feature">
-                    <LockKeyhole size={22} />
-                    <div>
-                      <h3>Les coups du sort</h3>
-                      <p>
-                        Paris, traquenards et roulette arriveront dans le lot
-                        avancé. Aucun pari n’est ouvert.
-                      </p>
-                    </div>
-                  </section>
+                    </section>
+                  </details>
                 </>
               )}
               {tab === "amis" && (
@@ -1182,7 +1197,7 @@ export function Game({
             <span>ON JOUE AVEC LES MINUTES. PAS AVEC LA SANTÉ.</span>
           </footer>
         </main>
-        {tab !== "messages" && (
+        {tab !== "messages" && tab !== "nemesis" && (
           <div className="floating-actions">
             <button
               className="fab excess-fab"
@@ -1246,6 +1261,7 @@ export function Game({
                   game.liveNotice?.kind,
                 ),
               );
+              setArenaDuel(game.liveNotice?.arena_duel_id ?? null);
               setMessageFriend(
                 game.liveNotice?.kind === "friend_message"
                   ? (game.liveNotice.actor_id ?? "")
@@ -1402,6 +1418,7 @@ export function Game({
                   onClick={() => {
                     setPanel(n.kind === "reaction_digest" ? "journal" : null);
                     setTab(notificationTab(n.target_tab, n.kind));
+                    setArenaDuel(n.arena_duel_id ?? null);
                     setMessageFriend(
                       n.kind === "friend_message" ? (n.actor_id ?? "") : "",
                     );
