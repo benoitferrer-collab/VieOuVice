@@ -16,7 +16,12 @@ export const competitionDraftSchema = z
     description: clean(0, 1200),
     starts_at: z.iso.datetime({ offset: true }),
     ends_at: z.iso.datetime({ offset: true }),
-    metric: z.enum(["health_minutes", "net_minutes", "category_minutes"]),
+    metric: z.enum([
+      "health_minutes",
+      "excess_minutes",
+      "net_minutes",
+      "category_minutes",
+    ]),
     catalog_id: z.string().min(1).max(80).nullable(),
     badge_label: clean(3, 60),
     badge_icon: z.enum(["trophy", "medal", "leaf", "flame"]),

@@ -41,7 +41,8 @@ const phaseLabels = {
 } as const;
 
 const metricLabels = {
-  health_minutes: "Minutes positives",
+  health_minutes: "Top bonnes actions · minutes gagnées",
+  excess_minutes: "Top petits écarts · minutes perdues",
   net_minutes: "Solde net de minutes",
   category_minutes: "Minutes de la catégorie choisie",
 } as const;
@@ -171,6 +172,9 @@ export function Competitions({
                     {phaseLabels[phase]}
                   </span>
                   <strong>{event.title}</strong>
+                  <span className="events-metric-label">
+                    {metricLabels[event.metric]}
+                  </span>
                   <small>{eventDates(event)}</small>
                   <span className="events-card-meta">
                     <span>

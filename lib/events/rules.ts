@@ -29,13 +29,21 @@ export function competitionScore(
       time >= start &&
       time < end &&
       (event.metric === "net_minutes" ||
+        (event.metric === "excess_minutes" && a.minutes_impact < 0) ||
         (a.minutes_impact > 0 &&
           (event.metric === "health_minutes" ||
             a.catalog_id === event.catalog_id)))
     );
   });
   return {
-    score: eligible.reduce((sum, a) => sum + a.minutes_impact, 0),
+    score: eligible.reduce(
+      (sum, a) =>
+        sum +
+        (event.metric === "excess_minutes"
+          ? -a.minutes_impact
+          : a.minutes_impact),
+      0,
+    ),
     action_count: eligible.length,
   };
 }

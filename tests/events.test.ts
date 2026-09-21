@@ -25,6 +25,29 @@ const draft = {
   badge_label: "Pas après pas",
   badge_icon: "leaf" as const,
 };
+test("excess events rank lost minutes positively without subtracting recovery", () => {
+  const event = { ...draft, metric: "excess_minutes" as const };
+  assert.equal(competitionDraftSchema.safeParse(event).success, true);
+  const scored = competitionScore(event, [
+    { created_at: draft.starts_at, catalog_id: "snack", minutes_impact: -20 },
+    { created_at: draft.starts_at, catalog_id: "other", minutes_impact: -35 },
+    { created_at: draft.starts_at, catalog_id: "walk", minutes_impact: 100 },
+    { created_at: draft.ends_at, catalog_id: "snack", minutes_impact: -500 },
+  ]);
+  assert.deepEqual(scored, { score: 55, action_count: 2 });
+  assert.deepEqual(competitionScore(event, []), { score: 0, action_count: 0 });
+  assert.equal(
+    competitionDraftSchema.safeParse({ ...event, catalog_id: "snack" }).success,
+    false,
+  );
+  assert.equal(
+    rankStandings([
+      { user_id: "a", nickname: "A", avatar: 0, score: 20, action_count: 1 },
+      { user_id: "b", nickname: "B", avatar: 0, ...scored },
+    ])[0].user_id,
+    "b",
+  );
+});
 test("competition windows include start and exclude end", () => {
   assert.equal(
     competitionPhase(

@@ -488,7 +488,7 @@ function AdminEvents({
           </label>
         </div>
         <label>
-          Barème
+          Objectif du classement
           <select
             value={draft.metric}
             disabled={!!busy}
@@ -496,11 +496,27 @@ function AdminEvents({
               update({ metric: e.target.value as CompetitionDraft["metric"] })
             }
           >
-            <option value="health_minutes">Minutes positives</option>
-            <option value="net_minutes">Solde net</option>
+            <option value="health_minutes">
+              Top bonnes actions · minutes gagnées
+            </option>
+            <option value="excess_minutes">
+              Top petits écarts · minutes perdues
+            </option>
+            <option value="net_minutes">
+              Meilleur bilan net · gains moins pertes
+            </option>
             <option value="category_minutes">Catégorie saine</option>
           </select>
         </label>
+        <p className="admin-metric-help">
+          {draft.metric === "excess_minutes"
+            ? "Le plus grand total de minutes fictives perdues arrive premier. Les bonnes actions ne réduisent pas ce score."
+            : draft.metric === "net_minutes"
+              ? "Le meilleur solde arrive premier : minutes gagnées moins minutes perdues."
+              : "Le plus grand total de minutes gagnées arrive premier. Les petits écarts ne réduisent pas ce score."}{" "}
+          Seules les actions déclarées pendant l’événement et après
+          l’inscription comptent.
+        </p>
         {draft.metric === "category_minutes" && (
           <label>
             Catégorie saine

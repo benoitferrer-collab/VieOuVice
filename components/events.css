@@ -595,7 +595,7 @@
 .admin-row[open] > summary > svg:last-child { transform: rotate(180deg); }
 .admin-row-body { display: grid; gap: 12px; padding: 14px; min-width: 0; overflow-wrap: anywhere; }
 .admin-row-body > label, .admin-filter { display: grid; gap: 7px; font-size: 12px; color: var(--muted); }
-.admin-row-body input,.admin-filter input { min-width: 0; width: 100%; }
+.admin-row-body input:not([type="checkbox"]):not([type="radio"]),.admin-filter input { min-width: 0; width: 100%; }
 .admin-pagination { display: flex; justify-content: space-between; gap: 10px; margin-top: 12px; }
 .admin-pagination button { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; }
 .admin-sheet .events-error, .admin-sheet .events-notice { position: sticky; bottom: 0; z-index: 4; padding: 12px; background: #182236; border: 1px solid currentColor; border-radius: 10px; }
@@ -619,3 +619,24 @@
 .arena-weekly-rival { margin:24px 0;border:1px solid var(--line);border-radius:16px;overflow:hidden; }
 .arena-weekly-rival > summary { padding:16px;cursor:pointer;color:var(--muted);font-size:13px; }
 .arena-weekly-rival .rival-hero { margin:0;border:0; }
+
+/* Administration V2: compact readable permission controls. */
+.admin-sheet .events-switches { gap: 10px; grid-template-columns: repeat(2,minmax(0,1fr)); }
+.admin-sheet .events-switches label { padding: 14px; border: 1px solid #b4a1ed25; border-radius: 14px; background: #202a424d; min-width: 0; min-height: 58px; }
+.admin-sheet .events-switches label > span { flex: 1; min-width: 0; overflow-wrap: normal; font-size: 13px; color: #dfe5f4; }
+.admin-sheet .events-switches input[type="checkbox"] { flex: 0 0 40px; width: 40px; height: 24px; min-height: 24px; appearance: none; border: 1px solid #8895af66; border-radius: 20px; background: #35415a; cursor: pointer; position: relative; margin: 0; }
+.admin-sheet .events-switches input[type="checkbox"]::before { content: ""; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: #e1e6f0; top: 3px; left: 3px; transition: transform .15s; }
+.admin-sheet .events-switches input[type="checkbox"]:checked { background: #b7f34b; border-color: #b7f34b; }
+.admin-sheet .events-switches input[type="checkbox"]:checked::before { transform: translateX(16px); background: #172315; }
+.admin-sheet .events-switches input:disabled { opacity: .45; cursor: not-allowed; }
+.admin-sheet .events-switches input:focus-visible { outline: 2px solid var(--lime); outline-offset: 4px; }
+.admin-sheet .admin-row { border-radius: 16px; background: #182137; }
+.admin-sheet .admin-row-body { padding: 20px; gap: 16px; }
+.admin-sheet .admin-row > summary { padding: 14px 16px; }
+.admin-sheet .events-subheading h3 { font-size: 17px; }
+.admin-sheet .events-subheading p { margin-top: 4px; }
+.admin-metric-help { padding: 14px 16px; border-left: 3px solid var(--lime); background: #b7f34b08; border-radius: 0 12px 12px 0; font-size: 12px; line-height: 1.7; color: #c0cbe0; }
+.events-metric-label { font-size: 11px; color: var(--lavender); margin-top: 6px; }
+@media(max-width:580px) { .admin-sheet .events-switches { grid-template-columns: 1fr; } .admin-sheet .admin-row-body { padding: 14px; } }
+@media(prefers-reduced-motion:reduce) { .admin-sheet .events-switches input[type="checkbox"]::before { transition: none; } }
+.calm .admin-sheet .events-switches input[type="checkbox"]::before { transition: none; }

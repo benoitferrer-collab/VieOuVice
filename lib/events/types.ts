@@ -1,6 +1,6 @@
 import type { CatalogItem } from "@/lib/game";
 export type CompetitionMetric =
-  "health_minutes" | "net_minutes" | "category_minutes";
+  "health_minutes" | "excess_minutes" | "net_minutes" | "category_minutes";
 export type BadgeIcon = "trophy" | "medal" | "leaf" | "flame";
 export type CompetitionStatus =
   "draft" | "published" | "cancelled" | "completed";
