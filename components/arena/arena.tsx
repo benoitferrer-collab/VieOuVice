@@ -355,6 +355,7 @@ function Duel({
             <div className="arena-character">
               <Reaper
                 variant={f.avatar}
+                defeated={f.hp === 0}
                 large
                 cosmetics={looks[f.user_id]?.equipped}
                 celebration={

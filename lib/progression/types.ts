@@ -72,6 +72,7 @@ export type MissionsProps = {
   demo: boolean;
 };
 export type WardrobeProps = MissionsProps & {
+  initialItemId?: string | null;
   variant: number;
   onClose: () => void;
 };

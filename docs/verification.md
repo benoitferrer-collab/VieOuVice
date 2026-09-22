@@ -202,3 +202,12 @@ Four large-avatar idle patterns, blinking/gaze, touch and keyboard reactions, se
 - Vérifications : 126 tests Node passent ; lint sans avertissement et build Webpack réussis. Le lanceur npm test ne pouvait pas créer son socket dans le sandbox ; la même suite a été exécutée avec node --import tsx --test tests/*.test.ts.
 - Navigateur : accueil, recherche Sam, ouverture/envoi fictif et duel simulé. Frappe lourde contre garde : adversaire 100 → 88 PV, riposte 100 → 74 PV, énergie 2 → 0. Vérifications mobiles 360/390 pixels : largeur du contenu égale à celle de la fenêtre. Palette finale et scène compacte inspectées ; viewport réinitialisé.
 - Aucun changement de données SaaS, aucune migration, variable ou dépendance ajoutée. Aucun push ni déploiement. Les avatars restent des SVG interactifs personnalisables ; ce ne sont pas des modèles 3D issus de la maquette.
+
+## 22 septembre 2026 — accueil guidé, personnages et prochain accessoire
+
+- Accueil prioritaire : tours valides, invitations entrantes, demandes d’amitié et messages non lus des amis acceptés. Liens vers le duel ou la conversation concernés ; mission choisie en cours et accès direct à sa section. Chargement et erreurs visibles, récupération via le hook arène sécurisé existant.
+- Prochain accessoire réellement présent dans l’inventaire : progression XP, solde disponible d’Éclats ou badge ; comparaison avec la tenue actuelle et ouverture du vestiaire sur cet objet. Aucun achat ni équipement implicite.
+- Quatre personnages vectoriels cohérents, expressions et bras levé en victoire, expression de défaite dans l’arène. Accessoires, interactions et préférences de mouvement conservés.
+- 131 tests Node passent ; lint et build Webpack final réussis. Page temporaire de galerie retirée avant compilation finale.
+- Recette navigateur en démo : choisir une mission puis retrouver sa progression sur l’accueil ; créer un duel fictif, retrouver son tour en tête et rouvrir le bon combat ; ouvrir le vestiaire sur la broche verrouillée, sans achat. Accueil à 390px sans débordement horizontal. Galerie des quatre personnages avec accessoires inspectée ; animations du corps, des yeux et des réactions désactivées en mode calme. Viewport réinitialisé.
+- Aucune migration SQL, variable serveur ou dépendance ajoutée. Aucun push GitHub, déploiement ou changement des données de production. Livraison des notifications réelles non retestée dans cette recette locale.

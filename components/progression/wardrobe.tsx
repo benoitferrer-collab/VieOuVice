@@ -33,17 +33,27 @@ export function Wardrobe({
   demo,
   variant,
   onClose,
+  initialItemId,
 }: WardrobeProps) {
+  const initialItem = COSMETICS.find((item) => item.id === initialItemId);
   const lock = useRef(false);
   // Keep this dialogue's confirmed snapshot; an older parent refresh must not
   // overwrite an acknowledged purchase while the wardrobe is open.
   const [progression, setProgression] = useState(incoming);
   const [recoveryRequired, setRecoveryRequired] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<"shop" | "collection">("shop");
+  const [view, setView] = useState<"shop" | "collection">(
+    initialItem && initialItem.price === undefined ? "collection" : "shop",
+  );
   const [confirm, setConfirm] = useState(false);
-  const [slot, setSlot] = useState<CosmeticSlot>("accessory");
-  const [preview, setPreview] = useState(progression.equipped);
+  const [slot, setSlot] = useState<CosmeticSlot>(
+    initialItem?.slot ?? "accessory",
+  );
+  const [preview, setPreview] = useState(
+    initialItem
+      ? { ...progression.equipped, [initialItem.slot]: initialItem.id }
+      : progression.equipped,
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");

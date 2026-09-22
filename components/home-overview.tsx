@@ -6,6 +6,7 @@ import type { ProgressionState } from "@/lib/progression/types";
 import { COSMETICS } from "@/lib/progression/metadata";
 import { formatLifeDuration } from "@/lib/life-time";
 import { Reaper } from "./avatar";
+import { NextAccessory } from "./progression/next-accessory";
 import { LifeTimeSummary } from "./life-time-summary";
 
 export function HomeOverview({
@@ -15,6 +16,7 @@ export function HomeOverview({
   onArena,
   onLeague,
   onWardrobe,
+  onPreviewAccessory,
 }: {
   state: GameState;
   progression: ProgressionState | null;
@@ -22,6 +24,7 @@ export function HomeOverview({
   onArena: () => void;
   onLeague: () => void;
   onWardrobe: () => void;
+  onPreviewAccessory: (id: string) => void;
 }) {
   const title =
     COSMETICS.find((c) => c.id === progression?.equipped.title)?.label ??
@@ -64,6 +67,13 @@ export function HomeOverview({
           />
         </div>
       </section>
+      {progression && (
+        <NextAccessory
+          progression={progression}
+          variant={state.avatar}
+          onPreview={onPreviewAccessory}
+        />
+      )}
       {state.life_stats ? (
         <>
           <div className="v2-time-grid">
@@ -114,7 +124,7 @@ export function HomeOverview({
         </button>
       </div>
       <div className="section-heading">
-        <h2>À toi de jouer</h2>
+        <h2>Explorer le jeu</h2>
         <span className="muted small">Entre amis</span>
       </div>
       <div className="v2-shortcuts">

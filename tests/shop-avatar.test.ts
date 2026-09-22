@@ -15,6 +15,25 @@ const emptyLook = {
   title: null,
   background: null,
 };
+test("illustrated characters keep equipment in victory and defeated poses", () => {
+  const win = renderToStaticMarkup(
+    createElement(Reaper, {
+      large: true,
+      celebration: 1,
+      cosmetics: { ...emptyLook, accessory: "friendly_star" },
+    }),
+  );
+  assert.match(win, /data-expression="victory"/);
+  assert.match(win, /avatar-celebrating/);
+  assert.match(win, /data-cosmetic="friendly_star"/);
+  const lost = renderToStaticMarkup(
+    createElement(Reaper, { large: true, defeated: true, variant: 3 }),
+  );
+  assert.match(lost, /data-expression="tired"/);
+  const ids = new Set([...win.matchAll(/id="([^"]+)"/g)].map((m) => m[1]));
+  for (const match of win.matchAll(/url\(#([^\)]+)\)/g))
+    assert.ok(ids.has(match[1]), `missing gradient ${match[1]}`);
+});
 
 function renderCosmetic(
   slot: "accessory" | "background",
@@ -35,7 +54,7 @@ test("shop accessories render distinct SVG decorations without replacing the ava
 
   for (const [index, html] of renders.entries()) {
     assert.match(html, new RegExp(`data-cosmetic="${ids[index]}"`));
-    assert.match(html, /d="M78 112C62 137 55 187/);
+    assert.match(html, /data-character="0"/);
     assert.doesNotMatch(html, /<script|javascript:/i);
   }
 

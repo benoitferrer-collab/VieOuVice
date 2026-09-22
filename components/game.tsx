@@ -1,6 +1,8 @@
 "use client";
 
 import "./design-v2.css";
+import "./home-focus.css";
+import { HomeActions } from "./home-actions";
 import { HomeOverview } from "./home-overview";
 import { Arena } from "./arena/arena";
 import Link from "next/link";
@@ -149,6 +151,7 @@ export function Game({
       }, 0);
     }
   }, []);
+  const [wardrobeTarget, setWardrobeTarget] = useState<string | null>(null);
   const [panel, setPanel] = useState<Panel>(null);
   const [toast, setToast] = useState("");
   const [journalKind, setJournalKind] = useState<"all" | Kind>("all");
@@ -384,6 +387,39 @@ export function Game({
             >
               {tab === "survie" && (
                 <>
+                  <HomeActions
+                    key={`${game.demo}:${state.id}`}
+                    game={state}
+                    demo={game.demo}
+                    progression={progression.data}
+                    inbox={messaging.inbox}
+                    messagesError={messaging.error}
+                    onReward={progression.refresh}
+                    onOpen={(item) => {
+                      if (item.kind === "turn" || item.kind === "invite") {
+                        setArenaDuel(item.id);
+                        setTab("nemesis");
+                      } else if (item.kind === "friend") setTab("amis");
+                      else {
+                        setMessageFriend(item.id);
+                        setTab("messages");
+                      }
+                      window.scrollTo({ top: 0, behavior: "instant" });
+                    }}
+                    onMissions={() => {
+                      const section = document.getElementById(
+                        "home-weekly-missions",
+                      );
+                      if (section instanceof HTMLDetailsElement) {
+                        section.open = true;
+                        section.scrollIntoView({
+                          block: "start",
+                          behavior: "instant",
+                        });
+                        section.querySelector("summary")?.focus();
+                      }
+                    }}
+                  />
                   <HomeOverview
                     state={state}
                     progression={progression.data}
@@ -397,6 +433,10 @@ export function Game({
                       window.scrollTo({ top: 0, behavior: "instant" });
                     }}
                     onWardrobe={() => setPanel("wardrobe")}
+                    onPreviewAccessory={(id) => {
+                      setWardrobeTarget(id);
+                      setPanel("wardrobe");
+                    }}
                   />
                   <details className="v2-home-section">
                     <summary>
@@ -432,7 +472,10 @@ export function Game({
                       }}
                     />
                   </details>
-                  <details className="v2-home-section">
+                  <details
+                    id="home-weekly-missions"
+                    className="v2-home-section"
+                  >
                     <summary>
                       <Target size={18} /> Mes missions de la semaine{" "}
                       <ChevronRight size={16} />
@@ -1521,12 +1564,16 @@ export function Game({
         )}
         {panel === "wardrobe" && progression.data && (
           <Wardrobe
+            initialItemId={wardrobeTarget}
             progression={progression.data}
             variant={state.avatar}
             rpc={progression.rpc}
             changed={progression.refresh}
             demo={game.demo}
-            onClose={() => setPanel(null)}
+            onClose={() => {
+              setPanel(null);
+              setWardrobeTarget(null);
+            }}
           />
         )}
         {selectedFriend?.owner === state.id && social.hub && (
